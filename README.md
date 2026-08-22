@@ -27,8 +27,38 @@ python main.py start
 2. **Write Code**: Create `submissions/dayXX/answer.py` with your solution
 3. **Submit**: `python main.py submit <day> submissions/dayXX/answer.py`
 4. **Auto Test**: System runs pytest against your code
-5. **AI Review**: DeepSeek analyzes your code quality
+5. **AI Code Review**: DeepSeek analyzes code quality (6 dimensions)
 6. **Get Score**: Final score = 70% test + 30% AI review
+
+## AI Code Review Flow
+
+```
+提交代码
+    |
+    v
+pytest (功能正确性)
+    |
+    v
+CodeReviewAgent (代码质量)
+    |--- 代码正确性
+    |--- 代码结构
+    |--- Python规范
+    |--- 性能
+    |--- 潜在Bug
+    |--- 知识漏洞
+    |
+    v
+综合评分 (70% test + 30% AI)
+    |
+    v
+生成学习建议
+```
+
+**设计原则**:
+- pytest负责判断功能正确/错误
+- AI负责分析代码质量和学习指导
+- AI不可用时只使用测试分数
+- 不直接给答案，引导学生思考
 
 ## Project Structure
 

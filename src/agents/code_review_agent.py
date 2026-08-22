@@ -1,0 +1,202 @@
+﻿"""Code Review Agent - AI代码审查模块"""
+import json
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass, asdict
+
+from ..llm.base_client import BaseLLMClient
+
+
+@dataclass
+class CodeReviewResult:
+    """代码审查结果数据类"""
+    score: float
+    summary: str
+    strengths: List[str]
+    issues: List[str]
+    knowledge_gaps: List[str]
+    improvement: List[str]
+    next_learning: List[str]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+class CodeReviewAgent:
+    """Code Review Agent
+    
+    使用DeepSeek API分析学生代码，提供专业的学习反馈。
+    不参与功能正确性判断，只关注代码质量和学习指导。
+    """
+    
+    SYSTEM_PROMPT = """你是一名资深的Python和PyTorch导师。你的职责是帮助学生提高编程能力。
+
+## 核心原则
+1. **不要直接替学生完成任务** - 解释思路，引导思考
+2. **优先解释错误原因** - 帮助学生理解为什么错了
+3. **关注学习过程** - 不只看结果，更要看学生的理解程度
+4. **鼓励为主** - 指出问题的同时肯定进步
+
+## 审查维度
+你需要从以下6个维度分析学生代码：
+
+1. **代码正确性** - 逻辑是否正确，边界情况是否处理
+2. **代码结构** - 命名是否清晰，模块划分是否合理
+3. **Python规范** - 是否遵循PEP8，是否有Pythonic写法
+4. **性能** - 是否有明显性能问题
+5. **潜在Bug** - 是否有隐藏的bug或不安全操作
+6. **知识漏洞** - 学生对哪些概念理解不足
+
+## 输出要求
+你必须返回严格的JSON格式，不要包含任何其他文本：
+
+{
+  "score": 85,
+  "summary": "整体评价（1-2句话）",
+  "strengths": ["优点1", "优点2"],
+  "issues": ["问题1（附带原因）", "问题2"],
+  "knowledge_gaps": ["概念1需要加强", "概念2理解不深"],
+  "improvement": ["改进建议1（具体方法）", "改进建议2"],
+  "next_learning": ["下一步应该学习的内容1", "内容2"]
+}
+
+## 评分标准
+- 90-100: 优秀 - 代码清晰、规范、高效
+- 75-89: 良好 - 功能正确，有改进空间
+- 60-74: 及格 - 基本功能实现，需要优化
+- 0-59: 需要改进 - 存在明显问题
+
+注意：你的评分只反映代码质量，不反映功能正确性（pytest已负责测试功能）。"""
+    
+    def __init__(self, llm_client: BaseLLMClient):
+        """初始化Code Review Agent
+        
+        Args:
+            llm_client: LLM客户端实例（必须实现BaseLLMClient接口）
+        """
+        self.llm_client = llm_client
+    
+    def review(self,
+               code: str,
+               task: Dict[str, Any],
+               test_result: Dict[str, Any],
+               history: Optional[List[Dict[str, Any]]] = None) -> CodeReviewResult:
+        """执行代码审查
+        
+        Args:
+            code: 学生提交的代码
+            task: 当天任务描述 {"title": "...", "description": "...", "goal": "..."}
+            test_result: pytest测试结果 {"total": N, "passed": N, "failed": N, "errors": N, "details": [...]}
+            history: 历史错误记录（可选）
+            
+        Returns:
+            CodeReviewResult对象
+        """
+        if not self.llm_client.is_available():
+            return self._default_result()
+        
+        user_prompt = self._build_prompt(code, task, test_result, history)
+        
+        messages = [
+            {"role": "system", "content": self.SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        response = self.llm_client.chat(messages, temperature=0.3, max_tokens=2000)
+        
+        if response:
+            return self._parse_response(response.content)
+        
+        return self._default_result()
+    
+    def _build_prompt(self,
+                      code: str,
+                      task: Dict[str, Any],
+                      test_result: Dict[str, Any],
+                      history: Optional[List[Dict[str, Any]]]) -> str:
+        """构建审查提示
+        
+        Args:
+            code: 学生代码
+            task: 任务信息
+            test_result: 测试结果
+            history: 历史记录
+            
+        Returns:
+            完整的用户提示
+        """
+        prompt = f"""请审查以下学生提交的代码：
+
+## 任务信息
+- 标题: {task.get('title', '未知任务')}
+- 描述: {task.get('description', '无描述')}
+- 目标: {task.get('goal', '无目标')}
+
+## 测试结果
+- 总测试数: {test_result.get('total', 0)}
+- 通过: {test_result.get('passed', 0)}
+- 失败: {test_result.get('failed', 0)}
+- 错误: {test_result.get('errors', 0)}"""
+
+        # 添加失败详情
+        details = test_result.get('details', [])
+        failed_tests = [d for d in details if d.get('status') != 'passed']
+        if failed_tests:
+            prompt += "\n\n### 失败/错误详情"
+            for i, test in enumerate(failed_tests[:5], 1):
+                prompt += f"\n{i}. {test.get('test_name', 'unknown')}: {test.get('message', '')[:200]}"
+        
+        # 添加历史记录
+        if history:
+            prompt += "\n\n### 历史错误记录"
+            for h in history[-3:]:
+                prompt += f"\n- Day {h.get('day', '?')}: {h.get('error_type', 'unknown')}: {h.get('message', '')[:100]}"
+        
+        prompt += f"""
+
+## 学生代码
+```python
+{code}
+```
+
+请从代码正确性、代码结构、Python规范、性能、潜在Bug、知识漏洞6个维度进行审查，并给出改进建议。"""
+        
+        return prompt
+    
+    def _parse_response(self, content: str) -> CodeReviewResult:
+        """解析LLM响应
+        
+        Args:
+            content: LLM响应内容
+            
+        Returns:
+            CodeReviewResult对象
+        """
+        try:
+            data = self.llm_client._extract_json(content)
+            
+            if data:
+                return CodeReviewResult(
+                    score=float(data.get("score", 70)),
+                    summary=str(data.get("summary", "")),
+                    strengths=list(data.get("strengths", [])),
+                    issues=list(data.get("issues", [])),
+                    knowledge_gaps=list(data.get("knowledge_gaps", [])),
+                    improvement=list(data.get("improvement", [])),
+                    next_learning=list(data.get("next_learning", []))
+                )
+        except (ValueError, TypeError):
+            pass
+        
+        return self._default_result()
+    
+    def _default_result(self) -> CodeReviewResult:
+        """返回默认审查结果（LLM不可用时）"""
+        return CodeReviewResult(
+            score=70.0,
+            summary="AI审查不可用，无法进行代码分析",
+            strengths=[],
+            issues=["无法获取AI审查结果"],
+            knowledge_gaps=[],
+            improvement=["请确保DEEPSEEK_API_KEY环境变量已设置"],
+            next_learning=[]
+        )

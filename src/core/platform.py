@@ -15,9 +15,9 @@ class TrainingPlatform:
     def __init__(self):
         from src.task_manager import TaskManager
         from src.evaluator import CodeExecutor, TestEngine
-        from src.agents import DeepSeekAgent, LearningAgent
+        from src.agents import DeepSeekAgent, LearningAgent, CodeReviewAgent
         from src.database import Database
-        from src.llm import LLMClient
+        from src.llm import DeepSeekClient
         from src.rag import KnowledgeBase
         from src.submission_manager import SubmissionManager
         from src.utils.helpers import Helpers
@@ -25,9 +25,10 @@ class TrainingPlatform:
         self.task_manager = TaskManager()
         self.code_executor = CodeExecutor()
         self.test_engine = TestEngine()
-        self.llm_client = LLMClient()
+        self.llm_client = DeepSeekClient()
         self.deepseek_agent = DeepSeekAgent(self.llm_client)
         self.learning_agent = LearningAgent(self.llm_client)
+        self.code_review_agent = CodeReviewAgent(self.llm_client)
         self.database = Database()
         self.submission_manager = SubmissionManager()
         self.knowledge_base = KnowledgeBase()
@@ -37,7 +38,15 @@ class TrainingPlatform:
         self.user_name = "Student"
     
     def evaluate_submission(self, day: int, submission_path: Path) -> EvaluationResult:
-        """Evaluate submitted code"""
+        """Evaluate submitted code
+        
+        Pipeline:
+        1. Syntax check
+        2. Execution check
+        3. Run tests (pytest)
+        4. AI Code Review
+        5. Calculate final score
+        """
         submission_path = Path(submission_path)
         
         # 1. Read code
@@ -62,30 +71,33 @@ class TrainingPlatform:
         test_score = test_result.score
         timeout = test_result.timeout if hasattr(test_result, 'timeout') else False
         
-        # 5. AI Review
+        # 5. AI Code Review (via CodeReviewAgent)
         ai_score = None
         ai_review = None
         
         task = self.task_manager.get_task(day)
         
-        if self.llm_client.is_available():
-            try:
-                review_result = self.deepseek_agent.review_code(
-                    code=code,
-                    task_description=task.description if task else "",
-                    test_results=json.dumps(test_result.to_dict()),
-                    test_score=test_score,
-                    day=day,
-                    task_title=task.title if task else "",
-                    tests_passed=test_result.passed,
-                    tests_failed=test_result.failed,
-                    tests_errors=test_result.errors,
-                    error_messages=[t.message for t in test_result.test_results if t.status == "error"]
-                )
-                ai_score = review_result.score
-                ai_review = review_result.to_dict()
-            except Exception:
-                pass
+        try:
+            review_result = self.code_review_agent.review(
+                code=code,
+                task={
+                    "title": task.title if task else "",
+                    "description": task.description if task else "",
+                    "goal": task.goal if task else ""
+                },
+                test_result={
+                    "total": test_result.total_tests,
+                    "passed": test_result.passed,
+                    "failed": test_result.failed,
+                    "errors": test_result.errors,
+                    "details": [t.to_dict() for t in test_result.test_results]
+                },
+                history=self._get_error_history(day)
+            )
+            ai_score = review_result.score
+            ai_review = review_result.to_dict()
+        except Exception:
+            pass
         
         # 6. Calculate final score
         final_score = self._calculate_final_score(
@@ -110,6 +122,19 @@ class TrainingPlatform:
             final_score=final_score,
             ai_review=ai_review
         )
+    
+    def _get_error_history(self, current_day: int) -> List[Dict[str, Any]]:
+        """获取历史错误记录"""
+        history = []
+        progress_list = self.database.get_all_progress()
+        for p in progress_list:
+            if p.day < current_day and p.ai_review:
+                history.append({
+                    "day": p.day,
+                    "error_type": "test_failure" if p.score < 60 else "quality_issue",
+                    "message": p.ai_review.get("summary", "")
+                })
+        return history
     
     def _create_error_result(self, day: int, submission_path: Path, timeout: bool = False) -> EvaluationResult:
         """Create error result"""
