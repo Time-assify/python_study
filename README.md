@@ -39,19 +39,25 @@ python main.py start
 pytest (功能正确性)
     |
     v
-CodeReviewAgent (代码质量)
+CodeReviewAgent (代码质量 + 学生画像)
     |--- 代码正确性
     |--- 代码结构
     |--- Python规范
     |--- 性能
     |--- 潜在Bug
-    |--- 知识漏洞
+    |--- 知识漏洞 (结合历史错误)
     |
     v
 综合评分 (70% test + 30% AI)
     |
     v
-生成学习建议
+保存 LearningRecord
+    |
+    v
+更新 StudentProfile
+    |
+    v
+生成下一步学习建议
 ```
 
 **设计原则**:

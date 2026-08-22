@@ -5,6 +5,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
 
 from ..llm.base_client import BaseLLMClient
+from ..models import StudentProfile
 
 
 @dataclass
@@ -86,7 +87,8 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
                task: Dict[str, Any],
                requirement: str,
                pytest_result: Dict[str, Any],
-               history: Optional[List[Dict[str, Any]]] = None) -> CodeReviewResult:
+               history: Optional[List[Dict[str, Any]]] = None,
+               profile: Optional[StudentProfile] = None) -> CodeReviewResult:
         """执行代码审查
 
         Args:
@@ -96,6 +98,7 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
             requirement: 任务的具体要求（来自task.json）
             pytest_result: pytest测试结果 {"total": N, "passed": N, "failed": N, "errors": N, "details": [...]}
             history: 历史错误记录（可选）
+            profile: 学生画像（可选，用于个性化反馈）
 
         Returns:
             CodeReviewResult对象
@@ -104,7 +107,7 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
             return self._default_result(day=day)
 
         try:
-            user_prompt = self._build_prompt(day, code, task, requirement, pytest_result, history)
+            user_prompt = self._build_prompt(day, code, task, requirement, pytest_result, history, profile)
 
             messages = [
                 {"role": "system", "content": self.SYSTEM_PROMPT},
@@ -133,7 +136,8 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
                       task: Dict[str, Any],
                       requirement: str,
                       pytest_result: Dict[str, Any],
-                      history: Optional[List[Dict[str, Any]]]) -> str:
+                      history: Optional[List[Dict[str, Any]]],
+                      profile: Optional[StudentProfile]) -> str:
         """构建审查提示
 
         Args:
@@ -143,6 +147,7 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
             requirement: 具体要求
             pytest_result: 测试结果
             history: 历史记录
+            profile: 学生画像
 
         Returns:
             完整的用户提示
@@ -174,6 +179,19 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
             prompt += "\n\n### 历史错误记录"
             for h in history[-3:]:
                 prompt += f"\n- Day {h.get('day', '?')}: {h.get('error_type', 'unknown')}: {h.get('message', '')[:100]}"
+
+        if profile:
+            prompt += "\n\n### 学生画像"
+            prompt += f"\n- 总提交次数: {profile.total_submissions}"
+            prompt += f"\n- 平均分: {profile.average_score}"
+            if profile.error_statistics:
+                prompt += "\n- 错误统计:"
+                for error_type, count in sorted(profile.error_statistics.items(), key=lambda x: -x[1]):
+                    prompt += f"\n  - {error_type}: {count}次"
+            if profile.weaknesses:
+                prompt += "\n- 薄弱点: " + "、".join(profile.weaknesses[:3])
+            if profile.strengths:
+                prompt += "\n- 优点: " + "、".join(profile.strengths[:3])
 
         prompt += f"""
 

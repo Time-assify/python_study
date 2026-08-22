@@ -1,4 +1,4 @@
-"""AI Engineer Training Platform - Core module"""
+﻿"""AI Engineer Training Platform - Core module"""
 import os
 import sys
 import json
@@ -8,6 +8,9 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 from src.evaluator.models import EvaluationResult
+from src.models import LearningRecord, StudentProfile
+from src.agents.learning_advisor import LearningAdvisor
+from src.analyzer import ErrorClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +39,8 @@ class TrainingPlatform:
         self.submission_manager = SubmissionManager()
         self.knowledge_base = KnowledgeBase()
         self.helpers = Helpers
+        self.learning_advisor = LearningAdvisor()
+        self.error_classifier = ErrorClassifier()
         
         self.current_day = 1
         self.user_name = "Student"
@@ -49,6 +54,7 @@ class TrainingPlatform:
         3. Run tests (pytest)
         4. AI Code Review
         5. Calculate final score
+        6. Save LearningRecord
         """
         submission_path = Path(submission_path)
         
@@ -74,7 +80,10 @@ class TrainingPlatform:
         test_score = test_result.score
         timeout = test_result.timeout if hasattr(test_result, 'timeout') else False
         
-        # 5. AI Code Review (via CodeReviewAgent)
+        # 5. Build student profile for personalized review
+        profile = self._build_student_profile()
+        
+        # 6. AI Code Review (via CodeReviewAgent)
         ai_score = None
         ai_review = None
         
@@ -101,14 +110,15 @@ class TrainingPlatform:
                     "errors": test_result.errors,
                     "details": [t.to_dict() for t in test_result.test_results]
                 },
-                history=self._get_error_history(day)
+                history=self._get_error_history(day),
+                profile=profile
             )
             ai_score = review_result.score
             ai_review = review_result.to_dict()
         except Exception as e:
             logger.warning("[evaluate_submission] AI review failed for day %d: %s", day, e)
         
-        # 6. Calculate final score
+        # 7. Calculate final score
         final_score = self._calculate_final_score(
             syntax_valid=syntax_valid,
             execution_success=execution_success,
@@ -118,8 +128,26 @@ class TrainingPlatform:
             ai_available=ai_score is not None
         )
         
-        # 7. Save review history
+        # 8. Save review history
         self._save_review_history(day, code, ai_review)
+        
+        # 9. Build and save LearningRecord
+        errors = self._extract_errors_from_test(test_result)
+        knowledge_gaps = ai_review.get("knowledge_gaps", []) if ai_review else []
+        suggestions = ai_review.get("improvement", []) if ai_review else []
+        
+        record = LearningRecord(
+            day=day,
+            task_id=str(day),
+            submission_path=str(submission_path),
+            test_score=test_score,
+            ai_score=ai_score,
+            final_score=final_score,
+            errors=errors,
+            knowledge_gaps=knowledge_gaps,
+            suggestions=suggestions
+        )
+        self.database.save_submission_history(record)
         
         return EvaluationResult(
             day=day,
@@ -158,21 +186,13 @@ class TrainingPlatform:
         return test_score
     
     def _save_review_history(self, day: int, code: str, ai_review: Optional[Dict[str, Any]]):
-        """Save review history to logs/evaluations/"""
-        log_dir = Path("logs/evaluations")
-        log_dir.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        history_file = log_dir / f"review_history_{timestamp}.json"
-        
+        """Save review history to database"""
         try:
-            record = {
-                "day": day,
-                "code_snippet": code[:500],
-                "review_result": ai_review,
-                "timestamp": datetime.now().isoformat()
-            }
-            with open(history_file, 'w', encoding='utf-8') as f:
-                json.dump(record, f, ensure_ascii=False, indent=2)
+            self.database.save_review_history(
+                day=day,
+                code_snippet=code[:500],
+                review_result=ai_review or {}
+            )
         except Exception as e:
             logger.warning("[_save_review_history] Failed to save review history: %s", e)
     
@@ -189,6 +209,44 @@ class TrainingPlatform:
                     "summary": p.ai_review.get("summary", "")
                 })
         return history
+    
+    def _extract_errors_from_test(self, test_result) -> List[Dict[str, Any]]:
+        """从测试结果中提取错误信息"""
+        errors = []
+        for test in test_result.test_results:
+            if hasattr(test, 'status') and test.status != 'passed':
+                errors.append({
+                    "test_name": getattr(test, 'test_name', 'unknown'),
+                    "message": getattr(test, 'message', ''),
+                    "error_type": self.error_classifier.classify(
+                        getattr(test, 'message', '')
+                    ).type
+                })
+        return errors
+    
+    def _build_student_profile(self) -> StudentProfile:
+        """从数据库构建学生画像"""
+        total = self.database.get_submission_count()
+        avg_score = self.database.get_average_score()
+        error_stats = self.database.get_error_statistics()
+        
+        weaknesses = self.learning_advisor.generate_advice(
+            StudentProfile(error_statistics=error_stats)
+        ).weaknesses
+        
+        return StudentProfile(
+            total_submissions=total,
+            average_score=avg_score,
+            error_statistics=error_stats,
+            weaknesses=weaknesses,
+            strengths=[]
+        )
+    
+    def get_learning_advice(self) -> Optional[Dict[str, Any]]:
+        """获取学习建议"""
+        profile = self._build_student_profile()
+        advice = self.learning_advisor.generate_advice(profile)
+        return advice.to_dict()
     
     def _create_error_result(self, day: int, submission_path: Path, timeout: bool = False) -> EvaluationResult:
         """Create error result"""
