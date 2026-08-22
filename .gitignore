@@ -47,5 +47,8 @@ data/
 .report.json
 test_report.json
 
+# Evaluation logs
+logs/
+
 # Environment variables
 .env

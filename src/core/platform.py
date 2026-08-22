@@ -222,3 +222,14 @@ class TrainingPlatform:
             ai_review=evaluation_result.ai_review or {}
         )
         self.database.save_progress(progress)
+        
+        # Save evaluation log
+        log_dir = Path("logs/evaluations")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = log_dir / f"day{evaluation_result.day:02d}_{timestamp}.json"
+        try:
+            with open(log_file, 'w', encoding='utf-8') as f:
+                json.dump(evaluation_result.to_dict(), f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass

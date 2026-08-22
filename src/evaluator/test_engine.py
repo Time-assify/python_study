@@ -5,6 +5,7 @@ import json
 import time
 import shutil
 import tempfile
+import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
@@ -152,6 +153,9 @@ class TestEngine:
                 f"--json-report-file={report_file}"
             ]
             
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(temp_dir)
+            
             start_time = time.time()
             
             process = subprocess.Popen(
@@ -161,7 +165,8 @@ class TestEngine:
                 text=True,
                 encoding='utf-8',
                 errors='replace',
-                cwd=str(temp_dir)
+                cwd=str(temp_dir),
+                env=env
             )
             
             try:
@@ -219,16 +224,32 @@ class TestEngine:
             except Exception:
                 pass
     
-    def run_tests(self, test_file: str = None, verbose: bool = True) -> TestSuiteResult:
+    def run_tests(self, test_file: str, verbose: bool = True) -> TestSuiteResult:
         """运行测试
         
         Args:
-            test_file: 指定测试文件，None则运行所有测试
+            test_file: 测试文件路径（必须指定）
             verbose: 是否显示详细输出
             
         Returns:
             TestSuiteResult对象
         """
+        if not test_file:
+            return TestSuiteResult(
+                total_tests=0,
+                passed=0,
+                failed=0,
+                errors=1,
+                duration=0,
+                test_results=[TestResult(
+                    test_name="param_check",
+                    status="error",
+                    duration=0,
+                    message="test_file is required"
+                )],
+                score=0.0
+            )
+        
         if not self._check_json_report_plugin():
             return TestSuiteResult(
                 total_tests=0,
@@ -245,12 +266,7 @@ class TestEngine:
                 score=0.0
             )
         
-        cmd = [sys.executable, "-m", "pytest"]
-        
-        if test_file:
-            cmd.append(test_file)
-        else:
-            cmd.append(str(self.tests_dir))
+        cmd = [sys.executable, "-m", "pytest", test_file]
         
         if verbose:
             cmd.append("-v")

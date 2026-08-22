@@ -62,7 +62,7 @@ def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):
     print(f"Tests: {result.tests_passed}/{result.tests_total} passed")
     print(f"Test score: {result.test_score:.1f}")
     print(f"AI available: {result.ai_available}")
-    print(f"AI score: {result.ai_score:.1f}" if result.ai_score else "AI score: N/A")
+    print(f"AI score: {result.ai_score:.1f}" if result.ai_score is not None else "AI score: N/A")
     print(f"Final score: {result.final_score:.1f}")
     
     if result.ai_review:
