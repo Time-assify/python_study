@@ -21,6 +21,15 @@ python main.py progress
 python main.py start
 ```
 
+## Workflow
+
+1. **View Task**: `python main.py task <day>` - See what to build
+2. **Write Code**: Create `submissions/dayXX/answer.py` with your solution
+3. **Submit**: `python main.py submit <day> submissions/dayXX/answer.py`
+4. **Auto Test**: System runs pytest against your code
+5. **AI Review**: DeepSeek analyzes your code quality
+6. **Get Score**: Final score = 70% test + 30% AI review
+
 ## Project Structure
 
 ```
@@ -29,17 +38,16 @@ python main.py start
 ├── configs/config.yaml
 ├── tasks/                     # 40-day task files
 ├── submissions/               # Code submissions
-├── tests/                     # Test files
+├── tests/                     # Test files (import from answer.py)
 ├── src/
 │   ├── core/                  # Core platform
-│   ├── task_manager/          # Task management
-│   ├── submission_manager/    # Submission management
-│   ├── evaluator/             # Code evaluation
-│   ├── agents/                # AI agents
+│   ├── evaluator/             # Code evaluation (TestEngine, CodeExecutor)
+│   ├── agents/                # AI agents (DeepSeek)
 │   ├── llm/                   # LLM client
 │   ├── database/              # SQLite storage
 │   ├── rag/                   # Knowledge base
 │   └── utils/                 # Utilities
+├── logs/evaluations/          # Evaluation history
 └── data/                      # Data storage
 ```
 
@@ -50,8 +58,20 @@ python main.py start
 - **Phase 3 (Day 19-30)**: Deep Learning
 - **Phase 4 (Day 31-40)**: AI Agent
 
+## Scoring System
+
+- **Test Score**: 70% weight
+- **AI Review**: 30% weight
+- **Syntax Error**: 0 points
+- **Timeout**: 0 points
+- **No AI**: Test score only
+
 ## Testing
 
 ```bash
+# Run all tests
 python -m pytest tests/ -v
+
+# Run specific day test
+python -m pytest tests/day01_test.py -v
 ```

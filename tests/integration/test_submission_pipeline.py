@@ -39,7 +39,7 @@ class TestSubmissionPipeline:
         shutil.rmtree(self.test_dir, ignore_errors=True)
     
     def test_correct_code_passes(self):
-        """Correct code: all tests pass, score=100"""
+        """Test 1: Correct code passes all tests"""
         _create_test_file(self.tests_dir)
         
         answer_file = self.test_dir / "answer.py"
@@ -56,7 +56,7 @@ class TestSubmissionPipeline:
         assert result.score == 100.0
     
     def test_wrong_code_fails(self):
-        """Wrong code: tests fail, score<100"""
+        """Test 2: Wrong code fails tests"""
         _create_test_file(self.tests_dir)
         
         answer_file = self.test_dir / "answer.py"
@@ -72,8 +72,8 @@ class TestSubmissionPipeline:
         assert result.failed > 0
         assert result.score < 100.0
     
-    def test_syntax_error_returns_zero(self):
-        """Syntax error: syntax_valid=False, score=0"""
+    def test_syntax_error(self):
+        """Test 3: Syntax error detected"""
         from src.evaluator import CodeExecutor
         executor = CodeExecutor()
         
@@ -83,7 +83,7 @@ class TestSubmissionPipeline:
         assert validation["valid"] is False
     
     def test_timeout(self):
-        """Infinite loop: timeout detected"""
+        """Test 4: Infinite loop causes timeout"""
         _create_test_file(self.tests_dir)
         
         answer_file = self.test_dir / "answer.py"
@@ -97,7 +97,7 @@ class TestSubmissionPipeline:
         assert result.errors >= 1 or result.duration >= 3.0
     
     def test_missing_test_file(self):
-        """Missing test file: returns error"""
+        """Test 5: Missing test file returns error"""
         answer_file = self.test_dir / "answer.py"
         answer_file.write_text("def add(a, b):\n    return a + b\n", encoding='utf-8')
         
@@ -120,21 +120,19 @@ class TestFinalScoreCalculation:
         
         score = platform._calculate_final_score(
             syntax_valid=False, execution_success=False,
-            test_score=80.0, ai_score=90.0, ai_available=True,
-            tests_total=10, tests_passed=8
+            timeout=False, test_score=80.0, ai_score=90.0, ai_available=True
         )
         assert score == 0.0
     
-    def test_low_pass_rate_caps_score(self):
+    def test_timeout_gives_zero(self):
         from src.core.platform import TrainingPlatform
         platform = TrainingPlatform()
         
         score = platform._calculate_final_score(
             syntax_valid=True, execution_success=True,
-            test_score=70.0, ai_score=90.0, ai_available=True,
-            tests_total=10, tests_passed=4
+            timeout=True, test_score=80.0, ai_score=90.0, ai_available=True
         )
-        assert score <= 59.0
+        assert score == 0.0
     
     def test_normal_scoring(self):
         from src.core.platform import TrainingPlatform
@@ -142,8 +140,7 @@ class TestFinalScoreCalculation:
         
         score = platform._calculate_final_score(
             syntax_valid=True, execution_success=True,
-            test_score=80.0, ai_score=90.0, ai_available=True,
-            tests_total=10, tests_passed=8
+            timeout=False, test_score=80.0, ai_score=90.0, ai_available=True
         )
         assert score == 83.0
     
@@ -153,8 +150,7 @@ class TestFinalScoreCalculation:
         
         score = platform._calculate_final_score(
             syntax_valid=True, execution_success=True,
-            test_score=80.0, ai_score=None, ai_available=False,
-            tests_total=10, tests_passed=8
+            timeout=False, test_score=80.0, ai_score=None, ai_available=False
         )
         assert score == 80.0
 

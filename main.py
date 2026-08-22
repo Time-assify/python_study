@@ -1,25 +1,26 @@
-"""AI Engineer Training Platform - CLI入口"""
+"""AI Engineer Training Platform - CLI Entry"""
 import os
 import sys
 import argparse
 import io
 from pathlib import Path
 
-# 设置UTF-8编码
+# Set UTF-8 encoding
 if sys.stdout.encoding != 'utf-8':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 if sys.stderr.encoding != 'utf-8':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# 添加src目录到Python路径
+# Add src to Python path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.core.platform import TrainingPlatform, EvaluationResult
+from src.core.platform import TrainingPlatform
+from src.evaluator.models import EvaluationResult
 from src.utils.helpers import Helpers
 
 
 def cmd_task(platform: TrainingPlatform, day: int):
-    """查看任务"""
+    """View task"""
     task = platform.get_task(day)
     if not task:
         Helpers.print_error(f"Day {day} task not found")
@@ -42,7 +43,7 @@ def cmd_task(platform: TrainingPlatform, day: int):
 
 
 def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):
-    """提交代码"""
+    """Submit code"""
     submission_path = Path(file_path)
     
     if not submission_path.exists():
@@ -59,9 +60,9 @@ def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):
     print(f"{'='*50}")
     print(f"Syntax valid: {result.syntax_valid}")
     print(f"Execution success: {result.execution_success}")
+    print(f"Timeout: {result.timeout}")
     print(f"Tests: {result.tests_passed}/{result.tests_total} passed")
     print(f"Test score: {result.test_score:.1f}")
-    print(f"AI available: {result.ai_available}")
     print(f"AI score: {result.ai_score:.1f}" if result.ai_score is not None else "AI score: N/A")
     print(f"Final score: {result.final_score:.1f}")
     
@@ -81,7 +82,7 @@ def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):
 
 
 def cmd_progress(platform: TrainingPlatform):
-    """查看进度"""
+    """View progress"""
     stats = platform.get_statistics()
     
     print(f"\nProgress: {stats.get('completed_days', 0)}/40 days")
@@ -91,7 +92,7 @@ def cmd_progress(platform: TrainingPlatform):
 
 
 def cmd_report(platform: TrainingPlatform):
-    """生成报告"""
+    """Generate report"""
     progress_list = platform.get_all_progress()
     stats = platform.get_statistics()
     
@@ -114,7 +115,7 @@ def cmd_report(platform: TrainingPlatform):
 
 
 def main():
-    """主函数"""
+    """Main function"""
     parser = argparse.ArgumentParser(
         description="AI Engineer Training Platform",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -159,7 +160,7 @@ def main():
 
 
 def _interactive_mode(platform: TrainingPlatform):
-    """交互模式"""
+    """Interactive mode"""
     while True:
         print(f"\n{'='*50}")
         print(f"AI Engineer Training - Day {platform.current_day}")
