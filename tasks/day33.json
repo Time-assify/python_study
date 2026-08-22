@@ -1,0 +1,9 @@
+{
+  "day": 33,
+  "title": "RAG检索增强生成",
+  "goal": "理解RAG架构",
+  "task": "实现RAG系统",
+  "description": "学习检索增强生成的原理和实现，构建知识问答系统。",
+  "tests": ["test_document_loading", "test_vector_search", "test_rag_pipeline", "test_context_retrieval"],
+  "hints": ["文档分块处理", "使用向量数据库存储", "检索相关上下文增强回答"]
+}

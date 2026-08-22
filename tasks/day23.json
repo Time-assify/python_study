@@ -1,0 +1,9 @@
+{
+  "day": 23,
+  "title": "NLP基础",
+  "goal": "理解NLP基础",
+  "task": "实现文本处理",
+  "description": "学习自然语言处理的基础知识，包括分词、词向量、文本分类。",
+  "tests": ["test_tokenization", "test_word_embedding", "test_text_classification", "test_padding"],
+  "hints": ["使用torchtext或自定义分词", "使用nn.Embedding进行词嵌入", "处理变长序列"]
+}

@@ -1,0 +1,9 @@
+{
+  "day": 27,
+  "title": "目标检测实战",
+  "goal": "目标检测应用",
+  "task": "训练目标检测模型",
+  "description": "使用真实数据集进行目标检测模型训练，评估mAP指标。",
+  "tests": ["test_dataset_preparation", "test_model_training", "test_mAP_calculation", "test_visualization"],
+  "hints": ["准备Pascal VOC或COCO格式数据", "实现数据增强", "计算mAP评估指标"]
+}

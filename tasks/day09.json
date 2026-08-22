@@ -1,0 +1,9 @@
+{
+  "day": 9,
+  "title": "Autograd自动微分",
+  "goal": "理解自动微分",
+  "task": "实现梯度计算",
+  "description": "学习PyTorch的自动微分机制，理解计算图和反向传播。掌握requires_grad和backward()。",
+  "tests": ["test_autograd_basic", "test_gradient_computation", "test_custom_gradient", "test_gradient_accumulation"],
+  "hints": ["设置requires_grad=True启用梯度计算", "调用.backward()计算梯度", "使用.grad访问梯度值"]
+}

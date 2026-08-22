@@ -1,0 +1,24 @@
+{
+  "day": 2,
+  "title": "高级Python",
+  "goal": "掌握装饰器、生成器",
+  "task": "实现常用装饰器和生成器",
+  "description": "学习Python高级特性，包括装饰器、生成器、上下文管理器等。理解Python的函数式编程和迭代器协议。",
+  "tests": [
+    "test_decorator_basic",
+    "test_decorator_with_args",
+    "test_generator_basic",
+    "test_generator_expression",
+    "test_context_manager"
+  ],
+  "resources": [
+    "https://realpython.com/primer-on-python-decorators/",
+    "https://realpython.com/introduction-to-python-generators/"
+  ],
+  "hints": [
+    "装饰器本质上是一个函数，它接受一个函数并返回一个新函数",
+    "使用@语法糖可以简化装饰器的应用",
+    "生成器使用yield语句，可以惰性生成值",
+    "上下文管理器使用with语句，实现__enter__和__exit__方法"
+  ]
+}

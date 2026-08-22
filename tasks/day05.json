@@ -1,0 +1,9 @@
+{
+  "day": 5,
+  "title": "API客户端开发",
+  "goal": "掌握HTTP客户端",
+  "task": "实现REST API客户端",
+  "description": "学习HTTP协议和REST API设计，使用requests库开发API客户端。",
+  "tests": ["test_get_request", "test_post_request", "test_error_handling"],
+  "hints": ["使用requests库发送HTTP请求", "处理JSON响应", "实现重试机制"]
+}

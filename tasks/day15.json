@@ -1,0 +1,9 @@
+{
+  "day": 15,
+  "title": "GPU训练",
+  "goal": "掌握GPU加速",
+  "task": "实现GPU训练",
+  "description": "学习如何使用GPU加速模型训练，理解CUDA编程和设备管理。",
+  "tests": ["test_gpu_availability", "test_gpu_training", "test_data_transfer", "test_model_to_gpu"],
+  "hints": ["使用torch.cuda.is_available()检查GPU", "使用.to(device)转移模型和数据", "使用.cuda()或.gpu()方法"]
+}

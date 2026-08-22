@@ -1,0 +1,9 @@
+{
+  "day": 10,
+  "title": "nn.Module神经网络",
+  "goal": "构建神经网络",
+  "task": "实现多层感知机",
+  "description": "学习PyTorch的nn.Module，构建和训练神经网络。理解前向传播和反向传播。",
+  "tests": ["test_module_basic", "test_linear_layer", "test_activation_function", "test_mlp_forward"],
+  "hints": ["继承nn.Module类", "实现forward()方法", "使用nn.Linear定义全连接层"]
+}

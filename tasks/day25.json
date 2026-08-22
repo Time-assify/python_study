@@ -1,0 +1,9 @@
+{
+  "day": 25,
+  "title": "HuggingFace",
+  "goal": "掌握HuggingFace",
+  "task": "使用HuggingFace库",
+  "description": "学习使用HuggingFace库进行NLP任务，包括模型加载、分词、推理。",
+  "tests": ["test_model_loading", "test_tokenizer_usage", "test_inference", "test_pipeline"],
+  "hints": ["使用transformers库", "使用pipeline进行快速推理", "微调预训练模型"]
+}

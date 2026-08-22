@@ -1,0 +1,9 @@
+{
+  "day": 22,
+  "title": "迁移学习",
+  "goal": "掌握迁移学习",
+  "task": "实现迁移学习",
+  "description": "学习迁移学习的原理和应用，使用预训练模型进行微调。",
+  "tests": ["test_pretrained_model", "test_fine_tuning", "test_feature_extraction", "test_freeze_layers"],
+  "hints": ["使用torchvision.models中的预训练模型", "冻结特征提取层", "只训练最后的分类层"]
+}

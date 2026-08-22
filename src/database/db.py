@@ -1,0 +1,371 @@
+"""数据库模块"""
+import sqlite3
+import json
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+from dataclasses import dataclass, asdict
+
+
+@dataclass
+class ProgressRecord:
+    """学习进度记录"""
+    id: Optional[int] = None
+    day: int = 0
+    score: float = 0.0
+    test_result: Dict[str, Any] = None
+    ai_review: Dict[str, Any] = None
+    timestamp: str = ""
+    
+    def __post_init__(self):
+        if self.test_result is None:
+            self.test_result = {}
+        if self.ai_review is None:
+            self.ai_review = {}
+        if not self.timestamp:
+            self.timestamp = datetime.now().isoformat()
+
+
+@dataclass
+class SubmissionRecord:
+    """提交记录"""
+    id: Optional[int] = None
+    day: int = 0
+    file_path: str = ""
+    commit_time: str = ""
+    score: float = 0.0
+    
+    def __post_init__(self):
+        if not self.commit_time:
+            self.commit_time = datetime.now().isoformat()
+
+
+class Database:
+    """SQLite数据库管理类
+    
+    管理学习进度和提交记录。
+    """
+    
+    def __init__(self, db_path: str = "data/progress.db"):
+        """初始化数据库
+        
+        Args:
+            db_path: 数据库文件路径
+        """
+        self.db_path = Path(db_path)
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.conn = None
+        self._init_database()
+    
+    def _init_database(self):
+        """初始化数据库表"""
+        self.conn = sqlite3.connect(self.db_path)
+        self.conn.row_factory = sqlite3.Row
+        
+        # 创建progress表
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS progress (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day INTEGER NOT NULL,
+                score REAL DEFAULT 0.0,
+                test_result TEXT DEFAULT '{}',
+                ai_review TEXT DEFAULT '{}',
+                timestamp TEXT NOT NULL,
+                UNIQUE(day)
+            )
+        """)
+        
+        # 创建submissions表
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS submissions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day INTEGER NOT NULL,
+                file_path TEXT NOT NULL,
+                commit_time TEXT NOT NULL,
+                score REAL DEFAULT 0.0,
+                FOREIGN KEY (day) REFERENCES progress(day)
+            )
+        """)
+        
+        self.conn.commit()
+    
+    def close(self):
+        """关闭数据库连接"""
+        if self.conn:
+            self.conn.close()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+    
+    # Progress表操作
+    
+    def save_progress(self, progress: ProgressRecord) -> int:
+        """保存学习进度
+        
+        Args:
+            progress: ProgressRecord对象
+            
+        Returns:
+            记录ID
+        """
+        try:
+            cursor = self.conn.execute("""
+                INSERT OR REPLACE INTO progress (day, score, test_result, ai_review, timestamp)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                progress.day,
+                progress.score,
+                json.dumps(progress.test_result),
+                json.dumps(progress.ai_review),
+                progress.timestamp
+            ))
+            self.conn.commit()
+            return cursor.lastrowid
+        except sqlite3.Error as e:
+            print(f"保存进度失败: {e}")
+            return -1
+    
+    def get_progress(self, day: int) -> Optional[ProgressRecord]:
+        """获取指定天的学习进度
+        
+        Args:
+            day: 天数
+            
+        Returns:
+            ProgressRecord对象
+        """
+        try:
+            cursor = self.conn.execute(
+                "SELECT * FROM progress WHERE day = ?", (day,)
+            )
+            row = cursor.fetchone()
+            
+            if row:
+                return ProgressRecord(
+                    id=row["id"],
+                    day=row["day"],
+                    score=row["score"],
+                    test_result=json.loads(row["test_result"]),
+                    ai_review=json.loads(row["ai_review"]),
+                    timestamp=row["timestamp"]
+                )
+            return None
+        except sqlite3.Error as e:
+            print(f"获取进度失败: {e}")
+            return None
+    
+    def get_all_progress(self) -> List[ProgressRecord]:
+        """获取所有学习进度
+        
+        Returns:
+            ProgressRecord列表
+        """
+        try:
+            cursor = self.conn.execute("SELECT * FROM progress ORDER BY day")
+            rows = cursor.fetchall()
+            
+            progress_list = []
+            for row in rows:
+                progress_list.append(ProgressRecord(
+                    id=row["id"],
+                    day=row["day"],
+                    score=row["score"],
+                    test_result=json.loads(row["test_result"]),
+                    ai_review=json.loads(row["ai_review"]),
+                    timestamp=row["timestamp"]
+                ))
+            return progress_list
+        except sqlite3.Error as e:
+            print(f"获取所有进度失败: {e}")
+            return []
+    
+    def update_progress_score(self, day: int, score: float) -> bool:
+        """更新指定天的分数
+        
+        Args:
+            day: 天数
+            score: 新分数
+            
+        Returns:
+            是否更新成功
+        """
+        try:
+            self.conn.execute(
+                "UPDATE progress SET score = ? WHERE day = ?",
+                (score, day)
+            )
+            self.conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"更新分数失败: {e}")
+            return False
+    
+    def delete_progress(self, day: int) -> bool:
+        """删除指定天的进度
+        
+        Args:
+            day: 天数
+            
+        Returns:
+            是否删除成功
+        """
+        try:
+            self.conn.execute("DELETE FROM progress WHERE day = ?", (day,))
+            self.conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"删除进度失败: {e}")
+            return False
+    
+    # Submissions表操作
+    
+    def save_submission(self, submission: SubmissionRecord) -> int:
+        """保存提交记录
+        
+        Args:
+            submission: SubmissionRecord对象
+            
+        Returns:
+            记录ID
+        """
+        try:
+            cursor = self.conn.execute("""
+                INSERT INTO submissions (day, file_path, commit_time, score)
+                VALUES (?, ?, ?, ?)
+            """, (
+                submission.day,
+                submission.file_path,
+                submission.commit_time,
+                submission.score
+            ))
+            self.conn.commit()
+            return cursor.lastrowid
+        except sqlite3.Error as e:
+            print(f"保存提交记录失败: {e}")
+            return -1
+    
+    def get_submissions_by_day(self, day: int) -> List[SubmissionRecord]:
+        """获取指定天的所有提交记录
+        
+        Args:
+            day: 天数
+            
+        Returns:
+            SubmissionRecord列表
+        """
+        try:
+            cursor = self.conn.execute(
+                "SELECT * FROM submissions WHERE day = ? ORDER BY commit_time DESC",
+                (day,)
+            )
+            rows = cursor.fetchall()
+            
+            submissions = []
+            for row in rows:
+                submissions.append(SubmissionRecord(
+                    id=row["id"],
+                    day=row["day"],
+                    file_path=row["file_path"],
+                    commit_time=row["commit_time"],
+                    score=row["score"]
+                ))
+            return submissions
+        except sqlite3.Error as e:
+            print(f"获取提交记录失败: {e}")
+            return []
+    
+    def get_latest_submission(self, day: int) -> Optional[SubmissionRecord]:
+        """获取指定天的最新提交记录
+        
+        Args:
+            day: 天数
+            
+        Returns:
+            SubmissionRecord对象
+        """
+        try:
+            cursor = self.conn.execute(
+                "SELECT * FROM submissions WHERE day = ? ORDER BY commit_time DESC LIMIT 1",
+                (day,)
+            )
+            row = cursor.fetchone()
+            
+            if row:
+                return SubmissionRecord(
+                    id=row["id"],
+                    day=row["day"],
+                    file_path=row["file_path"],
+                    commit_time=row["commit_time"],
+                    score=row["score"]
+                )
+            return None
+        except sqlite3.Error as e:
+            print(f"获取最新提交记录失败: {e}")
+            return None
+    
+    def get_submission_count(self, day: int) -> int:
+        """获取指定天的提交次数
+        
+        Args:
+            day: 天数
+            
+        Returns:
+            提交次数
+        """
+        try:
+            cursor = self.conn.execute(
+                "SELECT COUNT(*) as count FROM submissions WHERE day = ?",
+                (day,)
+            )
+            row = cursor.fetchone()
+            return row["count"] if row else 0
+        except sqlite3.Error as e:
+            print(f"获取提交次数失败: {e}")
+            return 0
+    
+    def get_total_submissions(self) -> int:
+        """获取总提交次数"""
+        try:
+            cursor = self.conn.execute("SELECT COUNT(*) as count FROM submissions")
+            row = cursor.fetchone()
+            return row["count"] if row else 0
+        except sqlite3.Error as e:
+            print(f"获取总提交次数失败: {e}")
+            return 0
+    
+    def get_learning_statistics(self) -> Dict[str, Any]:
+        """获取学习统计信息
+        
+        Returns:
+            统计信息字典
+        """
+        try:
+            # 总完成天数
+            cursor = self.conn.execute("SELECT COUNT(DISTINCT day) as completed_days FROM progress")
+            completed_days = cursor.fetchone()["completed_days"]
+            
+            # 平均分
+            cursor = self.conn.execute("SELECT AVG(score) as avg_score FROM progress")
+            avg_score = cursor.fetchone()["avg_score"] or 0.0
+            
+            # 最高分
+            cursor = self.conn.execute("SELECT MAX(score) as max_score FROM progress")
+            max_score = cursor.fetchone()["max_score"] or 0.0
+            
+            # 总提交次数
+            total_submissions = self.get_total_submissions()
+            
+            return {
+                "completed_days": completed_days,
+                "total_days": 40,
+                "completion_rate": completed_days / 40 * 100,
+                "average_score": round(avg_score, 2),
+                "max_score": round(max_score, 2),
+                "total_submissions": total_submissions
+            }
+        except sqlite3.Error as e:
+            print(f"获取统计信息失败: {e}")
+            return {}

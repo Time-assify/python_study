@@ -1,0 +1,28 @@
+# AI Engineer Training Platform Configuration
+
+deepseek:
+  api_key: ${DEEPSEEK_API_KEY}  # Use environment variable
+  model: deepseek-chat
+
+system:
+  language: zh
+  default_day: 1
+  max_submissions_per_day: 5
+
+evaluation:
+  weights:
+    functionality: 0.5
+    code_quality: 0.2
+    performance: 0.1
+    standards: 0.1
+    ai_review: 0.1
+  
+  passing_score: 60
+  excellent_score: 90
+
+paths:
+  tasks_dir: tasks
+  submissions_dir: submissions
+  tests_dir: tests
+  reports_dir: reports
+  database_path: data/progress.db

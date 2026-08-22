@@ -1,0 +1,24 @@
+{
+  "day": 3,
+  "title": "面向对象设计",
+  "goal": "设计ML框架基类",
+  "task": "设计机器学习框架的基类结构",
+  "description": "学习面向对象编程的高级特性，包括抽象基类、接口设计、多态等。设计一个机器学习框架的基类结构。",
+  "tests": [
+    "test_abstract_base_class",
+    "test_interface_design",
+    "test_inheritance",
+    "test_polymorphism",
+    "test_ml_framework_base"
+  ],
+  "resources": [
+    "https://realpython.com/python-interface/",
+    "https://docs.python.org/3/library/abc.html"
+  ],
+  "hints": [
+    "使用abc模块定义抽象基类",
+    "设计清晰的接口规范",
+    "利用多态实现灵活的代码结构",
+    "考虑ML框架的常见组件：模型、损失函数、优化器"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "day": 4,
+  "title": "多线程多进程",
+  "goal": "掌握并发编程",
+  "task": "实现多线程下载器",
+  "description": "学习Python的多线程和多进程编程，理解GIL的限制和解决方案。",
+  "tests": ["test_thread_basic", "test_process_basic", "test_concurrent_execution"],
+  "hints": ["使用threading.Thread创建线程", "使用multiprocessing.Process创建进程", "使用ThreadPoolExecutor管理线程池"]
+}

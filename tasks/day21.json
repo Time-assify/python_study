@@ -1,0 +1,9 @@
+{
+  "day": 21,
+  "title": "数据增强",
+  "goal": "掌握数据增强",
+  "task": "实现数据增强",
+  "description": "学习常见的数据增强技术，如翻转、旋转、裁剪等，提高模型泛化能力。",
+  "tests": ["test_random_flip", "test_random_crop", "test_color_jitter", "test_augmentation_pipeline"],
+  "hints": ["使用transforms.RandomHorizontalFlip", "使用transforms.RandomCrop", "组合多种增强方式"]
+}

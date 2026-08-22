@@ -1,0 +1,9 @@
+{
+  "day": 20,
+  "title": "CIFAR分类",
+  "goal": "图像分类实战",
+  "task": "实现CIFAR分类器",
+  "description": "使用CIFAR-10数据集进行图像分类实战，构建完整的训练和评估流程。",
+  "tests": ["test_data_loading", "test_model_training", "test_accuracy_calculation", "test_confusion_matrix"],
+  "hints": ["使用torchvision.datasets.CIFAR10", "数据增强提高泛化能力", "计算混淆矩阵分析错误"]
+}

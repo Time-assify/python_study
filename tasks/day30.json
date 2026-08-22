@@ -1,0 +1,9 @@
+{
+  "day": 30,
+  "title": "AI应用开发",
+  "goal": "构建AI应用",
+  "task": "开发完整AI应用",
+  "description": "综合运用所学知识，开发一个完整的AI应用，包括模型训练、部署、监控。",
+  "tests": ["test_application_setup", "test_model_integration", "test_user_interface", "test_monitoring"],
+  "hints": ["设计应用架构", "集成模型推理", "添加日志和监控"]
+}

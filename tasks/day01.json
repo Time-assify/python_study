@@ -1,0 +1,21 @@
+{
+  "day": 1,
+  "title": "Python工程环境",
+  "goal": "掌握项目结构",
+  "task": "创建ML项目模板",
+  "description": "学习如何创建一个标准的机器学习项目结构，包括目录组织、配置文件、日志设置等。",
+  "tests": [
+    "test_project_structure",
+    "test_config_file",
+    "test_logger_setup"
+  ],
+  "resources": [
+    "https://realpython.com/python-application-layouts/",
+    "https://docs.python.org/3/library/logging.html"
+  ],
+  "hints": [
+    "创建标准目录结构：src, tests, configs, data, logs",
+    "使用YAML配置文件",
+    "配置Python日志系统"
+  ]
+}

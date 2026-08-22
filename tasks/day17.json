@@ -1,0 +1,9 @@
+{
+  "day": 17,
+  "title": "模型检查点",
+  "goal": "掌握模型保存",
+  "task": "实现模型检查点",
+  "description": "学习模型保存和加载，实现训练检查点功能，支持断点续训。",
+  "tests": ["test_model_save", "test_model_load", "test_checkpoint_resume", "test_state_dict"],
+  "hints": ["使用torch.save()保存", "使用torch.load()加载", "保存state_dict而非整个模型"]
+}

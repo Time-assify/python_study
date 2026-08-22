@@ -1,0 +1,9 @@
+{
+  "day": 36,
+  "title": "Code Agent",
+  "goal": "构建代码Agent",
+  "task": "实现代码生成Agent",
+  "description": "构建能够理解和生成代码的AI Agent，实现代码审查和修复。",
+  "tests": ["test_code_generation", "test_code_review", "test_bug_fixing", "test_refactoring"],
+  "hints": ["理解代码上下文", "生成符合规范的代码", "自动修复常见错误"]
+}
