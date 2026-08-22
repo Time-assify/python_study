@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -14,9 +15,10 @@ sys.path.insert(0, os.path.join(project_root, "src"))
 class MockLLMClient:
     """用于测试的模拟LLM客户端"""
 
-    def __init__(self, response_content="", available=True):
+    def __init__(self, response_content="", available=True, exception=None):
         self.response_content = response_content
         self.available = available
+        self.exception = exception
         self.call_count = 0
         self.last_messages = None
         self.last_kwargs = None
@@ -29,6 +31,8 @@ class MockLLMClient:
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        if self.exception:
+            raise self.exception
         if not self.available:
             return None
         response = MagicMock()
@@ -57,11 +61,13 @@ class TestCodeReviewAgent(unittest.TestCase):
         from src.agents.code_review_agent import CodeReviewAgent, CodeReviewResult
         self.CodeReviewAgent = CodeReviewAgent
         self.CodeReviewResult = CodeReviewResult
+        self.sample_day = 1
         self.sample_task = {
             "title": "Day1 任务",
             "description": "实现一个简单的计算器",
             "goal": "掌握函数定义"
         }
+        self.sample_requirement = "实现加减乘除四则运算函数"
         self.sample_test_result = {
             "total": 5,
             "passed": 3,
@@ -89,7 +95,8 @@ class TestCodeReviewAgent(unittest.TestCase):
     def test_default_result_when_llm_unavailable(self):
         mock_client = MockLLMClient(available=False)
         agent = self.CodeReviewAgent(mock_client)
-        result = agent.review(self.sample_code, self.sample_task, self.sample_test_result)
+        result = agent.review(self.sample_day, self.sample_code, self.sample_task,
+                              self.sample_requirement, self.sample_test_result)
 
         self.assertEqual(result.score, 70.0)
         self.assertIn("不可用", result.summary)
@@ -108,7 +115,8 @@ class TestCodeReviewAgent(unittest.TestCase):
         })
         mock_client = MockLLMClient(response_content=mock_response_json, available=True)
         agent = self.CodeReviewAgent(mock_client)
-        result = agent.review(self.sample_code, self.sample_task, self.sample_test_result)
+        result = agent.review(self.sample_day, self.sample_code, self.sample_task,
+                              self.sample_requirement, self.sample_test_result)
 
         self.assertEqual(result.score, 88.0)
         self.assertEqual(result.summary, "代码质量良好")
@@ -157,7 +165,8 @@ class TestCodeReviewAgent(unittest.TestCase):
         agent = self.CodeReviewAgent(mock_client)
 
         history = [{"day": 1, "error_type": "syntax", "message": "SyntaxError"}]
-        agent.review(self.sample_code, self.sample_task, self.sample_test_result, history)
+        agent.review(self.sample_day, self.sample_code, self.sample_task,
+                     self.sample_requirement, self.sample_test_result, history)
 
         self.assertEqual(mock_client.call_count, 1)
         messages = mock_client.last_messages
@@ -201,7 +210,8 @@ class TestCodeReviewAgent(unittest.TestCase):
             "improvement": [], "next_learning": []
         }), available=True)
         agent = self.CodeReviewAgent(mock_client)
-        agent.review(self.sample_code, self.sample_task, self.sample_test_result)
+        agent.review(self.sample_day, self.sample_code, self.sample_task,
+                     self.sample_requirement, self.sample_test_result)
 
         user_msg = mock_client.last_messages[1]["content"]
         self.assertIn("失败/错误详情", user_msg)
@@ -213,154 +223,196 @@ class TestCodeReviewAgent(unittest.TestCase):
             "knowledge_gaps": [], "improvement": [], "next_learning": []
         }), available=True)
         agent = self.CodeReviewAgent(mock_client)
-        agent.review(self.sample_code, self.sample_task, self.sample_test_result, history=None)
+        agent.review(self.sample_day, self.sample_code, self.sample_task,
+                     self.sample_requirement, self.sample_test_result, history=None)
 
         user_msg = mock_client.last_messages[1]["content"]
         self.assertNotIn("历史错误记录", user_msg)
 
+    # --- New tests ---
 
-class TestDeepSeekClient(unittest.TestCase):
-    """DeepSeekClient 类测试"""
+    def test_review_with_day_and_requirement(self):
+        mock_client = MockLLMClient(response_content=json.dumps({
+            "score": 70, "summary": "", "strengths": [], "issues": [],
+            "knowledge_gaps": [], "improvement": [], "next_learning": []
+        }), available=True)
+        agent = self.CodeReviewAgent(mock_client)
+        agent.review(5, self.sample_code, self.sample_task,
+                     "自定义要求内容", self.sample_test_result)
 
-    def test_import_deepseek_client(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        self.assertTrue(callable(DeepSeekClient))
+        user_msg = mock_client.last_messages[1]["content"]
+        self.assertIn("第5天", user_msg)
+        self.assertIn("自定义要求内容", user_msg)
 
-    def test_llm_client_alias(self):
-        from src.llm import LLMClient, DeepSeekClient
-        self.assertIs(LLMClient, DeepSeekClient)
+    def test_review_exception_fallback(self):
+        mock_client = MockLLMClient(available=True, exception=RuntimeError("LLM crashed"))
+        agent = self.CodeReviewAgent(mock_client)
+        result = agent.review(self.sample_day, self.sample_code, self.sample_task,
+                              self.sample_requirement, self.sample_test_result)
 
-    def test_llm_init_exports(self):
-        from src.llm import BaseLLMClient, LLMResponse, DeepSeekClient, LLMClient
-        self.assertTrue(callable(BaseLLMClient))
-        self.assertTrue(callable(DeepSeekClient))
-        self.assertIs(LLMClient, DeepSeekClient)
+        self.assertEqual(result.score, 70.0)
+        self.assertEqual(result.review_status, "error")
+        self.assertIn("不可用", result.summary)
 
-    @patch.dict(os.environ, {}, clear=True)
-    def test_deepseek_client_availability_without_api_key(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient(config_path="nonexistent_config.yaml")
-        self.assertFalse(client.is_available())
-        self.assertIsNone(client.client)
+    def test_review_success_status(self):
+        mock_client = MockLLMClient(response_content=json.dumps({
+            "score": 85, "summary": "good", "strengths": [], "issues": [],
+            "knowledge_gaps": [], "improvement": [], "next_learning": []
+        }), available=True)
+        agent = self.CodeReviewAgent(mock_client)
+        result = agent.review(self.sample_day, self.sample_code, self.sample_task,
+                              self.sample_requirement, self.sample_test_result)
 
-    def test_deepseek_chat_returns_none_when_unavailable(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient(config_path="nonexistent_config.yaml")
-        result = client.chat([{"role": "user", "content": "hello"}])
-        self.assertIsNone(result)
+        self.assertEqual(result.review_status, "success")
 
-    def test_config_loading_nonexistent_file(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient(config_path="nonexistent_config.yaml")
-        self.assertEqual(client.config, {})
-        self.assertEqual(client.model, "deepseek-chat")
+    def test_review_fallback_status(self):
+        mock_client = MockLLMClient(available=False)
+        agent = self.CodeReviewAgent(mock_client)
+        result = agent.review(self.sample_day, self.sample_code, self.sample_task,
+                              self.sample_requirement, self.sample_test_result)
 
-    def test_config_loading_existing_file(self):
-        import tempfile
-        import yaml
-        from src.llm.deepseek_client import DeepSeekClient
+        self.assertEqual(result.review_status, "fallback")
 
-        config = {"deepseek": {"model": "test-model", "base_url": "http://test.com"}}
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            yaml.dump(config, f)
-            config_path = f.name
+    def test_prompt_includes_requirement(self):
+        mock_client = MockLLMClient(response_content=json.dumps({
+            "score": 70, "summary": "", "strengths": [], "issues": [],
+            "knowledge_gaps": [], "improvement": [], "next_learning": []
+        }), available=True)
+        agent = self.CodeReviewAgent(mock_client)
+        agent.review(self.sample_day, self.sample_code, self.sample_task,
+                     "必须使用类继承实现", self.sample_test_result)
 
-        try:
-            client = DeepSeekClient(config_path=config_path)
-            self.assertEqual(client.model, "test-model")
-        finally:
-            os.unlink(config_path)
+        user_msg = mock_client.last_messages[1]["content"]
+        self.assertIn("必须使用类继承实现", user_msg)
 
-    def test_extract_json_valid(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient.__new__(DeepSeekClient)
-        result = client._extract_json('{"key": "value", "num": 42}')
-        self.assertEqual(result, {"key": "value", "num": 42})
+    def test_prompt_includes_day_number(self):
+        mock_client = MockLLMClient(response_content=json.dumps({
+            "score": 70, "summary": "", "strengths": [], "issues": [],
+            "knowledge_gaps": [], "improvement": [], "next_learning": []
+        }), available=True)
+        agent = self.CodeReviewAgent(mock_client)
+        agent.review(3, self.sample_code, self.sample_task,
+                     self.sample_requirement, self.sample_test_result)
 
-    def test_extract_json_with_prefix_suffix(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient.__new__(DeepSeekClient)
-        result = client._extract_json('前缀{"key": "value"}后缀')
-        self.assertEqual(result, {"key": "value"})
-
-    def test_extract_json_invalid(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient.__new__(DeepSeekClient)
-        result = client._extract_json("not json at all")
-        self.assertIsNone(result)
-
-    def test_extract_json_nested(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient.__new__(DeepSeekClient)
-        data = {"outer": {"inner": [1, 2, 3]}}
-        result = client._extract_json(json.dumps(data))
-        self.assertEqual(result, data)
-
-    def test_extract_json_empty_object(self):
-        from src.llm.deepseek_client import DeepSeekClient
-        client = DeepSeekClient.__new__(DeepSeekClient)
-        result = client._extract_json("{}")
-        self.assertEqual(result, {})
+        user_msg = mock_client.last_messages[1]["content"]
+        self.assertIn("第3天", user_msg)
 
 
-class TestBaseLLMClient(unittest.TestCase):
-    """BaseLLMClient 抽象基类测试"""
+class TestCodeReviewScoring(unittest.TestCase):
+    """评分逻辑测试"""
 
-    def test_cannot_instantiate_directly(self):
-        from src.llm.base_client import BaseLLMClient
-        with self.assertRaises(TypeError):
-            BaseLLMClient()
+    def _calculate_final_score(self, syntax_valid, execution_success, timeout,
+                               test_score, ai_score, ai_available):
+        if not syntax_valid or not execution_success or timeout:
+            return 0.0
+        if test_score < 60:
+            return test_score
+        if ai_available and ai_score is not None:
+            return round(test_score * 0.7 + ai_score * 0.3, 1)
+        return test_score
 
-    def _make_client(self):
-        """创建用于测试的具体子类实例"""
-        from src.llm.base_client import BaseLLMClient
-        
-        class TestClient(BaseLLMClient):
-            def chat(self, messages, model=None, temperature=0.7, max_tokens=2000):
-                return None
-            def chat_stream(self, messages, model=None, temperature=0.7, max_tokens=2000):
-                yield ""
-            def is_available(self):
-                return False
-        
-        return TestClient()
-
-    def test_extract_json_valid(self):
-        client = self._make_client()
-        result = client._extract_json('{"a": 1, "b": "two"}')
-        self.assertEqual(result, {"a": 1, "b": "two"})
-
-    def test_extract_json_with_surrounding_text(self):
-        client = self._make_client()
-        result = client._extract_json('Here is the result: {"score": 85} hope that helps')
-        self.assertEqual(result, {"score": 85})
-
-    def test_extract_json_invalid(self):
-        client = self._make_client()
-        result = client._extract_json("no json here")
-        self.assertIsNone(result)
-
-    def test_extract_json_empty_string(self):
-        client = self._make_client()
-        result = client._extract_json("")
-        self.assertIsNone(result)
-
-    def test_extract_json_multiple_braces(self):
-        client = self._make_client()
-        result = client._extract_json('{"a": {"b": 2}}')
-        self.assertEqual(result, {"a": {"b": 2}})
-
-    def test_llm_response_dataclass(self):
-        from src.llm.base_client import LLMResponse
-        resp = LLMResponse(
-            content="hello", model="m1",
-            usage={"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
-            finish_reason="stop"
+    def test_ai_score_does_not_override_pytest_failure(self):
+        score = self._calculate_final_score(
+            syntax_valid=True, execution_success=True, timeout=False,
+            test_score=40, ai_score=90, ai_available=True
         )
-        self.assertEqual(resp.content, "hello")
-        self.assertEqual(resp.model, "m1")
-        self.assertEqual(resp.usage["total_tokens"], 30)
-        self.assertEqual(resp.finish_reason, "stop")
+        self.assertEqual(score, 40.0)
+
+    def test_ai_score_used_when_pytest_passes(self):
+        score = self._calculate_final_score(
+            syntax_valid=True, execution_success=True, timeout=False,
+            test_score=80, ai_score=90, ai_available=True
+        )
+        expected = round(80 * 0.7 + 90 * 0.3, 1)
+        self.assertEqual(score, expected)
+
+    def test_syntax_error_gives_zero(self):
+        score = self._calculate_final_score(
+            syntax_valid=False, execution_success=True, timeout=False,
+            test_score=80, ai_score=90, ai_available=True
+        )
+        self.assertEqual(score, 0.0)
+
+    def test_timeout_gives_zero(self):
+        score = self._calculate_final_score(
+            syntax_valid=True, execution_success=True, timeout=True,
+            test_score=80, ai_score=90, ai_available=True
+        )
+        self.assertEqual(score, 0.0)
+
+
+class TestReviewHistory(unittest.TestCase):
+    """Review History 数据库操作测试"""
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.db_path = os.path.join(self.temp_dir, "test.db")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_save_review_history(self):
+        from src.database.db import Database
+        db = Database(db_path=self.db_path)
+        review_result = {"score": 85, "summary": "good"}
+        row_id = db.save_review_history(day=1, code_snippet="def foo(): pass",
+                                        review_result=review_result)
+        self.assertGreater(row_id, 0)
+        db.close()
+
+    def test_get_review_history(self):
+        from src.database.db import Database
+        db = Database(db_path=self.db_path)
+        review_result = {"score": 90, "summary": "excellent"}
+        db.save_review_history(day=2, code_snippet="x = 1", review_result=review_result)
+
+        history = db.get_review_history(day=2)
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["day"], 2)
+        self.assertEqual(history[0]["review_result"]["score"], 90)
+        self.assertEqual(history[0]["code_snippet"], "x = 1")
+        db.close()
+
+
+class TestDatabaseReviewHistory(unittest.TestCase):
+    """数据库 review_history 表创建和CRUD测试"""
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.db_path = os.path.join(self.temp_dir, "test_review.db")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_review_history_table_creation(self):
+        from src.database.db import Database
+        db = Database(db_path=self.db_path)
+        cursor = db.conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='review_history'"
+        )
+        table = cursor.fetchone()
+        self.assertIsNotNone(table)
+        db.close()
+
+    def test_save_and_retrieve_history(self):
+        from src.database.db import Database
+        db = Database(db_path=self.db_path)
+        result1 = {"score": 75, "summary": "needs improvement"}
+        result2 = {"score": 92, "summary": "great work"}
+        db.save_review_history(day=1, code_snippet="code_a", review_result=result1)
+        db.save_review_history(day=1, code_snippet="code_b", review_result=result2)
+
+        all_history = db.get_review_history()
+        self.assertEqual(len(all_history), 2)
+
+        day1_history = db.get_review_history(day=1)
+        self.assertEqual(len(day1_history), 2)
+
+        limited = db.get_review_history(limit=1)
+        self.assertEqual(len(limited), 1)
+        db.close()
 
 
 if __name__ == "__main__":

@@ -87,6 +87,17 @@ class Database:
             )
         """)
         
+        # 创建review_history表
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS review_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day INTEGER NOT NULL,
+                code_snippet TEXT DEFAULT '',
+                review_result TEXT DEFAULT '{}',
+                timestamp TEXT NOT NULL
+            )
+        """)
+        
         self.conn.commit()
     
     def close(self):
@@ -369,3 +380,69 @@ class Database:
         except sqlite3.Error as e:
             print(f"获取统计信息失败: {e}")
             return {}
+    
+    # Review History表操作
+    
+    def save_review_history(self, day: int, code_snippet: str, review_result: Dict[str, Any]) -> int:
+        """保存AI审查历史
+        
+        Args:
+            day: 天数
+            code_snippet: 代码片段（前500字符）
+            review_result: 审查结果JSON
+            
+        Returns:
+            记录ID
+        """
+        try:
+            cursor = self.conn.execute("""
+                INSERT INTO review_history (day, code_snippet, review_result, timestamp)
+                VALUES (?, ?, ?, ?)
+            """, (
+                day,
+                code_snippet,
+                json.dumps(review_result),
+                datetime.now().isoformat()
+            ))
+            self.conn.commit()
+            return cursor.lastrowid
+        except sqlite3.Error as e:
+            print(f"保存审查历史失败: {e}")
+            return -1
+    
+    def get_review_history(self, day: Optional[int] = None, limit: int = 10) -> List[Dict[str, Any]]:
+        """获取AI审查历史
+        
+        Args:
+            day: 指定天数（None则获取所有）
+            limit: 返回数量限制
+            
+        Returns:
+            审查历史列表
+        """
+        try:
+            if day is not None:
+                cursor = self.conn.execute(
+                    "SELECT * FROM review_history WHERE day = ? ORDER BY timestamp DESC LIMIT ?",
+                    (day, limit)
+                )
+            else:
+                cursor = self.conn.execute(
+                    "SELECT * FROM review_history ORDER BY timestamp DESC LIMIT ?",
+                    (limit,)
+                )
+            
+            rows = cursor.fetchall()
+            return [
+                {
+                    "id": row["id"],
+                    "day": row["day"],
+                    "code_snippet": row["code_snippet"],
+                    "review_result": json.loads(row["review_result"]),
+                    "timestamp": row["timestamp"]
+                }
+                for row in rows
+            ]
+        except sqlite3.Error as e:
+            print(f"获取审查历史失败: {e}")
+            return []

@@ -2,11 +2,14 @@
 import os
 import sys
 import json
+import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 from src.evaluator.models import EvaluationResult
+
+logger = logging.getLogger(__name__)
 
 
 class TrainingPlatform:
@@ -78,14 +81,20 @@ class TrainingPlatform:
         task = self.task_manager.get_task(day)
         
         try:
+            requirement_str = ""
+            if task:
+                requirement_str = getattr(task, 'task', '') or getattr(task, 'description', '')
+            
             review_result = self.code_review_agent.review(
+                day=day,
                 code=code,
                 task={
                     "title": task.title if task else "",
                     "description": task.description if task else "",
                     "goal": task.goal if task else ""
                 },
-                test_result={
+                requirement=requirement_str,
+                pytest_result={
                     "total": test_result.total_tests,
                     "passed": test_result.passed,
                     "failed": test_result.failed,
@@ -96,8 +105,8 @@ class TrainingPlatform:
             )
             ai_score = review_result.score
             ai_review = review_result.to_dict()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[evaluate_submission] AI review failed for day %d: %s", day, e)
         
         # 6. Calculate final score
         final_score = self._calculate_final_score(
@@ -108,6 +117,9 @@ class TrainingPlatform:
             ai_score=ai_score,
             ai_available=ai_score is not None
         )
+        
+        # 7. Save review history
+        self._save_review_history(day, code, ai_review)
         
         return EvaluationResult(
             day=day,
@@ -123,6 +135,47 @@ class TrainingPlatform:
             ai_review=ai_review
         )
     
+    def _calculate_final_score(self, syntax_valid: bool, execution_success: bool,
+                               timeout: bool, test_score: float, ai_score: Optional[float],
+                               ai_available: bool) -> float:
+        """Calculate final score
+        
+        Rules:
+        - Syntax error or execution failure or timeout: 0 (no AI)
+        - test_score < 60: final_score = test_score (no AI weighting)
+        - test_score >= 60 and AI available: test_score * 0.7 + ai_score * 0.3
+        - test_score >= 60 and no AI: test_score
+        """
+        if not syntax_valid or not execution_success or timeout:
+            return 0.0
+        
+        if test_score < 60:
+            return test_score
+        
+        if ai_available and ai_score is not None:
+            return round(test_score * 0.7 + ai_score * 0.3, 1)
+        
+        return test_score
+    
+    def _save_review_history(self, day: int, code: str, ai_review: Optional[Dict[str, Any]]):
+        """Save review history to logs/evaluations/"""
+        log_dir = Path("logs/evaluations")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        history_file = log_dir / f"review_history_{timestamp}.json"
+        
+        try:
+            record = {
+                "day": day,
+                "code_snippet": code[:500],
+                "review_result": ai_review,
+                "timestamp": datetime.now().isoformat()
+            }
+            with open(history_file, 'w', encoding='utf-8') as f:
+                json.dump(record, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.warning("[_save_review_history] Failed to save review history: %s", e)
+    
     def _get_error_history(self, current_day: int) -> List[Dict[str, Any]]:
         """获取历史错误记录"""
         history = []
@@ -131,8 +184,9 @@ class TrainingPlatform:
             if p.day < current_day and p.ai_review:
                 history.append({
                     "day": p.day,
-                    "error_type": "test_failure" if p.score < 60 else "quality_issue",
-                    "message": p.ai_review.get("summary", "")
+                    "test_score": p.score,
+                    "ai_score": p.ai_review.get("score"),
+                    "summary": p.ai_review.get("summary", "")
                 })
         return history
     
@@ -151,25 +205,6 @@ class TrainingPlatform:
             final_score=0.0,
             ai_review=None
         )
-    
-    def _calculate_final_score(self, syntax_valid: bool, execution_success: bool,
-                               timeout: bool, test_score: float, ai_score: Optional[float],
-                               ai_available: bool) -> float:
-        """Calculate final score
-        
-        Rules:
-        - Syntax error: 0
-        - Timeout: 0
-        - Normal: test_score * 0.7 + ai_score * 0.3
-        - No AI: test_score only
-        """
-        if not syntax_valid or not execution_success or timeout:
-            return 0.0
-        
-        if ai_available and ai_score is not None:
-            return round(test_score * 0.7 + ai_score * 0.3, 1)
-        
-        return test_score
     
     def get_task(self, day: int):
         return self.task_manager.get_task(day)
