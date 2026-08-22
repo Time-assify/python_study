@@ -43,5 +43,9 @@ data/
 # Logs
 *.log
 
+# Test reports
+.report.json
+test_report.json
+
 # Environment variables
 .env
