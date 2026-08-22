@@ -5,24 +5,9 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
 
 from ..llm.base_client import BaseLLMClient
-from ..models import StudentProfile
+from ..models import StudentProfile, ReviewResult
 
-
-@dataclass
-class CodeReviewResult:
-    """代码审查结果数据类"""
-    score: float
-    summary: str
-    strengths: List[str]
-    issues: List[str]
-    knowledge_gaps: List[str]
-    improvement: List[str]
-    next_learning: List[str]
-    day: int = 0
-    review_status: str = "success"
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+CodeReviewResult = ReviewResult
 
 
 class CodeReviewAgent:

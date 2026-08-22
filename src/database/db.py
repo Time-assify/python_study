@@ -556,3 +556,79 @@ class Database:
         except sqlite3.Error as e:
             print(f"获取错误统计失败: {e}")
             return {}
+    
+    def get_score_history(self, limit: int = 10) -> List[float]:
+        """获取最近分数历史（用于判断趋势）"""
+        try:
+            cursor = self.conn.execute(
+                "SELECT final_score FROM submission_history ORDER BY created_time DESC LIMIT ?",
+                (limit,)
+            )
+            rows = cursor.fetchall()
+            return [row["final_score"] for row in rows]
+        except sqlite3.Error as e:
+            print(f"获取分数历史失败: {e}")
+            return []
+    
+    def get_recent_strengths(self, limit: int = 5) -> List[str]:
+        """获取最近的strengths（从review_history中提取）"""
+        try:
+            cursor = self.conn.execute(
+                "SELECT review_result FROM review_history ORDER BY timestamp DESC LIMIT ?",
+                (limit,)
+            )
+            rows = cursor.fetchall()
+            strengths = []
+            for row in rows:
+                try:
+                    review = json.loads(row["review_result"])
+                    strengths.extend(review.get("strengths", []))
+                except (json.JSONDecodeError, AttributeError):
+                    continue
+            # 去重并返回
+            seen = set()
+            unique = []
+            for s in strengths:
+                if s not in seen:
+                    seen.add(s)
+                    unique.append(s)
+            return unique[:10]
+        except sqlite3.Error as e:
+            print(f"获取strengths失败: {e}")
+            return []
+    
+    def update_profile(self) -> Dict[str, Any]:
+        """根据历史记录更新学生画像，返回weakness/strength/trend"""
+        total = self.get_submission_count()
+        avg_score = self.get_average_score()
+        error_stats = self.get_error_statistics()
+        score_history = self.get_score_history(limit=10)
+        recent_strengths = self.get_recent_strengths()
+        
+        # 计算趋势
+        trend = "stable"
+        if len(score_history) >= 3:
+            recent = score_history[:3]
+            older = score_history[3:6] if len(score_history) >= 6 else score_history[3:]
+            if older:
+                recent_avg = sum(recent) / len(recent)
+                older_avg = sum(older) / len(older)
+                if recent_avg > older_avg + 5:
+                    trend = "improving"
+                elif recent_avg < older_avg - 5:
+                    trend = "declining"
+        
+        # 识别薄弱点
+        weaknesses = []
+        for error_type, count in sorted(error_stats.items(), key=lambda x: -x[1]):
+            if count >= 2:
+                weaknesses.append(f"{error_type} ({count}次)")
+        
+        return {
+            "total_submissions": total,
+            "average_score": avg_score,
+            "error_statistics": error_stats,
+            "weaknesses": weaknesses,
+            "strengths": recent_strengths,
+            "trend": trend
+        }

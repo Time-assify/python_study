@@ -9,7 +9,7 @@ import pytest
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.models import LearningRecord, StudentProfile
+from src.models import LearningRecord, StudentProfile, ReviewResult, EvaluationResult
 from src.analyzer import ErrorClassifier, ErrorType
 from src.agents.learning_advisor import LearningAdvisor, LearningAdvice
 from src.agents.code_review_agent import CodeReviewAgent, CodeReviewResult
@@ -111,6 +111,16 @@ class TestErrorClassifier:
         assert result.type == "TimeoutError"
         assert result.category == "性能"
 
+    def test_classify_logic_error(self):
+        result = self.classifier.classify("AssertionError: assert 1 == 2")
+        assert result.type == "LogicError"
+        assert result.category == "逻辑错误"
+
+    def test_classify_runtime_error(self):
+        result = self.classifier.classify("RuntimeError: some runtime error")
+        assert result.type == "RuntimeError"
+        assert result.category == "Python运行时"
+
     def test_classify_empty_message(self):
         result = self.classifier.classify("")
         assert result.type == "Unknown"
@@ -180,6 +190,73 @@ class TestLearningAdvisor:
         assert score > 0
         score2 = self.advisor.get_priority_score("OtherError", 1)
         assert score < score2 or score > score2  # just check it returns int
+
+
+class TestReviewResult:
+    """测试 ReviewResult 数据类"""
+
+    def test_create_review_result(self):
+        result = ReviewResult(
+            score=85.0,
+            summary="Good code",
+            strengths=["清晰"],
+            issues=["命名不规范"],
+            knowledge_gaps=["Tensor维度"],
+            improvement=["多练习"],
+            next_learning=["PyTorch"],
+            day=1,
+            review_status="success"
+        )
+        assert result.score == 85.0
+        assert result.day == 1
+        assert result.review_status == "success"
+
+    def test_review_result_defaults(self):
+        result = ReviewResult()
+        assert result.score == 0.0
+        assert result.strengths == []
+        assert result.review_status == "success"
+
+    def test_review_result_to_dict(self):
+        result = ReviewResult(score=90.0, day=3)
+        d = result.to_dict()
+        assert isinstance(d, dict)
+        assert d["score"] == 90.0
+        assert d["day"] == 3
+
+
+class TestEvaluationResultUnified:
+    """测试统一的 EvaluationResult"""
+
+    def test_create_evaluation_result(self):
+        result = EvaluationResult(
+            day=1,
+            submission_path="test.py",
+            syntax_valid=True,
+            execution_success=True,
+            timeout=False,
+            tests_total=5,
+            tests_passed=4,
+            test_score=80.0,
+            ai_score=75.0,
+            final_score=78.5,
+            ai_review={"score": 75}
+        )
+        assert result.day == 1
+        assert result.test_score == 80.0
+        assert result.final_score == 78.5
+
+    def test_evaluation_result_to_dict(self):
+        result = EvaluationResult(
+            day=2, submission_path="test.py", syntax_valid=True,
+            execution_success=True, timeout=False, tests_total=3,
+            tests_passed=3, test_score=100.0, ai_score=90.0,
+            final_score=97.0, ai_review=None
+        )
+        d = result.to_dict()
+        assert isinstance(d, dict)
+        assert d["day"] == 2
+        assert d["final_score"] == 97.0
 
 
 class TestDatabaseNewTables:
@@ -254,6 +331,59 @@ class TestDatabaseNewTables:
         stats = self.db.get_error_statistics()
         assert stats["Tensor维度"] == 2
         assert stats["训练循环"] == 1
+
+    def test_update_profile_empty(self):
+        profile = self.db.update_profile()
+        assert profile["total_submissions"] == 0
+        assert profile["average_score"] == 0.0
+        assert profile["weaknesses"] == []
+        assert profile["trend"] == "stable"
+
+    def test_update_profile_with_data(self):
+        # 添加提交历史
+        for i in range(5):
+            record = LearningRecord(day=i+1, task_id=str(i+1), test_score=80.0+i*2, final_score=80.0+i*2)
+            self.db.save_submission_history(record)
+        
+        # 添加review历史
+        review_result = {"knowledge_gaps": ["Tensor维度", "Tensor维度", "训练循环"], "strengths": ["代码规范"]}
+        self.db.save_review_history(day=1, code_snippet="test", review_result=review_result)
+        
+        profile = self.db.update_profile()
+        assert profile["total_submissions"] == 5
+        assert profile["average_score"] > 0
+        assert "Tensor维度" in profile["error_statistics"]
+        assert len(profile["weaknesses"]) > 0
+        assert len(profile["strengths"]) > 0
+
+    def test_update_profile_trend_improving(self):
+        # 添加分数递增的提交
+        scores = [60.0, 65.0, 70.0, 75.0, 80.0, 85.0]
+        for i, score in enumerate(scores):
+            record = LearningRecord(day=i+1, task_id=str(i+1), test_score=score, final_score=score)
+            self.db.save_submission_history(record)
+        
+        profile = self.db.update_profile()
+        assert profile["trend"] == "improving"
+
+    def test_update_profile_trend_declining(self):
+        # 添加分数递减的提交
+        scores = [90.0, 85.0, 80.0, 75.0, 70.0, 65.0]
+        for i, score in enumerate(scores):
+            record = LearningRecord(day=i+1, task_id=str(i+1), test_score=score, final_score=score)
+            self.db.save_submission_history(record)
+        
+        profile = self.db.update_profile()
+        assert profile["trend"] == "declining"
+
+    def test_get_score_history(self):
+        for i in range(3):
+            record = LearningRecord(day=i+1, task_id=str(i+1), test_score=80.0+i*5, final_score=80.0+i*5)
+            self.db.save_submission_history(record)
+        
+        history = self.db.get_score_history(limit=3)
+        assert len(history) == 3
+        assert history[0] >= history[1]  # 最新的在前
 
 
 class TestCodeReviewAgentWithProfile:

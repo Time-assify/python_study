@@ -37,6 +37,17 @@ ERROR_PATTERNS = {
         ],
         "category": "PyTorch"
     },
+    "LogicError": {
+        "patterns": [
+            r"AssertionError",
+            r"assert ",
+            r"!=\s*",
+            r"expected.*but got",
+            r"assert .* == .*",
+            r"assert .* != .*"
+        ],
+        "category": "逻辑错误"
+    },
     "RuntimeError": {
         "patterns": [r"RuntimeError", r"RuntimeError:"],
         "category": "Python运行时"

@@ -225,21 +225,16 @@ class TrainingPlatform:
         return errors
     
     def _build_student_profile(self) -> StudentProfile:
-        """从数据库构建学生画像"""
-        total = self.database.get_submission_count()
-        avg_score = self.database.get_average_score()
-        error_stats = self.database.get_error_statistics()
-        
-        weaknesses = self.learning_advisor.generate_advice(
-            StudentProfile(error_statistics=error_stats)
-        ).weaknesses
+        """从数据库构建学生画像（使用update_profile）"""
+        profile_data = self.database.update_profile()
         
         return StudentProfile(
-            total_submissions=total,
-            average_score=avg_score,
-            error_statistics=error_stats,
-            weaknesses=weaknesses,
-            strengths=[]
+            total_submissions=profile_data["total_submissions"],
+            average_score=profile_data["average_score"],
+            error_statistics=profile_data["error_statistics"],
+            weaknesses=profile_data["weaknesses"],
+            strengths=profile_data["strengths"],
+            trend=profile_data["trend"]
         )
     
     def get_learning_advice(self) -> Optional[Dict[str, Any]]:
