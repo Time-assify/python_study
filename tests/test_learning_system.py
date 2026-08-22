@@ -13,9 +13,9 @@ sys.path.insert(0, os.path.join(project_root, "src"))
 class TestLearningSystem:
     """学习系统测试"""
 
-    def test_import_learning_system(self):
-        from learning_system import LearningSystem
-        assert LearningSystem is not None
+    def test_import_platform(self):
+        from src.core.platform import TrainingPlatform
+        assert TrainingPlatform is not None
 
     def test_phase_info(self):
         from src.utils.helpers import Helpers

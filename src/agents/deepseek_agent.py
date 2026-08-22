@@ -10,15 +10,21 @@ from ..llm.client import LLMClient, LLMResponse
 class ReviewResult:
     """审查结果数据类"""
     score: float
+    strengths: list
     bugs: list
+    code_quality: list
     suggestions: list
+    knowledge_gaps: list
     next_learning: str
     
     def to_dict(self) -> Dict[str, Any]:
         return {
             "score": self.score,
+            "strengths": self.strengths,
             "bugs": self.bugs,
+            "code_quality": self.code_quality,
             "suggestions": self.suggestions,
+            "knowledge_gaps": self.knowledge_gaps,
             "next_learning": self.next_learning
         }
 
@@ -41,22 +47,37 @@ class DeepSeekAgent:
                    code: str, 
                    task_description: str,
                    test_results: str = "",
-                   test_score: float = 0.0) -> ReviewResult:
-        """审查代码
-        
-        Args:
-            code: 用户代码
-            task_description: 任务描述
-            test_results: 测试结果
-            test_score: 测试分数
-            
-        Returns:
-            ReviewResult对象
-        """
+                   test_score: float = 0.0,
+                   day: int = 0,
+                   task_title: str = "",
+                   tests_passed: int = 0,
+                   tests_failed: int = 0,
+                   tests_errors: int = 0,
+                   error_messages: list = None) -> ReviewResult:
+        """审查代码"""
         if not self.llm_client.is_available():
             return self._default_review(test_score)
         
-        response = self.llm_client.review_code(code, task_description, test_results)
+        # 构建详细的审查提示
+        prompt = f"""Review this code submission:
+
+Day {day}: {task_title}
+Task: {task_description}
+
+Test Results: {tests_passed} passed, {tests_failed} failed, {tests_errors} errors
+Test Score: {test_score}/100
+
+Student Code:
+```python
+{code}
+```
+
+{f'Error messages: {chr(10).join(error_messages)}' if error_messages else ''}
+
+Return JSON with: score (0-100), strengths, bugs, code_quality, suggestions, knowledge_gaps, next_learning"""
+        
+        messages = [{"role": "user", "content": prompt}]
+        response = self.llm_client.chat(messages, temperature=0.3)
         
         if response:
             return self._parse_review_response(response, test_score)
@@ -66,10 +87,7 @@ class DeepSeekAgent:
     def _parse_review_response(self, response: LLMResponse, test_score: float) -> ReviewResult:
         """解析审查响应"""
         try:
-            # 尝试解析JSON响应
             content = response.content
-            
-            # 查找JSON部分
             start_idx = content.find('{')
             end_idx = content.rfind('}') + 1
             
@@ -77,19 +95,16 @@ class DeepSeekAgent:
                 json_str = content[start_idx:end_idx]
                 data = json.loads(json_str)
                 
-                # 计算综合分数
-                ai_score = data.get("score", 70)
-                # 综合分数 = 测试分数 * 50% + AI评分 * 50%
-                final_score = test_score * 0.5 + ai_score * 0.5
-                
                 return ReviewResult(
-                    score=final_score,
+                    score=data.get("score", 70),
+                    strengths=data.get("strengths", []),
                     bugs=data.get("bugs", []),
+                    code_quality=data.get("code_quality", []),
                     suggestions=data.get("suggestions", []),
+                    knowledge_gaps=data.get("knowledge_gaps", []),
                     next_learning=data.get("next_learning", "")
                 )
             
-            # 如果没有找到JSON，使用默认解析
             return self._default_review(test_score)
             
         except json.JSONDecodeError:
@@ -99,8 +114,11 @@ class DeepSeekAgent:
         """默认审查结果"""
         return ReviewResult(
             score=test_score,
+            strengths=[],
             bugs=[],
-            suggestions=["代码需要进一步优化"],
+            code_quality=[],
+            suggestions=["Code needs further optimization"],
+            knowledge_gaps=[],
             next_learning=""
         )
     

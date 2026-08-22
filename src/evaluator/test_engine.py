@@ -1,8 +1,10 @@
-"""测试引擎模块"""
+﻿"""测试引擎模块"""
 import subprocess
 import sys
 import json
 import time
+import shutil
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
@@ -59,6 +61,164 @@ class TestEngine:
         self.tests_dir = Path(tests_dir)
         self.timeout = timeout
     
+    def _check_json_report_plugin(self) -> bool:
+        """检查pytest-json-report插件是否安装"""
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pytest", "--co", "-q", "--json-report"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            return result.returncode == 0
+        except (subprocess.TimeoutExpired, Exception):
+            return False
+    
+    def run_submission(self, day: int, submission_path: str) -> TestSuiteResult:
+        """运行用户提交的代码
+        
+        Args:
+            day: 天数
+            submission_path: 用户提交的answer.py文件路径
+            
+        Returns:
+            TestSuiteResult对象
+        """
+        test_file = self.tests_dir / f"day{day:02d}_test.py"
+        if not test_file.exists():
+            return TestSuiteResult(
+                total_tests=0,
+                passed=0,
+                failed=0,
+                errors=1,
+                duration=0,
+                test_results=[TestResult(
+                    test_name="file_check",
+                    status="error",
+                    duration=0,
+                    message=f"测试文件不存在: {test_file}"
+                )],
+                score=0.0
+            )
+        
+        submission = Path(submission_path)
+        if not submission.exists():
+            return TestSuiteResult(
+                total_tests=0,
+                passed=0,
+                failed=0,
+                errors=1,
+                duration=0,
+                test_results=[TestResult(
+                    test_name="file_check",
+                    status="error",
+                    duration=0,
+                    message=f"提交文件不存在: {submission_path}"
+                )],
+                score=0.0
+            )
+        
+        if not self._check_json_report_plugin():
+            return TestSuiteResult(
+                total_tests=0,
+                passed=0,
+                failed=0,
+                errors=1,
+                duration=0,
+                test_results=[TestResult(
+                    test_name="plugin_check",
+                    status="error",
+                    duration=0,
+                    message="pytest-json-report插件未安装，请运行: pip install pytest-json-report"
+                )],
+                score=0.0
+            )
+        
+        temp_dir = Path(tempfile.mkdtemp())
+        report_file = None
+        
+        try:
+            shutil.copy2(submission, temp_dir / "answer.py")
+            shutil.copy2(test_file, temp_dir / test_file.name)
+            
+            report_file = temp_dir / "test_report.json"
+            
+            cmd = [
+                sys.executable, "-m", "pytest",
+                test_file.name,
+                "-v",
+                "--tb=short",
+                "--json-report",
+                f"--json-report-file={report_file}"
+            ]
+            
+            start_time = time.time()
+            
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                cwd=str(temp_dir)
+            )
+            
+            try:
+                stdout, stderr = process.communicate(timeout=self.timeout)
+                return_code = process.returncode
+            except subprocess.TimeoutExpired:
+                process.kill()
+                stdout, stderr = process.communicate()
+                return TestSuiteResult(
+                    total_tests=0,
+                    passed=0,
+                    failed=0,
+                    errors=1,
+                    duration=self.timeout,
+                    test_results=[TestResult(
+                        test_name="timeout",
+                        status="error",
+                        duration=self.timeout,
+                        message="测试执行超时"
+                    )],
+                    score=0.0
+                )
+            
+            duration = time.time() - start_time
+            
+            if report_file.exists():
+                return self._parse_json_report(report_file, duration)
+            
+            return self._parse_stdout(stdout, stderr, duration, return_code)
+            
+        except Exception as e:
+            duration = time.time() - start_time
+            return TestSuiteResult(
+                total_tests=0,
+                passed=0,
+                failed=0,
+                errors=1,
+                duration=duration,
+                test_results=[TestResult(
+                    test_name="exception",
+                    status="error",
+                    duration=duration,
+                    message=str(e)
+                )],
+                score=0.0
+            )
+        finally:
+            if report_file and report_file.exists():
+                try:
+                    report_file.unlink()
+                except Exception:
+                    pass
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception:
+                pass
+    
     def run_tests(self, test_file: str = None, verbose: bool = True) -> TestSuiteResult:
         """运行测试
         
@@ -69,7 +229,22 @@ class TestEngine:
         Returns:
             TestSuiteResult对象
         """
-        # 构建pytest命令
+        if not self._check_json_report_plugin():
+            return TestSuiteResult(
+                total_tests=0,
+                passed=0,
+                failed=0,
+                errors=1,
+                duration=0,
+                test_results=[TestResult(
+                    test_name="plugin_check",
+                    status="error",
+                    duration=0,
+                    message="pytest-json-report插件未安装，请运行: pip install pytest-json-report"
+                )],
+                score=0.0
+            )
+        
         cmd = [sys.executable, "-m", "pytest"]
         
         if test_file:
@@ -80,14 +255,12 @@ class TestEngine:
         if verbose:
             cmd.append("-v")
         
-        # 添加JSON报告输出
         report_file = self.tests_dir / "test_report.json"
-        cmd.extend(["--tb=short", f"--json-report={report_file}"])
+        cmd.extend(["--tb=short", "--json-report", f"--json-report-file={report_file}"])
         
         start_time = time.time()
         
         try:
-            # 执行pytest
             process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -120,11 +293,14 @@ class TestEngine:
             
             duration = time.time() - start_time
             
-            # 尝试读取JSON报告
             if report_file.exists():
-                return self._parse_json_report(report_file, duration)
+                result = self._parse_json_report(report_file, duration)
+                try:
+                    report_file.unlink()
+                except Exception:
+                    pass
+                return result
             
-            # 如果没有JSON报告，解析stdout
             return self._parse_stdout(stdout, stderr, duration, return_code)
             
         except Exception as e:
@@ -211,8 +387,7 @@ class TestEngine:
             failed = summary.get("failed", 0)
             errors = summary.get("error", 0)
             
-            # 计算分数
-            score = self._calculate_score(passed, failed, errors, total)
+            score = self._calculate_score(passed, total)
             
             return TestSuiteResult(
                 total_tests=total,
@@ -235,7 +410,6 @@ class TestEngine:
         failed = 0
         errors = 0
         
-        # 简单解析pytest输出
         lines = stdout.split('\n')
         for line in lines:
             line = line.strip()
@@ -264,7 +438,7 @@ class TestEngine:
                 ))
         
         total = passed + failed + errors
-        score = self._calculate_score(passed, failed, errors, total)
+        score = self._calculate_score(passed, total)
         
         return TestSuiteResult(
             total_tests=total,
@@ -276,26 +450,19 @@ class TestEngine:
             score=score
         )
     
-    def _calculate_score(self, passed: int, failed: int, errors: int, total: int) -> float:
+    def _calculate_score(self, passed: int, total: int) -> float:
         """计算测试分数
         
         评分规则：
-        - 功能测试：50%
-        - 通过率：50%
+        - 通过率 = passed / total
+        - 分数 = 通过率 * 100
         """
         if total == 0:
             return 0.0
         
-        # 通过率分数（50%）
         pass_rate = passed / total
-        pass_score = pass_rate * 50
-        
-        # 功能完整性分数（50%）
-        # 每个测试代表一个功能点
-        functionality_score = (passed / max(total, 1)) * 50
-        
-        total_score = pass_score + functionality_score
-        return min(100.0, total_score)
+        score = pass_rate * 100
+        return min(100.0, score)
     
     def _create_empty_result(self, duration: float) -> TestSuiteResult:
         """创建空结果"""
@@ -324,14 +491,12 @@ class TestEngine:
             with open(test_file, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # 检查是否包含测试函数
             if "def test_" not in content:
                 return {
                     "valid": False,
                     "message": "测试文件中没有找到测试函数（以test_开头）"
                 }
             
-            # 检查是否导入pytest
             if "import pytest" not in content and "from pytest" not in content:
                 return {
                     "valid": False,
