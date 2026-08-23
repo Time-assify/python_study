@@ -55,6 +55,7 @@ def _find_event_file(logdir):
 
 
 @requires_tb
+@pytest.mark.skill("pytorch.tensorboard")
 class TestTensorBoard:
     def test_get_writer_creates_dir(self, tmp_path):
         get_writer = _require("get_writer")

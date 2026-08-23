@@ -20,5 +20,10 @@
     "设计清晰的接口规范",
     "利用多态实现灵活的代码结构",
     "考虑ML框架的常见组件：模型、损失函数、优化器"
+  ],
+  "test_module": "day03_test",
+  "skills": [
+    "python.oop",
+    "python.abc"
   ]
 }

@@ -39,6 +39,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("engineering.config", "application.pipeline")
 class TestAppConfig:
     def test_roundtrip(self):
         cls = _require("AppConfig")
@@ -56,6 +57,7 @@ class TestAppConfig:
 
 
 @pytest.mark.skipif(yaml is None, reason="pyyaml未安装（环境问题）")
+@pytest.mark.skill("engineering.config", "application.pipeline")
 class TestConfigPersistence:
     def test_save_load_yaml(self, tmp_path):
         if answer is None:
@@ -71,6 +73,7 @@ class TestConfigPersistence:
         assert cfg.name == "svc" and abs(cfg.temperature - 0.3) < 1e-9
 
 
+@pytest.mark.skill("engineering.config", "application.pipeline")
 class TestPipelineApp:
     def test_handlers_execute_in_order(self):
         if answer is None:
@@ -92,6 +95,7 @@ class TestPipelineApp:
         assert list(app_cls().run("x")) == []
 
 
+@pytest.mark.skill("engineering.config", "application.pipeline")
 class TestMonitor:
     def test_counter_increments(self):
         if answer is None:

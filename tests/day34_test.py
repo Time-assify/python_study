@@ -41,6 +41,7 @@ def _tools():
     ]
 
 
+@pytest.mark.skill("agent.tool", "agent.memory")
 class TestTool:
     def test_tool_fields(self):
         Tool = _require("Tool")
@@ -52,6 +53,7 @@ class TestTool:
         assert tools[1].func(21) == 42
 
 
+@pytest.mark.skill("agent.tool", "agent.memory")
 class TestAgent:
     def test_picks_correct_tool(self):
         """基础功能: 按关键词路由到正确工具"""
@@ -76,6 +78,7 @@ class TestAgent:
         assert len(steps) <= 10, f"循环未终止: {len(steps)}步"
 
 
+@pytest.mark.skill("agent.tool", "agent.memory")
 class TestMemory:
     def test_recall_last_n_in_order(self):
         if answer is None:

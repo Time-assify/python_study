@@ -43,6 +43,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.cnn", "pytorch.tensor_shape")
 class TestCNNStructure:
     def test_has_conv_layer(self):
         count_conv = _require("count_conv_layers")
@@ -58,6 +59,7 @@ class TestCNNStructure:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.cnn", "pytorch.tensor_shape")
 class TestForward:
     def test_output_shape(self):
         """forward shape: (B,1,28,28) -> (B,num_classes)"""

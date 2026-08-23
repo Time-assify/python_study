@@ -36,6 +36,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("python.decorator", "python.generator", "python.context_manager")
 class TestDecorators:
     """基础功能: 装饰器"""
 
@@ -81,6 +82,7 @@ class TestDecorators:
         assert count["n"] == 2
 
 
+@pytest.mark.skill("python.decorator", "python.generator", "python.context_manager")
 class TestGenerators:
     """基础功能+边界条件: 生成器"""
 
@@ -110,6 +112,7 @@ class TestGenerators:
             list(chunked([1, 2, 3], 0))
 
 
+@pytest.mark.skill("python.decorator", "python.generator", "python.context_manager")
 class TestContextManager:
     """任务要求检查: 上下文管理器"""
 

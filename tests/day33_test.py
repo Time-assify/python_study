@@ -38,6 +38,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("rag.chunking", "rag.retrieval")
 class TestChunking:
     def test_chunks_with_overlap(self):
         chunk = _require("chunk_text")
@@ -59,7 +60,8 @@ class TestChunking:
         assert chunk("short", 100) == ["short"]
 
 
-@pytest.mark.skipif(np is None, reason="numpy未安装")
+@pytest.mark.skipif(np is None, reason="numpy未安装（环境问题）")
+@pytest.mark.skill("rag.chunking", "rag.retrieval")
 class TestCosineSimilarity:
     def _require_cos(self):
         return _require("cosine_similarity")
@@ -78,6 +80,7 @@ class TestCosineSimilarity:
         assert float(cos([1, 0], [-1, 0])) < -0.999
 
 
+@pytest.mark.skill("rag.chunking", "rag.retrieval")
 class TestRetrieve:
     def test_most_relevant_first(self):
         retrieve = _require("retrieve")

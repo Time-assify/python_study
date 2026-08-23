@@ -4,6 +4,20 @@
   "goal": "掌握提示工程",
   "task": "设计有效提示",
   "description": "学习提示工程的技巧和最佳实践，包括Few-shot、Chain-of-Thought。",
-  "tests": ["test_prompt_design", "test_few_shot_learning", "test_chain_of_thought", "test_system_prompt"],
-  "hints": ["设计清晰的指令", "使用示例引导", "分步推理提升准确性"]
+  "tests": [
+    "test_prompt_design",
+    "test_few_shot_learning",
+    "test_chain_of_thought",
+    "test_system_prompt"
+  ],
+  "hints": [
+    "设计清晰的指令",
+    "使用示例引导",
+    "分步推理提升准确性"
+  ],
+  "test_module": "day32_test",
+  "skills": [
+    "prompt.few_shot",
+    "prompt.chain_of_thought"
+  ]
 }

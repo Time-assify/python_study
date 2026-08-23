@@ -32,6 +32,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("python.oop", "python.abc")
 class TestAbstractBaseClass:
     """基础功能: 抽象基类"""
 
@@ -56,6 +57,7 @@ class TestAbstractBaseClass:
         assert {"fit", "predict"} <= abstract_names, f"缺少抽象方法: {abstract_names}"
 
 
+@pytest.mark.skill("python.oop", "python.abc")
 class TestInheritance:
     """继承与多态"""
 
@@ -90,6 +92,7 @@ class TestInheritance:
             assert out is not None, f"{type(m).__name__} 未实现统一predict接口"
 
 
+@pytest.mark.skill("python.oop", "python.abc")
 class TestOptimizerBase:
     def test_optimizer_base_abstract(self):
         if answer is None:

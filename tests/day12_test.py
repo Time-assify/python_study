@@ -49,6 +49,7 @@ def _quadratic_model():
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler")
 class TestOptimizerFactory:
     def test_build_sgd_adam(self):
         build = _require("build_optimizer")
@@ -71,6 +72,7 @@ class TestOptimizerFactory:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler")
 class TestTraining:
     def _run(self, name, lr, steps=30):
         build = _require("build_optimizer")
@@ -98,6 +100,7 @@ class TestTraining:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler")
 class TestScheduler:
     def test_lr_decays_after_step_size(self):
         step_lr = _require("step_lr")

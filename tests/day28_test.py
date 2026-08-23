@@ -54,11 +54,12 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("deployment.onnx")
 class TestAPIContract:
     def test_export_signature_has_dynamic_axes(self):
         """任务要求检查: export应支持dynamic_axes参数"""
         if torch is None or answer is None:
-            pytest.skip("torch不可用")
+            pytest.skip("torch未安装（环境问题）")
         if answer is None:
             pytest.skip("no answer.py under review")
         export = getattr(answer, "export_to_onnx", None)
@@ -71,6 +72,7 @@ class TestAPIContract:
 
 
 @requires_full
+@pytest.mark.skill("deployment.onnx")
 class TestExportInference:
     def test_export_creates_file(self, tmp_path):
         export = _require("export_to_onnx")

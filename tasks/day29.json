@@ -4,6 +4,20 @@
   "goal": "掌握模型部署",
   "task": "部署模型API",
   "description": "学习使用FastAPI部署机器学习模型，构建RESTful API。",
-  "tests": ["test_api_setup", "test_prediction_endpoint", "test_error_handling", "test_batch_inference"],
-  "hints": ["使用FastAPI框架", "实现POST预测接口", "添加请求验证"]
+  "tests": [
+    "test_api_setup",
+    "test_prediction_endpoint",
+    "test_error_handling",
+    "test_batch_inference"
+  ],
+  "hints": [
+    "使用FastAPI框架",
+    "实现POST预测接口",
+    "添加请求验证"
+  ],
+  "test_module": "day29_test",
+  "skills": [
+    "deployment.fastapi",
+    "api.server"
+  ]
 }

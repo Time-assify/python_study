@@ -36,6 +36,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("python.project_structure", "python.logging")
 class TestProjectStructure:
     """测试项目结构创建"""
 
@@ -70,6 +71,7 @@ class TestProjectStructure:
             assert os.path.exists(os.path.join(tmpdir, "proj", "src", "__init__.py"))
 
 
+@pytest.mark.skill("python.project_structure", "python.logging")
 class TestConfigFile:
     """测试配置文件创建"""
 
@@ -91,6 +93,7 @@ class TestConfigFile:
             assert "project" in content.lower() or "config" in content.lower()
 
 
+@pytest.mark.skill("python.project_structure", "python.logging")
 class TestLogger:
     """测试日志系统"""
 

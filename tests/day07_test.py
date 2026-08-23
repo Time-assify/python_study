@@ -39,6 +39,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("ml.linear_regression", "ml.loss")
 class TestLossFunction:
     def test_mse_known_value(self):
         mse = _require("mse_loss")
@@ -51,6 +52,7 @@ class TestLossFunction:
         assert abs(val - 5.0) < 1e-9, f"MSE应为5.0，得到{val}"
 
 
+@pytest.mark.skill("ml.linear_regression", "ml.loss")
 class TestLinearRegression:
     def test_class_exists_with_api(self):
         cls = _require("LinearRegression")

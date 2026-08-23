@@ -4,6 +4,20 @@
   "goal": "构建评测系统",
   "task": "实现自动评测平台",
   "description": "构建自动化的代码评测系统，集成测试、评分、反馈。",
-  "tests": ["test_code_submission", "test_auto_testing", "test_scoring_system", "test_feedback_generation"],
-  "hints": ["接收代码提交", "自动运行测试", "生成详细反馈报告"]
+  "tests": [
+    "test_code_submission",
+    "test_auto_testing",
+    "test_scoring_system",
+    "test_feedback_generation"
+  ],
+  "hints": [
+    "接收代码提交",
+    "自动运行测试",
+    "生成详细反馈报告"
+  ],
+  "test_module": "day37_test",
+  "skills": [
+    "engineering.sandbox",
+    "grading.scoring"
+  ]
 }

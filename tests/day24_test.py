@@ -45,6 +45,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("transformer.attention", "transformer.positional_encoding")
 class TestAttention:
     def test_output_shape_and_weights_sum(self):
         attn_fn = _require("scaled_dot_product_attention")
@@ -73,6 +74,7 @@ class TestAttention:
 
 
 @requires_torch
+@pytest.mark.skill("transformer.attention", "transformer.positional_encoding")
 class TestMultiHead:
     def test_forward_shape(self):
         mha_cls = _require("MultiHeadSelfAttention")
@@ -89,6 +91,7 @@ class TestMultiHead:
 
 
 @requires_torch
+@pytest.mark.skill("transformer.attention", "transformer.positional_encoding")
 class TestPositionalEncoding:
     def test_known_values_at_pos_zero(self):
         """标准公式: pe[0, 2i]=sin(0)=0, pe[0, 2i+1]=cos(0)=1"""

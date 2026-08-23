@@ -32,6 +32,7 @@ def test_answer_module_imports():
 
 
 @requires_pandas
+@pytest.mark.skill("numpy", "pandas", "data.cleaning")
 class TestDataCleaning:
     def _require(self, name):
         if answer is None:

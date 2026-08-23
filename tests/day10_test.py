@@ -42,6 +42,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.nn_module", "pytorch.activation")
 class TestMLP:
     def test_forward_shape(self):
         mlp_cls = _require("MLP")
@@ -80,6 +81,7 @@ class TestMLP:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.nn_module", "pytorch.activation")
 class TestActivation:
     def test_relu_and_sigmoid(self):
         build = _require("build_activation")

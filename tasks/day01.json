@@ -17,5 +17,10 @@
     "创建标准目录结构：src, tests, configs, data, logs",
     "使用YAML配置文件",
     "配置Python日志系统"
+  ],
+  "test_module": "day01_test",
+  "skills": [
+    "python.project_structure",
+    "python.logging"
   ]
 }

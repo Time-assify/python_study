@@ -4,6 +4,21 @@
   "goal": "理解目标检测",
   "task": "实现YOLO检测",
   "description": "学习YOLO目标检测算法的原理和实现，理解锚框和边界框预测。",
-  "tests": ["test_yolo_architecture", "test_object_detection", "test_nms", "test_anchor_boxes"],
-  "hints": ["理解网格划分", "实现锚框机制", "使用NMS去除重叠框"]
+  "tests": [
+    "test_yolo_architecture",
+    "test_object_detection",
+    "test_nms",
+    "test_anchor_boxes"
+  ],
+  "hints": [
+    "理解网格划分",
+    "实现锚框机制",
+    "使用NMS去除重叠框"
+  ],
+  "test_module": "day26_test",
+  "skills": [
+    "detection.anchor",
+    "detection.iou",
+    "detection.nms"
+  ]
 }

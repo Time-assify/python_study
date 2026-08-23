@@ -51,6 +51,7 @@ def _linear_data():
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.training_loop", "evaluation.accuracy")
 class TestTrainingLoop:
     def test_train_epoch_returns_loss(self):
         train = _require("train_one_epoch")
@@ -75,6 +76,7 @@ class TestTrainingLoop:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.training_loop", "evaluation.accuracy")
 class TestEvaluation:
     def test_evaluate_accuracy(self):
         evaluate = _require("evaluate")
@@ -93,6 +95,7 @@ class TestEvaluation:
         assert float(acc) == 1.0, f"正负样本应100%准确，得到{acc}"
 
 
+@pytest.mark.skill("pytorch.training_loop", "evaluation.accuracy")
 class TestEarlyStopping:
     def test_stops_after_patience(self):
         if answer is None:

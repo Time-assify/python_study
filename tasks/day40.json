@@ -4,6 +4,20 @@
   "goal": "完成最终项目",
   "task": "开发完整AI学习平台",
   "description": "综合运用40天所学知识，开发一个完整的AI学习平台，包含所有核心功能。",
-  "tests": ["test_core_features", "test_ai_integration", "test_deployment", "test_documentation"],
-  "hints": ["整合所有模块", "编写完整文档", "准备项目展示"]
+  "tests": [
+    "test_core_features",
+    "test_ai_integration",
+    "test_deployment",
+    "test_documentation"
+  ],
+  "hints": [
+    "整合所有模块",
+    "编写完整文档",
+    "准备项目展示"
+  ],
+  "test_module": "day40_test",
+  "skills": [
+    "capstone.platform",
+    "documentation"
+  ]
 }

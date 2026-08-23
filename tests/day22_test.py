@@ -52,6 +52,7 @@ def _backbone():
 
 
 @requires_torch
+@pytest.mark.skill("transfer_learning", "parameter_freezing")
 class TestFreezing:
     def test_freeze_locks_params(self):
         freeze = _require("freeze_backbone")
@@ -79,6 +80,7 @@ class TestFreezing:
 
 
 @requires_torch
+@pytest.mark.skill("transfer_learning", "parameter_freezing")
 class TestUnfreeze:
     def test_unfreeze_all(self):
         unfreeze = _require("unfreeze_all")
@@ -100,6 +102,7 @@ class TestUnfreeze:
 
 
 @requires_torch
+@pytest.mark.skill("transfer_learning", "parameter_freezing")
 class TestFeatureExtraction:
     def test_features_no_grad(self):
         if answer is None:

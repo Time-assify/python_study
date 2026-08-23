@@ -33,6 +33,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("prompt.few_shot", "prompt.chain_of_thought")
 class TestFewShot:
     def test_contains_examples_and_query(self):
         build = _require("build_few_shot_prompt")
@@ -58,6 +59,7 @@ class TestFewShot:
             build("not-a-list", "q")
 
 
+@pytest.mark.skill("prompt.few_shot", "prompt.chain_of_thought")
 class TestChainOfThought:
     def test_contains_guidance(self):
         cot = _require("chain_of_thought")
@@ -67,6 +69,7 @@ class TestChainOfThought:
         assert "9.11" in text, "应包含原问题"
 
 
+@pytest.mark.skill("prompt.few_shot", "prompt.chain_of_thought")
 class TestSystemPrompt:
     def test_role_first(self):
         sys_fn = _require("system_prompt")

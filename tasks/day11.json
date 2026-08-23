@@ -4,6 +4,20 @@
   "goal": "掌握数据加载",
   "task": "实现自定义数据集",
   "description": "学习PyTorch的数据加载机制，实现自定义Dataset和DataLoader。理解数据预处理。",
-  "tests": ["test_dataset_basic", "test_dataloader_basic", "test_data_transform", "test_batch_loading"],
-  "hints": ["继承Dataset类实现__getitem__和__len__", "使用DataLoader批量加载", "使用transforms进行数据预处理"]
+  "tests": [
+    "test_dataset_basic",
+    "test_dataloader_basic",
+    "test_data_transform",
+    "test_batch_loading"
+  ],
+  "hints": [
+    "继承Dataset类实现__getitem__和__len__",
+    "使用DataLoader批量加载",
+    "使用transforms进行数据预处理"
+  ],
+  "test_module": "day11_test",
+  "skills": [
+    "pytorch.dataset",
+    "pytorch.dataloader"
+  ]
 }

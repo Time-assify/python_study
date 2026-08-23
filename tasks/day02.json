@@ -20,5 +20,11 @@
     "使用@语法糖可以简化装饰器的应用",
     "生成器使用yield语句，可以惰性生成值",
     "上下文管理器使用with语句，实现__enter__和__exit__方法"
+  ],
+  "test_module": "day02_test",
+  "skills": [
+    "python.decorator",
+    "python.generator",
+    "python.context_manager"
   ]
 }

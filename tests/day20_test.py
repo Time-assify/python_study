@@ -43,6 +43,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("cv.classification", "metrics.confusion_matrix")
 class TestModel:
     def test_forward_shape(self):
         model_cls = _require("CIFARNet")
@@ -68,6 +69,7 @@ class TestModel:
 
 
 @requires_torch
+@pytest.mark.skill("cv.classification", "metrics.confusion_matrix")
 class TestMetrics:
     def test_accuracy_perfect_and_half(self):
         acc = _require("accuracy")

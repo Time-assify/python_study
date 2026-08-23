@@ -34,6 +34,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("engineering.sandbox", "grading.scoring")
 class TestGrading:
     def test_score_math(self):
         grade = _require("grade_score")
@@ -54,6 +55,7 @@ class TestGrading:
         assert letter(59) == "D"
 
 
+@pytest.mark.skill("engineering.sandbox", "grading.scoring")
 class TestSecurityError:
     def test_hierarchy(self):
         if answer is None:
@@ -64,6 +66,7 @@ class TestSecurityError:
         assert issubclass(err, Exception)
 
 
+@pytest.mark.skill("engineering.sandbox", "grading.scoring")
 class TestSandbox:
     def test_safe_expression(self):
         run = _require("run_with_timeout")

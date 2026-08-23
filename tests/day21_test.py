@@ -46,6 +46,7 @@ def _require(name):
 
 
 @requires_tv
+@pytest.mark.skill("cv.augmentation", "torchvision.transforms")
 class TestTransformPipeline:
     def test_returns_compose(self):
         get_train = _require("get_train_transform")

@@ -42,6 +42,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.device", "pytorch.training_step")
 class TestDeviceSelection:
     def test_get_device_type(self):
         get_device = _require("get_device")
@@ -65,6 +66,7 @@ class TestDeviceSelection:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.device", "pytorch.training_step")
 class TestTrainStep:
     def test_train_step_returns_float(self):
         """CPU回退路径必须可运行（无GPU也能通过）"""

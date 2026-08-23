@@ -49,6 +49,7 @@ def _tiny_model(seed=0):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.checkpoint")
 class TestCheckpoint:
     def test_save_and_load_roundtrip(self, tmp_path):
         save = _require("save_checkpoint")

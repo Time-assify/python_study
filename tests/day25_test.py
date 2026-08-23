@@ -50,6 +50,7 @@ def _tiny_bert():
 
 
 @requires_hf
+@pytest.mark.skill("huggingface.model")
 class TestHFModelOps:
     def test_hf_forward_shape(self):
         hf_forward = _require("hf_forward")
@@ -67,11 +68,12 @@ class TestHFModelOps:
         assert n > 0, "参数量必须>0"
 
 
+@pytest.mark.skill("huggingface.model")
 class TestPadding:
     def test_pad_ids(self):
         """不依赖transformers，纯torch即可测"""
         if torch is None:
-            pytest.skip("torch不可用")
+            pytest.skip("torch未安装（环境问题）")
         if answer is None:
             pytest.skip("no answer.py under review")
         pad = getattr(answer, "pad_ids", None)
@@ -83,7 +85,7 @@ class TestPadding:
 
     def test_pad_no_truncate_needed(self):
         if torch is None:
-            pytest.skip("torch不可用")
+            pytest.skip("torch未安装（环境问题）")
         pad = getattr(answer, "pad_ids", None)
         t = pad([7], 3)
         assert tuple(t.shape) == (3,)
@@ -91,7 +93,7 @@ class TestPadding:
     def test_overlong_raises(self):
         """错误处理: 超过max_len应报错或截断（二选一，但不得静默错位）"""
         if torch is None:
-            pytest.skip("torch不可用")
+            pytest.skip("torch未安装（环境问题）")
         pad = getattr(answer, "pad_ids", None)
         try:
             t = pad([1, 2, 3, 4, 5], 2)

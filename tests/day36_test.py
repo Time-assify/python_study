@@ -36,6 +36,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("codegen.generation", "codegen.review")
 class TestCodeGeneration:
     def test_generated_code_compiles(self):
         gen = _require("generate_function_source")
@@ -58,6 +59,7 @@ class TestCodeGeneration:
             gen("1bad-name", "x", "x")
 
 
+@pytest.mark.skill("codegen.generation", "codegen.review")
 class TestReview:
     def test_flags_eval_usage(self):
         review = _require("review_code")
@@ -76,6 +78,7 @@ class TestReview:
         assert any("except" in i.lower() for i in issues), "应检出裸except"
 
 
+@pytest.mark.skill("codegen.generation", "codegen.review")
 class TestMissingColon:
     def test_detects_missing_colon(self):
         detect = _require("has_missing_colon")
@@ -88,6 +91,7 @@ class TestMissingColon:
         assert detect("return a + b") is False
 
 
+@pytest.mark.skill("codegen.generation", "codegen.review")
 class TestRenameVariable:
     def test_word_boundary_rename(self):
         rename = _require("rename_variable")

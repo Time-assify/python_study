@@ -34,6 +34,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("system.pipeline", "system.event_bus")
 class TestPipeline:
     def test_chains_outputs(self):
         pipe_cls = _require("Pipeline")
@@ -57,6 +58,7 @@ class TestPipeline:
             pipe_cls([boom]).run(0)
 
 
+@pytest.mark.skill("system.pipeline", "system.event_bus")
 class TestRetry:
     def test_retry_then_success(self):
         retry_step = _require("retry_step")
@@ -86,6 +88,7 @@ class TestRetry:
         assert attempts["n"] >= 3 or True  # 至少尝试了原始+重试
 
 
+@pytest.mark.skill("system.pipeline", "system.event_bus")
 class TestEventBus:
     def test_pubsub_delivers(self):
         bus_cls = _require("EventBus")
@@ -109,6 +112,7 @@ class TestEventBus:
         assert sorted(hits) == ["a", "b"]
 
 
+@pytest.mark.skill("system.pipeline", "system.event_bus")
 class TestHealthCheck:
     def test_all_ok(self):
         hc = _require("health_check")

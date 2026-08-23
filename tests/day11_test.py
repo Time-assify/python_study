@@ -49,6 +49,7 @@ def _make_dataset():
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.dataset", "pytorch.dataloader")
 class TestDataset:
     def test_is_dataset_subclass(self):
         ds_cls = _require("SimpleDataset")
@@ -69,6 +70,7 @@ class TestDataset:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.dataset", "pytorch.dataloader")
 class TestDataLoader:
     def test_batches_count(self):
         make_loader = _require("make_loader")

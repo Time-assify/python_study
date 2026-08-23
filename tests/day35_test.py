@@ -39,6 +39,7 @@ def _schema():
     return build("add", {"a": "int", "b": "int"})
 
 
+@pytest.mark.skill("agent.schema_validation", "agent.tool_calling")
 class TestSchema:
     def test_schema_structure(self):
         schema = _schema()
@@ -52,6 +53,7 @@ class TestSchema:
         assert set(required) >= {"a", "b"}, f"required应包含全部参数: {schema}"
 
 
+@pytest.mark.skill("agent.schema_validation", "agent.tool_calling")
 class TestExecuteTool:
     def test_valid_call(self):
         execute = _require("execute_tool")
@@ -91,6 +93,7 @@ class TestExecuteTool:
             execute(schema, {"a": "2", "b": 1})
 
 
+@pytest.mark.skill("agent.schema_validation", "agent.tool_calling")
 class TestHistory:
     def test_append_result(self):
         append = _require("append_result")

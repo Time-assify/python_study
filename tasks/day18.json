@@ -4,6 +4,20 @@
   "goal": "构建完整框架",
   "task": "实现完整训练流程",
   "description": "综合运用PyTorch知识，构建完整的模型训练框架，包括训练、验证、测试循环。",
-  "tests": ["test_training_loop", "test_validation_loop", "test_model_evaluation", "test_early_stopping"],
-  "hints": ["实现train_one_epoch()函数", "实现validate()函数", "添加早停机制"]
+  "tests": [
+    "test_training_loop",
+    "test_validation_loop",
+    "test_model_evaluation",
+    "test_early_stopping"
+  ],
+  "hints": [
+    "实现train_one_epoch()函数",
+    "实现validate()函数",
+    "添加早停机制"
+  ],
+  "test_module": "day18_test",
+  "skills": [
+    "pytorch.training_loop",
+    "evaluation.accuracy"
+  ]
 }

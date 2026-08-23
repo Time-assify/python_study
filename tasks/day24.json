@@ -4,6 +4,20 @@
   "goal": "理解Transformer",
   "task": "实现Transformer块",
   "description": "学习Transformer架构，实现自注意力机制和多头注意力。",
-  "tests": ["test_self_attention", "test_multi_head_attention", "test_transformer_block", "test_positional_encoding"],
-  "hints": ["实现缩放点积注意力", "实现多头注意力机制", "添加位置编码"]
+  "tests": [
+    "test_self_attention",
+    "test_multi_head_attention",
+    "test_transformer_block",
+    "test_positional_encoding"
+  ],
+  "hints": [
+    "实现缩放点积注意力",
+    "实现多头注意力机制",
+    "添加位置编码"
+  ],
+  "test_module": "day24_test",
+  "skills": [
+    "transformer.attention",
+    "transformer.positional_encoding"
+  ]
 }

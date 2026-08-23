@@ -48,6 +48,7 @@ def client():
 
 
 @requires_fastapi
+@pytest.mark.skill("deployment.fastapi", "api.server")
 class TestHealth:
     def test_health_ok(self, client):
         r = client.get("/health")
@@ -56,6 +57,7 @@ class TestHealth:
 
 
 @requires_fastapi
+@pytest.mark.skill("deployment.fastapi", "api.server")
 class TestPredict:
     def test_predict_positive(self, client):
         """基础功能"""

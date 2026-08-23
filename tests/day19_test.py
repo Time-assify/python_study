@@ -41,6 +41,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.resnet", "pytorch.tensor_shape")
 class TestResidualBlock:
     def test_shape_preserved(self):
         """核心性质: 残差块不改变特征图尺寸"""
@@ -72,6 +73,7 @@ class TestResidualBlock:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.resnet", "pytorch.tensor_shape")
 class TestSimpleResNet:
     def test_contains_multiple_blocks(self):
         model_cls = _require("SimpleResNet")

@@ -38,6 +38,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("python.requests", "api.client")
 class TestBuildUrl:
     def test_simple_path(self):
         build_url = _require("build_url")
@@ -57,6 +58,7 @@ class TestBuildUrl:
         assert "?" not in url
 
 
+@pytest.mark.skill("python.requests", "api.client")
 class TestAPIClient:
     def test_api_error_is_exception(self):
         APIError = _require("APIError")

@@ -41,6 +41,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.tensor")
 class TestTensorCreation:
     def test_create_tensor_dtype(self):
         create = _require("create_tensor")
@@ -55,6 +56,7 @@ class TestTensorCreation:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.tensor")
 class TestTensorOps:
     def test_reshape_preserves_elements(self):
         reshape = _require("reshape_tensor")
@@ -72,6 +74,7 @@ class TestTensorOps:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.tensor")
 class TestTensorStats:
     def test_stats_values(self):
         stats = _require("tensor_stats")

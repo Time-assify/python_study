@@ -4,6 +4,20 @@
   "goal": "掌握优化算法",
   "task": "实现常见优化器",
   "description": "学习常见的优化算法，如SGD、Adam等，理解学习率调度策略。",
-  "tests": ["test_sgd_optimizer", "test_adam_optimizer", "test_lr_scheduler", "test_optimizer_step"],
-  "hints": ["使用torch.optim.SGD", "使用torch.optim.Adam", "使用torch.optim.lr_scheduler"]
+  "tests": [
+    "test_sgd_optimizer",
+    "test_adam_optimizer",
+    "test_lr_scheduler",
+    "test_optimizer_step"
+  ],
+  "hints": [
+    "使用torch.optim.SGD",
+    "使用torch.optim.Adam",
+    "使用torch.optim.lr_scheduler"
+  ],
+  "test_module": "day12_test",
+  "skills": [
+    "pytorch.optimizer",
+    "pytorch.lr_scheduler"
+  ]
 }

@@ -35,6 +35,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("python.threading", "python.multiprocessing")
 class TestThreads:
     def test_run_in_threads_executes_all(self):
         run_in_threads = _require("run_in_threads")
@@ -56,6 +57,7 @@ class TestThreads:
         assert list(run_in_threads(lambda i: i, 0)) == []
 
 
+@pytest.mark.skill("python.threading", "python.multiprocessing")
 class TestConcurrentMap:
     def test_order_preserved(self):
         concurrent_map = _require("concurrent_map")
@@ -69,6 +71,7 @@ class TestConcurrentMap:
         assert concurrent_map(str, []) == []
 
 
+@pytest.mark.skill("python.threading", "python.multiprocessing")
 class TestProcess:
     def test_make_process_returns_process(self):
         if answer is None:

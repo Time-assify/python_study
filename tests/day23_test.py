@@ -42,6 +42,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("nlp.tokenization", "nlp.embedding")
 class TestTokenize:
     def test_lowercase_and_split(self):
         tok = _require("tokenize")
@@ -60,6 +61,7 @@ class TestTokenize:
         assert tok("") == []
 
 
+@pytest.mark.skill("nlp.tokenization", "nlp.embedding")
 class TestVocab:
     def test_special_tokens(self):
         build = _require("build_vocab")
@@ -80,6 +82,7 @@ class TestVocab:
         assert "b" not in vocab and "c" not in vocab
 
 
+@pytest.mark.skill("nlp.tokenization", "nlp.embedding")
 class TestEncoding:
     def test_ids_and_padding(self):
         enc = _require("text_to_ids")
@@ -105,6 +108,7 @@ class TestEncoding:
 
 
 @requires_torch
+@pytest.mark.skill("nlp.tokenization", "nlp.embedding")
 class TestClassifier:
     def test_forward_shape(self):
         if answer is None:

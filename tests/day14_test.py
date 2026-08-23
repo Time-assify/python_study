@@ -42,6 +42,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.batchnorm", "pytorch.dropout")
 class TestStructure:
     def test_contains_batchnorm_and_dropout(self):
         cls = _require("NetWithReg")
@@ -53,6 +54,7 @@ class TestStructure:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.batchnorm", "pytorch.dropout")
 class TestBehavior:
     def _model(self):
         return _require("NetWithReg")(8, 2, p_drop=0.5)

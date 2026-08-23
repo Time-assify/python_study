@@ -4,6 +4,19 @@
   "goal": "掌握训练可视化",
   "task": "实现训练过程可视化",
   "description": "学习使用TensorBoard可视化训练过程和模型结构，监控损失和准确率。",
-  "tests": ["test_tensorboard_setup", "test_scalar_logging", "test_model_visualization", "test_histogram_logging"],
-  "hints": ["使用torch.utils.tensorboard.SummaryWriter", "add_scalar()记录标量", "add_graph()可视化模型"]
+  "tests": [
+    "test_tensorboard_setup",
+    "test_scalar_logging",
+    "test_model_visualization",
+    "test_histogram_logging"
+  ],
+  "hints": [
+    "使用torch.utils.tensorboard.SummaryWriter",
+    "add_scalar()记录标量",
+    "add_graph()可视化模型"
+  ],
+  "test_module": "day16_test",
+  "skills": [
+    "pytorch.tensorboard"
+  ]
 }

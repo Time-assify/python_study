@@ -34,6 +34,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("llm.client", "json_parsing")
 class TestAvailability:
     def test_no_key_not_available(self):
         client_cls = _require("LLMClient")
@@ -59,6 +60,7 @@ class TestAvailability:
         assert issubclass(err_cls, Exception)
 
 
+@pytest.mark.skill("llm.client", "json_parsing")
 class TestParseResponse:
     def test_plain_json(self):
         parse = _require("parse_response")
@@ -81,6 +83,7 @@ class TestParseResponse:
             pass
 
 
+@pytest.mark.skill("llm.client", "json_parsing")
 class TestChunking:
     def test_chunk_sizes(self):
         chunk = _require("chunk_text")

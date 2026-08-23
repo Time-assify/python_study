@@ -42,6 +42,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.autograd")
 class TestGradientComputation:
     def test_quadratic_value(self):
         q = _require("quadratic")
@@ -62,6 +63,7 @@ class TestGradientComputation:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.autograd")
 class TestChainRule:
     def test_nested_gradient(self):
         """任务要求检查: d/dx sin(exp(x)) at x=0 → cos(e^0)*e^0 = cos(1)"""
@@ -77,6 +79,7 @@ class TestChainRule:
 
 
 @requires_torch
+@pytest.mark.skill("pytorch.autograd")
 class TestGradientAccumulation:
     def test_backward_accumulates(self):
         """边界条件: 连续两次backward梯度累加"""

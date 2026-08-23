@@ -41,6 +41,7 @@ def _require(name):
 
 
 @requires_torch
+@pytest.mark.skill("detection.dataset", "metrics.average_precision")
 class TestDetectionDataset:
     def test_len_and_item_structure(self):
         ds_cls = _require("DetectionDataset")
@@ -60,6 +61,7 @@ class TestDetectionDataset:
             assert b[0] < b[2] and b[1] < b[3], f"非法box坐标: {b}"
 
 
+@pytest.mark.skill("detection.dataset", "metrics.average_precision")
 class TestAveragePrecision:
     def _require_ap(self):
         return _require("average_precision")

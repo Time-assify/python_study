@@ -4,6 +4,20 @@
   "goal": "掌握正则化技术",
   "task": "实现正则化层",
   "description": "学习Batch Normalization和Dropout等正则化技术，防止过拟合。",
-  "tests": ["test_batch_norm", "test_dropout", "test_regularization_effect", "test_training_eval_mode"],
-  "hints": ["使用nn.BatchNorm2d进行批归一化", "使用nn.Dropout进行随机丢弃", "注意训练和评估模式的区别"]
+  "tests": [
+    "test_batch_norm",
+    "test_dropout",
+    "test_regularization_effect",
+    "test_training_eval_mode"
+  ],
+  "hints": [
+    "使用nn.BatchNorm2d进行批归一化",
+    "使用nn.Dropout进行随机丢弃",
+    "注意训练和评估模式的区别"
+  ],
+  "test_module": "day14_test",
+  "skills": [
+    "pytorch.batchnorm",
+    "pytorch.dropout"
+  ]
 }

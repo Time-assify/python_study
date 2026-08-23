@@ -4,6 +4,19 @@
   "goal": "掌握Tensor操作",
   "task": "实现常见Tensor操作",
   "description": "学习PyTorch的Tensor基础，包括创建、索引、变形、运算等操作。理解GPU加速计算。",
-  "tests": ["test_tensor_creation", "test_tensor_operations", "test_tensor_indexing", "test_tensor_reshape"],
-  "hints": ["使用torch.tensor()或torch.zeros/ones/rand创建", "使用view()或reshape()变形", "使用切片进行索引"]
+  "tests": [
+    "test_tensor_creation",
+    "test_tensor_operations",
+    "test_tensor_indexing",
+    "test_tensor_reshape"
+  ],
+  "hints": [
+    "使用torch.tensor()或torch.zeros/ones/rand创建",
+    "使用view()或reshape()变形",
+    "使用切片进行索引"
+  ],
+  "test_module": "day08_test",
+  "skills": [
+    "pytorch.tensor"
+  ]
 }

@@ -33,6 +33,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("detection.anchor", "detection.iou", "detection.nms")
 class TestAnchors:
     def test_anchor_count_and_range(self):
         gen = _require("gen_anchors")
@@ -47,6 +48,7 @@ class TestAnchors:
         assert all(0.0 <= v <= 1.0 for v in vals), f"锚框坐标必须归一化: {vals[:6]}"
 
 
+@pytest.mark.skill("detection.anchor", "detection.iou", "detection.nms")
 class TestIoU:
     def test_identical_boxes(self):
         iou = _require("iou")
@@ -65,6 +67,7 @@ class TestIoU:
         assert abs(val - expected) < 1e-6, f"IoU应为{expected:.4f}，得到{val}"
 
 
+@pytest.mark.skill("detection.anchor", "detection.iou", "detection.nms")
 class TestNMS:
     def test_nms_suppresses_overlap(self):
         nms = _require("nms")

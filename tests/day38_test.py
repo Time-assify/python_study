@@ -34,6 +34,7 @@ def _require(name):
     return fn
 
 
+@pytest.mark.skill("learning.profile", "recommendation")
 class TestAnalyzeProgress:
     def test_average(self):
         analyze = _require("analyze_progress")
@@ -64,6 +65,7 @@ class TestAnalyzeProgress:
         assert float(out.get("average", -1)) == 0.0
 
 
+@pytest.mark.skill("learning.profile", "recommendation")
 class TestDetectWeaknesses:
     def test_threshold_filter_and_order(self):
         detect = _require("detect_weaknesses")
@@ -79,6 +81,7 @@ class TestDetectWeaknesses:
         assert list(detect({})) == []
 
 
+@pytest.mark.skill("learning.profile", "recommendation")
 class TestRecommendNext:
     def test_recommends_weakest_topic(self):
         rec = _require("recommend_next")

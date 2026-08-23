@@ -4,6 +4,20 @@
   "goal": "理解CNN架构",
   "task": "实现简单CNN",
   "description": "学习卷积神经网络的原理，实现图像分类模型。理解卷积、池化、全连接层。",
-  "tests": ["test_conv_layer", "test_pooling_layer", "test_cnn_architecture", "test_cnn_forward"],
-  "hints": ["使用nn.Conv2d定义卷积层", "使用nn.MaxPool2d定义池化层", "展平后接全连接层"]
+  "tests": [
+    "test_conv_layer",
+    "test_pooling_layer",
+    "test_cnn_architecture",
+    "test_cnn_forward"
+  ],
+  "hints": [
+    "使用nn.Conv2d定义卷积层",
+    "使用nn.MaxPool2d定义池化层",
+    "展平后接全连接层"
+  ],
+  "test_module": "day13_test",
+  "skills": [
+    "pytorch.cnn",
+    "pytorch.tensor_shape"
+  ]
 }

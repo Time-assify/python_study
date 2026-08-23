@@ -4,6 +4,20 @@
   "goal": "构建简单ML框架",
   "task": "实现线性回归框架",
   "description": "综合运用所学知识，构建一个简单的机器学习框架。",
-  "tests": ["test_linear_model", "test_loss_function", "test_optimizer", "test_training_loop"],
-  "hints": ["定义模型基类", "实现均方误差损失", "实现梯度下降优化器"]
+  "tests": [
+    "test_linear_model",
+    "test_loss_function",
+    "test_optimizer",
+    "test_training_loop"
+  ],
+  "hints": [
+    "定义模型基类",
+    "实现均方误差损失",
+    "实现梯度下降优化器"
+  ],
+  "test_module": "day07_test",
+  "skills": [
+    "ml.linear_regression",
+    "ml.loss"
+  ]
 }

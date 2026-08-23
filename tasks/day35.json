@@ -4,6 +4,20 @@
   "goal": "掌握工具调用",
   "task": "实现工具调用",
   "description": "学习让LLM调用外部工具，实现函数调用和API集成。",
-  "tests": ["test_tool_definition", "test_tool_execution", "test_result_integration", "test_error_handling"],
-  "hints": ["定义工具描述", "解析LLM工具调用", "执行并返回结果"]
+  "tests": [
+    "test_tool_definition",
+    "test_tool_execution",
+    "test_result_integration",
+    "test_error_handling"
+  ],
+  "hints": [
+    "定义工具描述",
+    "解析LLM工具调用",
+    "执行并返回结果"
+  ],
+  "test_module": "day35_test",
+  "skills": [
+    "agent.schema_validation",
+    "agent.tool_calling"
+  ]
 }

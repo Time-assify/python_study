@@ -40,6 +40,7 @@ def _require(name):
     return obj
 
 
+@pytest.mark.skill("capstone.platform", "documentation")
 class TestCoreWorkflow:
     def _platform(self):
         if answer is None:
@@ -77,6 +78,7 @@ class TestCoreWorkflow:
         assert 0 <= avg <= 100
 
 
+@pytest.mark.skill("capstone.platform", "documentation")
 class TestReview:
     def test_review_gives_suggestion(self):
         if answer is None:
@@ -103,6 +105,7 @@ class TestReview:
         assert str(r_ok) != str(r_bad), "通过/失败的建议不应相同"
 
 
+@pytest.mark.skill("capstone.platform", "documentation")
 class TestDeployment:
     def test_export_report_json(self, tmp_path):
         if answer is None:
