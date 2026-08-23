@@ -1,4 +1,4 @@
-"""P1-1: 真实判题Smoke测试（合成任务，不泄露课程标准答案）
+"""P1-1: 真实判题Smoke测试（合成任务，与正式课程完全隔离）
 
 GitHub Actions绿色不能证明 TestEngine + answer.py + dayXX_test.py 判题链路可用，
 因为无answer时day测试会skip。
@@ -32,7 +32,7 @@ SYNTHETIC_DAY = 90  # 课程范围(1-40)之外，避免与真实day冲突
 def engine(tmp_path_factory):
     """准备只含合成测试的隔离tests_dir（day90_test.py）"""
     tests_dir = tmp_path_factory.mktemp("synthetic_tests")
-    shutil.copy2(FIXTURES / "synthetic_test.py", tests_dir / "day90_test.py")
+    shutil.copy2(FIXTURES / "grading_synthetic_cases.py", tests_dir / "day90_test.py")
     return TestEngine(tests_dir=str(tests_dir), timeout=60)
 
 

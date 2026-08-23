@@ -30,8 +30,28 @@ python main.py start
 2. **Write Code**: Create `submissions/dayXX/answer.py` with your solution
 3. **Submit**: `python main.py submit <day> submissions/dayXX/answer.py`
 4. **Auto Test**: System runs pytest against your code
-5. **AI Code Review**: DeepSeek analyzes code quality (6 dimensions)
+5. **AI Code Review**: DeepSeek analyzes code quality
 6. **Get Score**: pytest是功能正确性的核心依据；测试达到60分且AI可用时采用 70% Test + 30% AI；AI不可用或test_score<60时使用test_score；syntax/execution/timeout失败为0。详见下方 Scoring Rules
+
+### answer.py 顶层代码规范（重要）
+
+评测会执行你的 answer.py 并通过 pytest 导入它，因此：
+
+- **模块顶层只定义**：函数、类、常量
+- **所有演示/训练/交互代码必须放在入口守卫内**：
+
+```python
+def solve(x):
+    ...
+
+if __name__ == "__main__":
+    # 演示、input()、训练循环、网络请求等只在这里执行
+    print(solve(42))
+```
+
+- 禁止在顶层调用 `input()`
+- Day08以后的PyTorch任务：**禁止import时直接启动训练**
+- 顶层长时间阻塞会导致 execution check 超时而直接得0分
 
 ## AI Code Review Flow
 

@@ -10,13 +10,11 @@ system:
   max_submissions_per_day: 5
 
 evaluation:
-  weights:
-    functionality: 0.5
-    code_quality: 0.2
-    performance: 0.1
-    standards: 0.1
-    ai_review: 0.1
-  
+  # Scoring logic is defined in TrainingPlatform._calculate_final_score:
+  #   syntax/execution/timeout failure -> 0
+  #   test_score < 60                  -> final = test_score
+  #   test_score >= 60 and AI ok       -> 70% test + 30% AI
+  #   AI unavailable / invalid         -> final = test_score
   passing_score: 60
   excellent_score: 90
 
