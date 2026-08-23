@@ -82,7 +82,7 @@ class TestMetrics:
         labels = torch.tensor([0, 1, 0, 1])
         assert abs(float(acc(outputs, labels)) - 1.0) < 1e-6, "完美预测acc应=1"
 
-        labels2 = torch.tensor([1, 1, 0, 0])
+        labels2 = torch.tensor([1, 0, 1, 0])
         assert abs(float(acc(outputs, labels2)) - 0.0) < 1e-6
 
     def test_confusion_matrix_values(self):

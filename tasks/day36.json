@@ -5,10 +5,17 @@
   "task": "实现代码生成Agent",
   "description": "构建能够理解和生成代码的AI Agent，实现代码审查和修复。",
   "tests": [
-    "test_code_generation",
-    "test_code_review",
-    "test_bug_fixing",
-    "test_refactoring"
+    "test_answer_module_imports",
+    "test_bare_except_flagged",
+    "test_clean_code_no_issues",
+    "test_detects_missing_colon",
+    "test_flags_eval_usage",
+    "test_generated_code_compiles",
+    "test_generated_code_runs",
+    "test_invalid_name_raises",
+    "test_no_partial_match",
+    "test_valid_lines_pass",
+    "test_word_boundary_rename"
   ],
   "hints": [
     "理解代码上下文",
@@ -19,5 +26,8 @@
   "skills": [
     "codegen.generation",
     "codegen.review"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现代码生成Agent",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

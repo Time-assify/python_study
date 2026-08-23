@@ -5,10 +5,11 @@
   "task": "实现模型检查点",
   "description": "学习模型保存和加载，实现训练检查点功能，支持断点续训。",
   "tests": [
-    "test_model_save",
-    "test_model_load",
-    "test_checkpoint_resume",
-    "test_state_dict"
+    "test_answer_module_imports",
+    "test_load_missing_file_raises",
+    "test_restore_weights_equal",
+    "test_resume_epoch_metadata",
+    "test_save_and_load_roundtrip"
   ],
   "hints": [
     "使用torch.save()保存",
@@ -18,5 +19,8 @@
   "test_module": "day17_test",
   "skills": [
     "pytorch.checkpoint"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现模型检查点",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }

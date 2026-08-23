@@ -2,13 +2,25 @@
   "day": 31,
   "title": "LLM客户端",
   "goal": "掌握LLM API",
-  "task": "实现LLM客户端",
-  "description": "学习使用大语言模型API，实现客户端调用，理解流式响应。",
+  "task": "实现LLM客户端：API调用、流式响应(mock)、错误重试、JSON解析",
+  "description": "实现可复用的LLM客户端抽象。所有测试基于mock transport，不访问真实API；真实API调用作为可选挑战。",
   "tests": [
-    "test_api_connection",
-    "test_message_sending",
-    "test_response_parsing",
-    "test_streaming"
+    "test_answer_module_imports",
+    "test_chat_without_key_raises",
+    "test_chunk_sizes",
+    "test_empty_text",
+    "test_invalid_max_chars",
+    "test_invalid_returns_none_or_raises",
+    "test_json_with_surrounding_text",
+    "test_llm_error_hierarchy",
+    "test_no_key_not_available",
+    "test_plain_json",
+    "test_retry_exhaustion_raises_last_error",
+    "test_retry_succeeds_after_transient_errors",
+    "test_stream_consumes_transport_once_per_call",
+    "test_stream_without_key_raises",
+    "test_stream_yields_chunks_in_order",
+    "test_with_key_available"
   ],
   "hints": [
     "使用OpenAI兼容SDK",
@@ -19,5 +31,8 @@
   "skills": [
     "llm.client",
     "json_parsing"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "核心必做：\n- LLMClient(api_key/transport)与is_available\n- chat_stream流式yield(mock transport)\n- retry_call瞬时错误重试\n- parse_response提取JSON",
+  "optional_challenge": "接入真实DeepSeek/OpenAI API（自费额度），为chat/chat_stream接上HTTP实现"
 }

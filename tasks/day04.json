@@ -5,9 +5,13 @@
   "task": "实现多线程下载器",
   "description": "学习Python的多线程和多进程编程，理解GIL的限制和解决方案。",
   "tests": [
-    "test_thread_basic",
-    "test_process_basic",
-    "test_concurrent_execution"
+    "test_answer_module_imports",
+    "test_empty_items",
+    "test_make_process_returns_process",
+    "test_order_preserved",
+    "test_run_in_threads_executes_all",
+    "test_run_in_threads_uses_threads",
+    "test_zero_threads"
   ],
   "hints": [
     "使用threading.Thread创建线程",
@@ -18,5 +22,8 @@
   "skills": [
     "python.threading",
     "python.multiprocessing"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现多线程下载器",
+  "optional_challenge": "扩展：为你的实现补充类型注解，并生成单元测试覆盖率报告"
 }

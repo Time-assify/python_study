@@ -2,13 +2,15 @@
   "day": 27,
   "title": "目标检测实战",
   "goal": "目标检测应用",
-  "task": "训练目标检测模型",
-  "description": "使用真实数据集进行目标检测模型训练，评估mAP指标。",
+  "task": "用合成数据实现目标检测数据集与AP评估流程",
+  "description": "学习目标检测的数据组织与评估指标。使用合成小数据理解box格式与mAP/AP的计算原理，不要求训练大型检测模型。真实数据训练见optional_challenge。",
   "tests": [
-    "test_dataset_preparation",
-    "test_model_training",
-    "test_mAP_calculation",
-    "test_visualization"
+    "test_answer_module_imports",
+    "test_box_coords_valid",
+    "test_empty_gt",
+    "test_len_and_item_structure",
+    "test_no_match_low_ap",
+    "test_perfect_predictions"
   ],
   "hints": [
     "准备Pascal VOC或COCO格式数据",
@@ -19,5 +21,8 @@
   "skills": [
     "detection.dataset",
     "metrics.average_precision"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "核心必做：\n- 实现DetectionDataset\n- 理解box格式(xyxy)\n- 实现/理解average_precision计算\n- 使用合成小数据完成 训练前→评估 全流程",
+  "optional_challenge": "VOC/COCO真实数据训练检测模型并计算真实mAP"
 }

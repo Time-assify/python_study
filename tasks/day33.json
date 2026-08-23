@@ -5,10 +5,16 @@
   "task": "实现RAG系统",
   "description": "学习检索增强生成的原理和实现，构建知识问答系统。",
   "tests": [
-    "test_document_loading",
-    "test_vector_search",
-    "test_rag_pipeline",
-    "test_context_retrieval"
+    "test_answer_module_imports",
+    "test_chunks_with_overlap",
+    "test_identical_vectors",
+    "test_k_exceeds_docs",
+    "test_k_limits_results",
+    "test_most_relevant_first",
+    "test_opposite_negative",
+    "test_orthogonal_zero",
+    "test_overlap_ge_chunk_raises",
+    "test_short_text_single_chunk"
   ],
   "hints": [
     "文档分块处理",
@@ -19,5 +25,8 @@
   "skills": [
     "rag.chunking",
     "rag.retrieval"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现RAG系统",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

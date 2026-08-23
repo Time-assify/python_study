@@ -5,10 +5,17 @@
   "task": "实现Agent系统整合",
   "description": "将所有Agent模块整合为完整的系统，实现协同工作。",
   "tests": [
-    "test_module_integration",
-    "test_system_workflow",
-    "test_error_recovery",
-    "test_performance"
+    "test_all_ok",
+    "test_answer_module_imports",
+    "test_chains_outputs",
+    "test_error_propagates",
+    "test_failure_reported",
+    "test_multiple_subscribers",
+    "test_pubsub_delivers",
+    "test_retries_exhausted_raises",
+    "test_retry_then_success",
+    "test_single_and_empty",
+    "test_unsubscribed_topic_ignored"
   ],
   "hints": [
     "设计模块间接口",
@@ -19,5 +26,8 @@
   "skills": [
     "system.pipeline",
     "system.event_bus"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现Agent系统整合",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

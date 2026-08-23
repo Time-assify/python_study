@@ -5,10 +5,17 @@
   "task": "实现AI学习导师",
   "description": "构建个性化的AI学习导师，分析学习进度并提供定制化建议。",
   "tests": [
-    "test_progress_analysis",
-    "test_weakness_detection",
-    "test_recommendation",
-    "test_learning_path"
+    "test_answer_module_imports",
+    "test_average",
+    "test_empty_counts",
+    "test_empty_returns_default",
+    "test_empty_scores",
+    "test_insufficient_data",
+    "test_recommends_weakest_topic",
+    "test_threshold_filter_and_order",
+    "test_trend_declining",
+    "test_trend_improving",
+    "test_trend_stable"
   ],
   "hints": [
     "分析学习历史",
@@ -19,5 +26,8 @@
   "skills": [
     "learning.profile",
     "recommendation"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现AI学习导师",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

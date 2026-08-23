@@ -5,10 +5,12 @@
   "task": "使用HuggingFace库",
   "description": "学习使用HuggingFace库进行NLP任务，包括模型加载、分词、推理。",
   "tests": [
-    "test_model_loading",
-    "test_tokenizer_usage",
-    "test_inference",
-    "test_pipeline"
+    "test_answer_module_imports",
+    "test_count_params_positive",
+    "test_hf_forward_shape",
+    "test_overlong_raises",
+    "test_pad_ids",
+    "test_pad_no_truncate_needed"
   ],
   "hints": [
     "使用transformers库",
@@ -18,5 +20,8 @@
   "test_module": "day25_test",
   "skills": [
     "huggingface.model"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "使用HuggingFace库",
+  "optional_challenge": "挑战：真实语料微调一个小型文本分类器"
 }

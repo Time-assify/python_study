@@ -5,10 +5,12 @@
   "task": "实现梯度计算",
   "description": "学习PyTorch的自动微分机制，理解计算图和反向传播。掌握requires_grad和backward()。",
   "tests": [
-    "test_autograd_basic",
-    "test_gradient_computation",
-    "test_custom_gradient",
-    "test_gradient_accumulation"
+    "test_answer_module_imports",
+    "test_backward_accumulates",
+    "test_gradient_linear",
+    "test_gradient_of_square",
+    "test_nested_gradient",
+    "test_quadratic_value"
   ],
   "hints": [
     "设置requires_grad=True启用梯度计算",
@@ -18,5 +20,8 @@
   "test_module": "day09_test",
   "skills": [
     "pytorch.autograd"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现梯度计算",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }

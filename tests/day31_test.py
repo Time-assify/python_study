@@ -2,10 +2,16 @@
 #
 # answer.py 必须实现（接口约定）:
 # - LLMError(Exception)
-# - LLMClient(api_key=None)  .is_available() -> bool；api_key为None时不可用
-#                            .chat(messages) 在不可用时抛 LLMError
-# - parse_response(text) -> dict    从LLM文本中提取JSON（容忍前后缀文本）
+# - LLMClient(api_key=None, transport=None)
+#     .is_available() -> bool        api_key为None时不可用
+#     .chat(messages)                不可用时抛 LLMError
+#     .chat_stream(messages)         生成器：逐段yield字符串chunk；
+#                                    未配置api_key抛LLMError；无transport抛LLMError；
+#                                    有transport时从transport(messages)逐块读取
+# - parse_response(text) -> dict     从LLM文本中提取JSON（容忍前后缀文本）
 # - chunk_text(text, max_chars) -> list[str]   按max_chars切块；max_chars<1抛ValueError
+# - retry_call(fn, retries=2, exceptions=(Exception,))
+#     调用fn直到成功；最多额外重试retries次；仍失败则抛出最后一次异常
 import pytest
 
 try:
@@ -58,6 +64,103 @@ class TestAvailability:
     def test_llm_error_hierarchy(self):
         err_cls = _require("LLMError")
         assert issubclass(err_cls, Exception)
+
+
+class FakeTransport:
+    """Mock传输层：返回固定chunk序列，禁止真实网络访问"""
+
+    def __init__(self, chunks):
+        self.chunks = chunks
+        self.call_count = 0
+
+    def __call__(self, messages):
+        self.call_count += 1
+        return iter(self.chunks)
+
+
+@pytest.mark.skill("llm.client", "json_parsing")
+class TestStreaming:
+    """任务要求: 流式响应（全部使用mock，不访问真实API）"""
+
+    def test_stream_yields_chunks_in_order(self):
+        stream_fn = getattr(answer, "chat_stream", None)
+        client_cls = _require("LLMClient")
+        transport = FakeTransport(["chunk1", "chunk2", "chunk3"])
+        client = client_cls(api_key="sk-test", transport=transport)
+
+        if stream_fn is not None and not hasattr(client, "chat_stream"):
+            gen = stream_fn(client, [{"role": "user", "content": "hi"}])
+        else:
+            if not callable(getattr(client, "chat_stream", None)):
+                pytest.fail("LLMClient必须实现 chat_stream() 方法")
+            gen = client.chat_stream([{"role": "user", "content": "hi"}])
+
+        chunks = list(gen)
+        assert chunks == ["chunk1", "chunk2", "chunk3"], (
+            f"流式输出应按顺序yield全部chunk: {chunks}"
+        )
+
+    def test_stream_without_key_raises(self):
+        """错误处理: 无key时流式也必须抛LLMError"""
+        if answer is None:
+            pytest.skip("no answer.py under review")
+        err_cls = getattr(answer, "LLMError", None)
+        if err_cls is None:
+            pytest.fail("必须实现 LLMError")
+        client_cls = _require("LLMClient")
+        client = client_cls(api_key=None,
+                            transport=FakeTransport(["x"]))
+        stream = getattr(client, "chat_stream", None)
+        if stream is None and callable(getattr(answer, "chat_stream", None)):
+            stream = lambda msgs: answer.chat_stream(client, msgs)  # noqa: E731
+        if stream is None:
+            pytest.fail("LLMClient必须实现 chat_stream()")
+        with pytest.raises(err_cls):
+            list(stream([{"role": "user", "content": "hi"}]))
+
+    def test_stream_consumes_transport_once_per_call(self):
+        client_cls = _require("LLMClient")
+        transport = FakeTransport(["a", "b"])
+        client = client_cls(api_key="k", transport=transport)
+        list(client.chat_stream([{"role": "user", "content": "?"}]))
+        assert transport.call_count == 1
+
+
+@pytest.mark.skill("llm.client", "json_parsing")
+class TestRetry:
+    """任务要求: 错误重试（全部使用mock）"""
+
+    def test_retry_succeeds_after_transient_errors(self):
+        retry_call = _require("retry_call")
+        calls = {"n": 0}
+
+        def flaky():
+            calls["n"] += 1
+            if calls["n"] < 3:
+                raise TimeoutError("transient")
+            return "ok"
+
+        result = retry_call(flaky, retries=2, exceptions=(TimeoutError,))
+        assert result == "ok"
+        assert calls["n"] == 3, (
+            f"前两次失败第三次成功 → 应恰好调用3次，实际{calls['n']}"
+        )
+
+    def test_retry_exhaustion_raises_last_error(self):
+        """错误处理: 重试耗尽后抛出最后一次异常"""
+        retry_call = _require("retry_call")
+        calls = {"n": 0}
+
+        def always_fail():
+            calls["n"] += 1
+            raise ValueError("boom")
+
+        with pytest.raises(ValueError):
+            retry_call(always_fail, retries=2)
+        # 首次 + retries次重试
+        assert calls["n"] == 3, (
+            f"retries=2时应调用首次+2=3次，实际{calls['n']}"
+        )
 
 
 @pytest.mark.skill("llm.client", "json_parsing")

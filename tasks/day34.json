@@ -5,10 +5,14 @@
   "task": "实现Agent架构",
   "description": "学习AI Agent的设计模式和实现方法，构建自主决策系统。",
   "tests": [
-    "test_agent_basic",
-    "test_tool_usage",
-    "test_memory_management",
-    "test_decision_loop"
+    "test_answer_module_imports",
+    "test_picks_correct_tool",
+    "test_recall_empty",
+    "test_recall_last_n_in_order",
+    "test_run_terminates",
+    "test_tool_executes",
+    "test_tool_fields",
+    "test_unknown_goal_clarify"
   ],
   "hints": [
     "实现观察-思考-行动循环",
@@ -19,5 +23,8 @@
   "skills": [
     "agent.tool",
     "agent.memory"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现Agent架构",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

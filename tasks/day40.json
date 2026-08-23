@@ -2,13 +2,20 @@
   "day": 40,
   "title": "Final Project",
   "goal": "完成最终项目",
-  "task": "开发完整AI学习平台",
-  "description": "综合运用40天所学知识，开发一个完整的AI学习平台，包含所有核心功能。",
+  "task": "实现LearningPlatform最小闭环：注册→提交→统计→review→画像→推荐→报告导出",
+  "description": "综合前39天能力，构建学习平台的最小可用闭环。判题不再以字符串规则判定代码合格，而是验证平台状态机：两次不同提交必须产生可观测的历史统计、错误累计、画像变化与差异化推荐。",
   "tests": [
-    "test_core_features",
-    "test_ai_integration",
-    "test_deployment",
-    "test_documentation"
+    "test_answer_module_imports",
+    "test_average_score_over_history",
+    "test_documentation_template",
+    "test_errors_accumulated_across_submissions",
+    "test_export_report_json",
+    "test_generate_report_contains_all_sections",
+    "test_profile_changes_with_new_submission",
+    "test_recommendation_varies_by_profile",
+    "test_register_student",
+    "test_review_saved_and_visible",
+    "test_two_submissions_saved"
   ],
   "hints": [
     "整合所有模块",
@@ -19,5 +26,8 @@
   "skills": [
     "capstone.platform",
     "documentation"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "核心必做：\n- register_student注册学生\n- submit_result保存提交与错误\n- get_profile历史统计(error_statistics累计)\n- add_review保存AI建议\n- recommend_next_task按画像变化推荐\n- generate_report/export_report报告导出",
+  "optional_challenge": "将LearningPlatform持久化到SQLite，或接入TestEngine做真实判题闭环"
 }

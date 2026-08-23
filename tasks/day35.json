@@ -5,10 +5,14 @@
   "task": "实现工具调用",
   "description": "学习让LLM调用外部工具，实现函数调用和API集成。",
   "tests": [
-    "test_tool_definition",
-    "test_tool_execution",
-    "test_result_integration",
-    "test_error_handling"
+    "test_answer_module_imports",
+    "test_append_preserves_order",
+    "test_append_result",
+    "test_bool_is_not_int",
+    "test_required_params_listed",
+    "test_schema_structure",
+    "test_valid_call",
+    "test_wrong_type_raises"
   ],
   "hints": [
     "定义工具描述",
@@ -19,5 +23,8 @@
   "skills": [
     "agent.schema_validation",
     "agent.tool_calling"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现工具调用",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

@@ -85,7 +85,8 @@ class TestRetry:
         wrapped = retry_fn(lambda x: attempts.__setitem__("n", attempts["n"] + 1) or 1 / 0, retries=2)
         with pytest.raises(ZeroDivisionError):
             wrapped(0)
-        assert attempts["n"] >= 3 or True  # 至少尝试了原始+重试
+        # retries=2 → 首次调用 + 2次重试 = 3次
+        assert attempts["n"] == 3, f"重试次数错误：期望3次，实际{attempts['n']}次"
 
 
 @pytest.mark.skill("system.pipeline", "system.event_bus")

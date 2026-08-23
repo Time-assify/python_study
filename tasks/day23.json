@@ -5,10 +5,18 @@
   "task": "实现文本处理",
   "description": "学习自然语言处理的基础知识，包括分词、词向量、文本分类。",
   "tests": [
-    "test_tokenization",
-    "test_word_embedding",
-    "test_text_classification",
-    "test_padding"
+    "test_answer_module_imports",
+    "test_backward",
+    "test_empty_string",
+    "test_forward_shape",
+    "test_ids_and_padding",
+    "test_lowercase_and_split",
+    "test_min_freq_filter",
+    "test_punctuation_removed",
+    "test_special_tokens",
+    "test_truncation",
+    "test_unknown_word_maps_unk",
+    "test_word_indices"
   ],
   "hints": [
     "使用torchtext或自定义分词",
@@ -19,5 +27,8 @@
   "skills": [
     "nlp.tokenization",
     "nlp.embedding"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现文本处理",
+  "optional_challenge": "挑战：真实语料微调一个小型文本分类器"
 }

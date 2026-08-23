@@ -5,10 +5,14 @@
   "task": "设计有效提示",
   "description": "学习提示工程的技巧和最佳实践，包括Few-shot、Chain-of-Thought。",
   "tests": [
-    "test_prompt_design",
-    "test_few_shot_learning",
-    "test_chain_of_thought",
-    "test_system_prompt"
+    "test_answer_module_imports",
+    "test_contains_examples_and_query",
+    "test_contains_guidance",
+    "test_empty_examples",
+    "test_non_list_raises",
+    "test_nonempty_instructions",
+    "test_query_after_examples",
+    "test_role_first"
   ],
   "hints": [
     "设计清晰的指令",
@@ -19,5 +23,8 @@
   "skills": [
     "prompt.few_shot",
     "prompt.chain_of_thought"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "设计有效提示",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

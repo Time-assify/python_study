@@ -5,9 +5,11 @@
   "task": "实现数据清洗流程",
   "description": "学习NumPy和Pandas库，掌握数据处理和分析的基本方法。",
   "tests": [
-    "test_numpy_array",
-    "test_pandas_dataframe",
-    "test_data_cleaning"
+    "test_answer_module_imports",
+    "test_clean_drops_nan_rows",
+    "test_clean_removes_duplicates",
+    "test_normalize_constant_column",
+    "test_normalize_range"
   ],
   "hints": [
     "使用numpy进行数值计算",
@@ -19,5 +21,8 @@
     "numpy",
     "pandas",
     "data.cleaning"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现数据清洗流程",
+  "optional_challenge": "挑战：用一份真实CSV完成完整清洗+分析小报告"
 }

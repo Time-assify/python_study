@@ -5,10 +5,15 @@
   "task": "实现自动评测平台",
   "description": "构建自动化的代码评测系统，集成测试、评分、反馈。",
   "tests": [
-    "test_code_submission",
-    "test_auto_testing",
-    "test_scoring_system",
-    "test_feedback_generation"
+    "test_answer_module_imports",
+    "test_blocks_import",
+    "test_hierarchy",
+    "test_letter_thresholds",
+    "test_safe_expression",
+    "test_score_math",
+    "test_syntax_error_handled",
+    "test_timeout_detection",
+    "test_zero_total"
   ],
   "hints": [
     "接收代码提交",
@@ -19,5 +24,8 @@
   "skills": [
     "engineering.sandbox",
     "grading.scoring"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现自动评测平台",
+  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
 }

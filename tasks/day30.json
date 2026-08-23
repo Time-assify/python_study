@@ -5,10 +5,13 @@
   "task": "开发完整AI应用",
   "description": "综合运用所学知识，开发一个完整的AI应用，包括模型训练、部署、监控。",
   "tests": [
-    "test_application_setup",
-    "test_model_integration",
-    "test_user_interface",
-    "test_monitoring"
+    "test_answer_module_imports",
+    "test_counter_increments",
+    "test_empty_pipeline",
+    "test_handlers_execute_in_order",
+    "test_missing_key_raises",
+    "test_roundtrip",
+    "test_save_load_yaml"
   ],
   "hints": [
     "设计应用架构",
@@ -19,5 +22,8 @@
   "skills": [
     "engineering.config",
     "application.pipeline"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "开发完整AI应用",
+  "optional_challenge": "挑战：Docker化部署并输出压测报告"
 }

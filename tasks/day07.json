@@ -5,10 +5,13 @@
   "task": "实现线性回归框架",
   "description": "综合运用所学知识，构建一个简单的机器学习框架。",
   "tests": [
-    "test_linear_model",
-    "test_loss_function",
-    "test_optimizer",
-    "test_training_loop"
+    "test_answer_module_imports",
+    "test_class_exists_with_api",
+    "test_fit_perfect_linear",
+    "test_mse_known_value",
+    "test_mse_value",
+    "test_predict_shape",
+    "test_shape_mismatch_raises"
   ],
   "hints": [
     "定义模型基类",
@@ -19,5 +22,8 @@
   "skills": [
     "ml.linear_regression",
     "ml.loss"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现线性回归框架",
+  "optional_challenge": "挑战：加入正则化与学习率曲线对比实验"
 }

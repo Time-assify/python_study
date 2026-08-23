@@ -5,9 +5,14 @@
   "task": "创建ML项目模板",
   "description": "学习如何创建一个标准的机器学习项目结构，包括目录组织、配置文件、日志设置等。",
   "tests": [
-    "test_project_structure",
-    "test_config_file",
-    "test_logger_setup"
+    "test_answer_module_imports",
+    "test_create_config_creates_file_with_content",
+    "test_create_config_returns_true",
+    "test_create_structure_creates_directories",
+    "test_create_structure_creates_init_file",
+    "test_create_structure_has_required_dirs",
+    "test_create_structure_returns_dict",
+    "test_setup_logger_creates_file"
   ],
   "resources": [
     "https://realpython.com/python-application-layouts/",
@@ -22,5 +27,8 @@
   "skills": [
     "python.project_structure",
     "python.logging"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "创建ML项目模板",
+  "optional_challenge": "扩展：为你的实现补充类型注解，并生成单元测试覆盖率报告"
 }

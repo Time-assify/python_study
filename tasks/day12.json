@@ -5,10 +5,13 @@
   "task": "实现常见优化器",
   "description": "学习常见的优化算法，如SGD、Adam等，理解学习率调度策略。",
   "tests": [
-    "test_sgd_optimizer",
-    "test_adam_optimizer",
-    "test_lr_scheduler",
-    "test_optimizer_step"
+    "test_adam_decreases_loss",
+    "test_answer_module_imports",
+    "test_build_sgd_adam",
+    "test_invalid_lr_raises",
+    "test_lr_decays_after_step_size",
+    "test_sgd_decreases_loss",
+    "test_unknown_name_raises"
   ],
   "hints": [
     "使用torch.optim.SGD",
@@ -19,5 +22,8 @@
   "skills": [
     "pytorch.optimizer",
     "pytorch.lr_scheduler"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现常见优化器",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }

@@ -5,10 +5,10 @@
   "task": "导出ONNX模型",
   "description": "学习将PyTorch模型导出为ONNX格式，实现跨平台部署。",
   "tests": [
-    "test_onnx_export",
-    "test_onnx_inference",
-    "test_model_conversion",
-    "test_dynamic_axes"
+    "test_answer_module_imports",
+    "test_export_creates_file",
+    "test_export_signature_has_dynamic_axes",
+    "test_onnx_inference_matches_torch"
   ],
   "hints": [
     "使用torch.onnx.export()",
@@ -18,5 +18,8 @@
   "test_module": "day28_test",
   "skills": [
     "deployment.onnx"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "导出ONNX模型",
+  "optional_challenge": "挑战：Docker化部署并输出压测报告"
 }

@@ -5,10 +5,10 @@
   "task": "实现训练过程可视化",
   "description": "学习使用TensorBoard可视化训练过程和模型结构，监控损失和准确率。",
   "tests": [
-    "test_tensorboard_setup",
-    "test_scalar_logging",
-    "test_model_visualization",
-    "test_histogram_logging"
+    "test_answer_module_imports",
+    "test_close_idempotent",
+    "test_get_writer_creates_dir",
+    "test_scalar_logging_writes_event_file"
   ],
   "hints": [
     "使用torch.utils.tensorboard.SummaryWriter",
@@ -18,5 +18,8 @@
   "test_module": "day16_test",
   "skills": [
     "pytorch.tensorboard"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现训练过程可视化",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }

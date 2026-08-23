@@ -1,8 +1,13 @@
 """课程完整性映射检查
 
-验证 tasks/dayXX.json 与 tests/dayXX_test.py 双向一一对应，
-且 task JSON 声明的 test_module / skills 字段与实际文件一致。
+验证:
+1. tasks/dayXX.json 与 tests/dayXX_test.py 双向一一对应
+2. task JSON 的 test_module / skills 字段与实际文件一致
+3. P0-1: task["tests"] 中每个ID必须映射到真实pytest函数（AST收集）
+4. P1-4: 每个测试类的skill标记必须是task skills子集，
+   且声明的skills必须至少被一个类覆盖（AST解析全部标记）
 """
+import ast
 import json
 import re
 from pathlib import Path
@@ -14,6 +19,50 @@ def _load_task(day: int) -> dict:
     return json.loads(
         (ROOT / "tasks" / f"day{day:02d}.json").read_text(encoding="utf-8")
     )
+
+
+def _collect_test_names(tree) -> set:
+    """AST收集模块级与类内所有 test_* 函数名"""
+    names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and \
+                node.name.startswith("test_"):
+            names.add(node.name)
+    return names
+
+
+def _class_skill_markers(path: Path) -> dict:
+    """P1-4: AST解析全部 @pytest.mark.skill(...) 类装饰器
+
+    返回 {类名: set(skill字符串)}
+    """
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    result = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ClassDef):
+            continue
+        skills = set()
+        for dec in node.decorator_list:
+            if not isinstance(dec, ast.Call):
+                continue
+            func = dec.func
+            # 匹配 pytest.mark.skill(...)
+            parts = []
+            while isinstance(func, ast.Attribute):
+                parts.append(func.attr)
+                func = func.value
+            if isinstance(func, ast.Name):
+                parts.append(func.id)
+            # parts为自内向外: [skill, mark, pytest] → 反转后比对
+            if len(parts) >= 3 and \
+                    list(reversed(parts))[-3:] == ["pytest", "mark", "skill"]:
+                for arg in dec.args:
+                    if isinstance(arg, ast.Constant) and \
+                            isinstance(arg.value, str):
+                        skills.add(arg.value)
+        if skills:
+            result[node.name] = skills
+    return result
 
 
 class TestTaskToTestMapping:
@@ -29,6 +78,47 @@ class TestTaskToTestMapping:
             assert (ROOT / "tests" / f"{declared}.py").exists(), (
                 f"声明模块 {declared} 不存在"
             )
+
+
+class TestDeclaredTestsExist:
+    """P0-1: task["tests"] 每个ID必须对应真实pytest函数（单一命名体系）"""
+
+    def test_declared_tests_exist(self):
+        offenders = []
+        for day in range(1, 41):
+            task = _load_task(day)
+            declared = task.get("tests", [])
+            assert declared, f"day{day:02d}.json 缺少tests字段"
+
+            tree = ast.parse(
+                (ROOT / "tests" / f"day{day:02d}_test.py").read_text(
+                    encoding="utf-8"
+                )
+            )
+            actual = _collect_test_names(tree)
+
+            for test_id in declared:
+                if test_id not in actual:
+                    offenders.append(f"day{day:02d}: {test_id}")
+        assert not offenders, (
+            f"以下声明测试在day文件中不存在（禁止两套命名）: {offenders}"
+        )
+
+    def test_declared_tests_are_meaningful_subset(self):
+        """声明数量应≥3，且不超过实际函数数（防止退化成空壳清单）"""
+        for day in range(1, 41):
+            task = _load_task(day)
+            tree = ast.parse(
+                (ROOT / "tests" / f"day{day:02d}_test.py").read_text(
+                    encoding="utf-8"
+                )
+            )
+            actual = _collect_test_names(tree)
+            assert len(task.get("tests", [])) >= 3, (
+                f"day{day:02d} 声明测试过少"
+            )
+            extra = set(task["tests"]) - actual
+            assert not extra, f"day{day:02d} 幽灵声明: {extra}"
 
 
 class TestTestToTaskMapping:
@@ -65,27 +155,36 @@ class TestSkillTags:
                     f"day{day:02d} 非法skill标签: {s!r}（需点分命名空间）"
                 )
 
-    def test_day_tests_carry_skill_marker_on_classes(self):
-        marker_on_class = re.compile(
-            r"@pytest\.mark\.skill\([^\n]*\)\s*\nclass Test", re.MULTILINE
-        )
-        for day in range(1, 41):
-            src = (ROOT / "tests" / f"day{day:02d}_test.py").read_text(encoding="utf-8")
-            assert "@pytest.mark.skill(" in src, (
-                f"day{day:02d}_test.py 缺少 @pytest.mark.skill 元数据"
-            )
-            assert marker_on_class.search(src), (
-                f"day{day:02d}_test.py 的skill标记未直接作用于测试类"
-            )
 
-    def test_marker_skills_consistent_with_task_json(self):
-        """测试文件中的skill标记参数必须与task JSON的skills字段一致"""
+class TestSkillMarkerConsistency:
+    """P1-4: AST解析全部类标记，要求子集关系+全覆盖"""
+
+    def test_every_class_marker_is_subset_of_task_skills(self):
+        offenders = []
         for day in range(1, 41):
-            expected = _load_task(day)["skills"]
-            src = (ROOT / "tests" / f"day{day:02d}_test.py").read_text(encoding="utf-8")
-            first_marker = re.search(r'@pytest\.mark\.skill\(([^)]*)\)', src)
-            assert first_marker, f"day{day:02d} 缺少skill标记"
-            got = re.findall(r'"([^"]+)"', first_marker.group(1))
-            assert sorted(got) == sorted(expected), (
-                f"day{day:02d} 标记{got}与JSON声明{expected}不一致"
+            task_skills = set(_load_task(day)["skills"])
+            markers = _class_skill_markers(
+                ROOT / "tests" / f"day{day:02d}_test.py"
             )
+            assert markers, f"day{day:02d}_test.py 无任何skill标记类"
+            for cls_name, cls_skills in markers.items():
+                illegal = cls_skills - task_skills
+                if illegal:
+                    offenders.append(
+                        f"day{day:02d}.{cls_name}: 越界标签{sorted(illegal)}"
+                    )
+        assert not offenders, f"skill标记越界: {offenders}"
+
+    def test_all_declared_skills_covered_by_markers(self):
+        """task声明的每个skill至少被一个测试类标记覆盖"""
+        uncovered = []
+        for day in range(1, 41):
+            task_skills = set(_load_task(day)["skills"])
+            markers = _class_skill_markers(
+                ROOT / "tests" / f"day{day:02d}_test.py"
+            )
+            union = set().union(*markers.values()) if markers else set()
+            missing = task_skills - union
+            if missing:
+                uncovered.append(f"day{day:02d}: 未覆盖{sorted(missing)}")
+        assert not uncovered, f"声明skill缺少标记覆盖: {uncovered}"

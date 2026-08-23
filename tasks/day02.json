@@ -5,11 +5,15 @@
   "task": "实现常用装饰器和生成器",
   "description": "学习Python高级特性，包括装饰器、生成器、上下文管理器等。理解Python的函数式编程和迭代器协议。",
   "tests": [
-    "test_decorator_basic",
-    "test_decorator_with_args",
-    "test_generator_basic",
-    "test_generator_expression",
-    "test_context_manager"
+    "test_answer_module_imports",
+    "test_chunked_invalid_size_raises",
+    "test_chunked_splits_correctly",
+    "test_fibonacci_yields_n_terms",
+    "test_fibonacci_zero_terms",
+    "test_memoize_caches_results",
+    "test_repeat_executes_n_times",
+    "test_repeat_invalid_n_raises",
+    "test_timer_measures_elapsed"
   ],
   "resources": [
     "https://realpython.com/primer-on-python-decorators/",
@@ -26,5 +30,8 @@
     "python.decorator",
     "python.generator",
     "python.context_manager"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现常用装饰器和生成器",
+  "optional_challenge": "扩展：为你的实现补充类型注解，并生成单元测试覆盖率报告"
 }

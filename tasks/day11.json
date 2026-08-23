@@ -5,10 +5,13 @@
   "task": "实现自定义数据集",
   "description": "学习PyTorch的数据加载机制，实现自定义Dataset和DataLoader。理解数据预处理。",
   "tests": [
-    "test_dataset_basic",
-    "test_dataloader_basic",
-    "test_data_transform",
-    "test_batch_loading"
+    "test_answer_module_imports",
+    "test_batches_count",
+    "test_getitem_types",
+    "test_is_dataset_subclass",
+    "test_last_batch_smaller",
+    "test_len_and_getitem",
+    "test_transform_applied"
   ],
   "hints": [
     "继承Dataset类实现__getitem__和__len__",
@@ -19,5 +22,8 @@
   "skills": [
     "pytorch.dataset",
     "pytorch.dataloader"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现自定义数据集",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }

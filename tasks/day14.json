@@ -5,10 +5,12 @@
   "task": "实现正则化层",
   "description": "学习Batch Normalization和Dropout等正则化技术，防止过拟合。",
   "tests": [
-    "test_batch_norm",
-    "test_dropout",
-    "test_regularization_effect",
-    "test_training_eval_mode"
+    "test_answer_module_imports",
+    "test_batchnorm_normalizes",
+    "test_contains_batchnorm_and_dropout",
+    "test_dropout_train_vs_eval",
+    "test_forward_shape",
+    "test_invalid_p_raises"
   ],
   "hints": [
     "使用nn.BatchNorm2d进行批归一化",
@@ -19,5 +21,8 @@
   "skills": [
     "pytorch.batchnorm",
     "pytorch.dropout"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现正则化层",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }

@@ -5,10 +5,14 @@
   "task": "实现Transformer块",
   "description": "学习Transformer架构，实现自注意力机制和多头注意力。",
   "tests": [
-    "test_self_attention",
-    "test_multi_head_attention",
-    "test_transformer_block",
-    "test_positional_encoding"
+    "test_answer_module_imports",
+    "test_attention_focuses_on_matching",
+    "test_forward_shape",
+    "test_invalid_head_split_raises",
+    "test_known_values_at_pos_zero",
+    "test_output_shape_and_weights_sum",
+    "test_scaling_prevents_saturation",
+    "test_values_bounded"
   ],
   "hints": [
     "实现缩放点积注意力",
@@ -19,5 +23,8 @@
   "skills": [
     "transformer.attention",
     "transformer.positional_encoding"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现Transformer块",
+  "optional_challenge": "挑战：真实语料微调一个小型文本分类器"
 }

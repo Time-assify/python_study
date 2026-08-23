@@ -5,10 +5,12 @@
   "task": "实现GPU训练",
   "description": "学习如何使用GPU加速模型训练，理解CUDA编程和设备管理。",
   "tests": [
-    "test_gpu_availability",
-    "test_gpu_training",
-    "test_data_transfer",
-    "test_model_to_gpu"
+    "test_answer_module_imports",
+    "test_get_device_type",
+    "test_loss_decreases_over_steps",
+    "test_move_model",
+    "test_move_tensor",
+    "test_train_step_returns_float"
   ],
   "hints": [
     "使用torch.cuda.is_available()检查GPU",
@@ -19,5 +21,8 @@
   "skills": [
     "pytorch.device",
     "pytorch.training_step"
-  ]
+  ],
+  "estimated_minutes": 60,
+  "core_task": "实现GPU训练",
+  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
 }
