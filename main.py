@@ -82,25 +82,28 @@ def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):
     print(f"Final score: {result.final_score:.1f}")
     
     if result.ai_review:
-        if result.ai_review.get("strengths"):
-            print(f"\nStrengths:")
-            for s in result.ai_review["strengths"]:
-                print(f"  + {s}")
-        if result.ai_review.get("bugs"):
-            print(f"\nBugs:")
-            for b in result.ai_review["bugs"]:
-                print(f"  - {b}")
-        if result.ai_review.get("suggestions"):
-            print(f"\nSuggestions:")
-            for s in result.ai_review["suggestions"]:
-                print(f"  * {s}")
+        sections = [
+            ("Strengths", "strengths", "+"),
+            ("Issues", "issues", "-"),
+            ("Knowledge Gaps", "knowledge_gaps", "?"),
+            ("Improvement", "improvement", "*"),
+            ("Next Learning", "next_learning", ">"),
+        ]
+        for title, key, mark in sections:
+            items = result.ai_review.get(key) or []
+            if items:
+                print(f"\n{title}:")
+                for item in items:
+                    print(f"  {mark} {item}")
 
 
 def cmd_progress(platform: TrainingPlatform):
     """View progress"""
     stats = platform.get_statistics()
     
-    print(f"\nProgress: {stats.get('completed_days', 0)}/40 days")
+    print(f"Attempted: {stats.get('attempted_days', 0)}/40 days")
+    print(f"Completed: {stats.get('completed_days', 0)}/40 days (score>=60)")
+    print(f"Total submissions: {stats.get('total_submissions', 0)}")
     print(f"Completion rate: {stats.get('completion_rate', 0):.1f}%")
     print(f"Average score: {stats.get('average_score', 0):.1f}")
     print(f"Max score: {stats.get('max_score', 0):.1f}")
@@ -118,7 +121,8 @@ def cmd_report(platform: TrainingPlatform):
     print(f"\n{'='*50}")
     print(f"Learning Report")
     print(f"{'='*50}")
-    print(f"Completed: {stats.get('completed_days', 0)}/40")
+    print(f"Attempted: {stats.get('attempted_days', 0)}/40")
+    print(f"Completed: {stats.get('completed_days', 0)}/40 (score>=60)")
     print(f"Avg score: {stats.get('average_score', 0):.1f}")
     print(f"Max score: {stats.get('max_score', 0):.1f}")
     

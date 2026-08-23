@@ -22,7 +22,15 @@ class Task:
     mastery: List[str] = None
     optional_challenge: str = ""
     estimated_minutes: int = 60
-    
+    test_module: str = ""
+    skills: List[str] = None
+
+    def __post_init__(self):
+        if self.mastery is None:
+            self.mastery = []
+        if self.skills is None:
+            self.skills = []
+
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
         return {
@@ -38,6 +46,8 @@ class Task:
             "mastery": self.mastery or [],
             "optional_challenge": self.optional_challenge,
             "estimated_minutes": self.estimated_minutes,
+            "test_module": self.test_module,
+            "skills": self.skills or [],
         }
 
 
@@ -103,6 +113,8 @@ class TaskManager:
             mastery=data.get("mastery", []),
             optional_challenge=data.get("optional_challenge", ""),
             estimated_minutes=data.get("estimated_minutes", 60),
+            test_module=data.get("test_module", ""),
+            skills=data.get("skills", []),
         )
         
         # 缓存任务
@@ -185,6 +197,8 @@ class TaskManager:
             mastery=task_data.get("mastery", []),
             optional_challenge=task_data.get("optional_challenge", ""),
             estimated_minutes=task_data.get("estimated_minutes", 60),
+            test_module=task_data.get("test_module", ""),
+            skills=task_data.get("skills", []),
         )
         
         # 保存到文件

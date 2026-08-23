@@ -5,8 +5,11 @@ A 40-day AI engineer training learning system.
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Day01-Day07: 基础依赖
 pip install -r requirements.txt
+
+# 进入Day08(PyTorch)前:
+pip install -r requirements-pytorch.txt
 
 # View task
 python main.py task 1
@@ -36,19 +39,19 @@ python main.py start
 提交代码
     |
     v
-pytest (功能正确性)
+pytest (功能正确性 - 唯一判分依据)
     |
     v
-CodeReviewAgent (代码质量 + 学生画像)
-    |--- 代码正确性
+CodeReviewAgent (代码质量, 不判断功能对错)
     |--- 代码结构
-    |--- Python规范
+    |--- Python/PyTorch规范
+    |--- 可读性
     |--- 性能
-    |--- 潜在Bug
+    |--- 潜在工程问题
     |--- 知识漏洞 (结合历史错误)
     |
     v
-综合评分 (70% test + 30% AI)
+综合评分
     |
     v
 保存 LearningRecord
@@ -59,6 +62,11 @@ CodeReviewAgent (代码质量 + 学生画像)
     v
 生成下一步学习建议
 ```
+
+**设计原则**:
+- pytest负责判断功能正确/错误
+- AI只负责代码质量和学习指导，不重新判断功能对错
+- AI不可用/响应非法时只用测试分数
 
 **设计原则**:
 - pytest负责判断功能正确/错误
@@ -94,13 +102,18 @@ CodeReviewAgent (代码质量 + 学生画像)
 - **Phase 3 (Day 19-30)**: Deep Learning
 - **Phase 4 (Day 31-40)**: AI Agent
 
-## Scoring System
+## Scoring Rules (与 platform.py 完全一致)
 
-- **Test Score**: 70% weight
-- **AI Review**: 30% weight
-- **Syntax Error**: 0 points
-- **Timeout**: 0 points
-- **No AI**: Test score only
+| 情况 | 最终分数 |
+|------|----------|
+| 语法错误 / 执行失败 / 超时 | **0** |
+| test_score < 60 | `final_score = test_score`（AI不参与） |
+| test_score >= 60 且AI可用 | `test_score * 0.7 + ai_score * 0.3` |
+| test_score >= 60 但AI不可用/响应非法 | `final_score = test_score` |
+
+补充规则:
+- AI评分只在 `review_status == "success"` 时生效
+- 非法AI响应（score越界/字段类型错误）标记为invalid_response，不参与评分
 
 ## Testing
 

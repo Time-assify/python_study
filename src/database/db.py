@@ -246,15 +246,36 @@ class Database:
             return 0
     
     def get_learning_statistics(self) -> Dict[str, Any]:
+        """获取学习统计信息
+        
+        P0-2语义修正:
+        - attempted_days: progress中出现过的day数量（含0分提交）
+        - completed_days: score >= 60 的day数量
+        - total_submissions: 以submission_history为唯一事实来源
+        """
         try:
-            cursor = self.conn.execute("SELECT COUNT(DISTINCT day) as completed_days FROM progress")
-            completed_days = cursor.fetchone()["completed_days"]
+            cursor = self.conn.execute(
+                "SELECT COUNT(DISTINCT day) as attempted FROM progress"
+            )
+            attempted_days = cursor.fetchone()["attempted"]
+            
+            cursor = self.conn.execute(
+                "SELECT COUNT(DISTINCT day) as completed FROM progress "
+                "WHERE score >= 60"
+            )
+            completed_days = cursor.fetchone()["completed"]
+            
             cursor = self.conn.execute("SELECT AVG(score) as avg_score FROM progress")
             avg_score = cursor.fetchone()["avg_score"] or 0.0
+            
             cursor = self.conn.execute("SELECT MAX(score) as max_score FROM progress")
             max_score = cursor.fetchone()["max_score"] or 0.0
-            total_submissions = self.get_total_submissions()
+            
+            # 真实attempt history唯一事实来源：submission_history
+            total_submissions = self.get_submission_count()
+            
             return {
+                "attempted_days": attempted_days,
                 "completed_days": completed_days,
                 "total_days": 40,
                 "completion_rate": completed_days / 40 * 100,

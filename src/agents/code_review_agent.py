@@ -108,6 +108,10 @@ class CodeReviewAgent:
                 return self._default_result(day=day)
 
             result = self._parse_response(response.content)
+            # P0-3: 非法schema不得被标记为success参与评分
+            if result.review_status == "invalid_response":
+                result.day = day
+                return result
             result.day = day
             result.review_status = "success"
             return result
@@ -193,31 +197,58 @@ class CodeReviewAgent:
         return prompt
 
     def _parse_response(self, content: str) -> CodeReviewResult:
-        """解析LLM响应
+        """解析LLM响应（P0-3: 严格schema校验，非法即降级）
 
-        Args:
-            content: LLM响应内容
+        - score: 数字且 0 <= score <= 100
+        - strengths/issues/knowledge_gaps/improvement/next_learning:
+          必须是 list[str]（拒绝字符串/含非字符串元素的list）
+        - summary: 必须是str
 
-        Returns:
-            CodeReviewResult对象
+        任一字段非法 → _default_result(review_status="invalid_response")，
+        不让invalid AI响应参与最终评分。
         """
         try:
             data = self.llm_client._extract_json(content)
-
-            if data:
-                return CodeReviewResult(
-                    score=float(data.get("score", 70)),
-                    summary=str(data.get("summary", "")),
-                    strengths=list(data.get("strengths", [])),
-                    issues=list(data.get("issues", [])),
-                    knowledge_gaps=list(data.get("knowledge_gaps", [])),
-                    improvement=list(data.get("improvement", [])),
-                    next_learning=list(data.get("next_learning", []))
-                )
         except (ValueError, TypeError):
-            pass
+            data = None
 
-        return self._default_result()
+        if not self._validate_schema(data):
+            return self._default_result(review_status="invalid_response")
+
+        return CodeReviewResult(
+            score=float(data["score"]),
+            summary=str(data["summary"]),
+            strengths=[str(s) for s in data["strengths"]],
+            issues=[str(i) for i in data["issues"]],
+            knowledge_gaps=[str(g) for g in data["knowledge_gaps"]],
+            improvement=[str(m) for m in data["improvement"]],
+            next_learning=[str(n) for n in data["next_learning"]],
+        )
+
+    @staticmethod
+    def _validate_schema(data) -> bool:
+        """结构化输出schema校验"""
+        if not isinstance(data, dict):
+            return False
+
+        score = data.get("score")
+        if isinstance(score, bool) or not isinstance(score, (int, float)):
+            return False
+        if not (0 <= score <= 100):
+            return False
+
+        if not isinstance(data.get("summary"), str):
+            return False
+
+        list_fields = ("strengths", "issues", "knowledge_gaps",
+                       "improvement", "next_learning")
+        for field in list_fields:
+            value = data.get(field)
+            if not isinstance(value, list):
+                return False
+            if not all(isinstance(v, str) for v in value):
+                return False
+        return True
 
     def _default_result(self, day: int = 0, review_status: str = "fallback") -> CodeReviewResult:
         """返回默认审查结果（LLM不可用时）"""

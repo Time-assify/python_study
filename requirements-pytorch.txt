@@ -1,0 +1,8 @@
+# PyTorch环境（进入Day08前安装）
+# 用法: pip install -r requirements-pytorch.txt
+#
+# 基础CI不装此文件（避免GPU版大体积下载）；
+# 需要CPU版时: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+torch>=2.1.0
+torchvision>=0.16.0
