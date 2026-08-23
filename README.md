@@ -31,7 +31,7 @@ python main.py start
 3. **Submit**: `python main.py submit <day> submissions/dayXX/answer.py`
 4. **Auto Test**: System runs pytest against your code
 5. **AI Code Review**: DeepSeek analyzes code quality (6 dimensions)
-6. **Get Score**: Final score = 70% test + 30% AI review
+6. **Get Score**: pytest是功能正确性的核心依据；测试达到60分且AI可用时采用 70% Test + 30% AI；AI不可用或test_score<60时使用test_score；syntax/execution/timeout失败为0。详见下方 Scoring Rules
 
 ## AI Code Review Flow
 
@@ -67,11 +67,6 @@ CodeReviewAgent (代码质量, 不判断功能对错)
 - pytest负责判断功能正确/错误
 - AI只负责代码质量和学习指导，不重新判断功能对错
 - AI不可用/响应非法时只用测试分数
-
-**设计原则**:
-- pytest负责判断功能正确/错误
-- AI负责分析代码质量和学习指导
-- AI不可用时只使用测试分数
 - 不直接给答案，引导学生思考
 
 ## Project Structure

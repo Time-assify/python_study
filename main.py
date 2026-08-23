@@ -101,8 +101,8 @@ def cmd_progress(platform: TrainingPlatform):
     """View progress"""
     stats = platform.get_statistics()
     
-    print(f"Attempted: {stats.get('attempted_days', 0)}/40 days")
-    print(f"Completed: {stats.get('completed_days', 0)}/40 days (score>=60)")
+    print(f"Attempted days: {stats.get('attempted_days', 0)}/40")
+    print(f"Completed days: {stats.get('completed_days', 0)}/40 (score>=60)")
     print(f"Total submissions: {stats.get('total_submissions', 0)}")
     print(f"Completion rate: {stats.get('completion_rate', 0):.1f}%")
     print(f"Average score: {stats.get('average_score', 0):.1f}")
