@@ -22,5 +22,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现模型检查点",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：实现Top-K checkpoint保存（始终保留历史最优的3个epoch权重）",
+  "mastery": [
+    "能把模型权重+epoch保存成checkpoint文件",
+    "能把权重恢复到另一个模型并验证一致",
+    "知道文件不存在时应抛出明确异常"
+  ]
 }

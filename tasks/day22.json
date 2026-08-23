@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现迁移学习",
-  "optional_challenge": "挑战：VOC/COCO真实数据训练并计算真实mAP"
+  "optional_challenge": "挑战：仅解冻最后两层微调，统计可训练参数占总参数的比例变化",
+  "mastery": [
+    "能冻结backbone并保证分类头可训练",
+    "能证明冻结参数训练后不更新",
+    "知道特征提取要在no_grad下进行"
+  ]
 }

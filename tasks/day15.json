@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现GPU训练",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：编写device无关的训练函数（无GPU自动回退CPU），并对小矩阵运算计时对比",
+  "mastery": [
+    "能写出cuda优先否则cpu的设备选择逻辑",
+    "能把模型和tensor搬到同一device",
+    "能封装单步训练并返回CPU上的float loss"
+  ]
 }

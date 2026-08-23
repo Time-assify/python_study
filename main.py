@@ -31,7 +31,22 @@ def cmd_task(platform: TrainingPlatform, day: int):
     print(f"Day {day}: {task.title}")
     print(f"Phase: {phase_info['name']}")
     print(f"Goal: {task.goal}")
+    if getattr(task, "estimated_minutes", 0):
+        print(f"Estimated: ~{task.estimated_minutes} minutes")
     print(f"\nDescription:\n{task.description}")
+    
+    core_task = getattr(task, "core_task", "") or task.task
+    print(f"\n核心任务:\n{core_task}")
+    
+    mastery = getattr(task, "mastery", None) or []
+    if mastery:
+        print(f"\n掌握标准 (mastery):")
+        for item in mastery:
+            print(f"  - {item}")
+    
+    challenge = getattr(task, "optional_challenge", "")
+    if challenge:
+        print(f"\n可选挑战 (challenge失败不影响当天通过):\n{challenge}")
     
     if task.tests:
         print(f"\nTests: {', '.join(task.tests)}")

@@ -25,5 +25,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现多线程下载器",
-  "optional_challenge": "扩展：为你的实现补充类型注解，并生成单元测试覆盖率报告"
+  "optional_challenge": "挑战：用concurrent.futures重写run_in_threads，对比as_completed与map的返回顺序差异",
+  "mastery": [
+    "能用ThreadPoolExecutor并发执行并保持结果顺序",
+    "知道GIL对CPU密集任务的影响",
+    "能创建进程对象并理解线程/进程适用场景"
+  ]
 }

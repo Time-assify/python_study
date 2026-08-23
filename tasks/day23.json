@@ -30,5 +30,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现文本处理",
-  "optional_challenge": "挑战：真实语料微调一个小型文本分类器"
+  "optional_challenge": "挑战：实现字符级分词并与词级分词对比词表大小与OOV率",
+  "mastery": [
+    "能实现小写化去标点的分词器",
+    "能构建含<pad>/<unk>的词表并处理OOV",
+    "能完成编码-padding/截断到定长"
+  ]
 }

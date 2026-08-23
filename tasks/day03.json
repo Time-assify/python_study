@@ -31,5 +31,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "设计机器学习框架的基类结构",
-  "optional_challenge": "扩展：为你的实现补充类型注解，并生成单元测试覆盖率报告"
+  "optional_challenge": "挑战：为BaseModel增加from_config(dict)工厂方法，并解释多态如何让训练代码不感知具体子类",
+  "mastery": [
+    "能用abc定义抽象基类且解释不可实例化的原因",
+    "能让子类通过统一接口被多态调用",
+    "知道抽象方法必须被子类实现"
+  ]
 }

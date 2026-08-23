@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现正则化层",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异",
+  "mastery": [
+    "知道BatchNorm把batch均值拉到0附近",
+    "能解释Dropout只在train生效、eval是确定性的",
+    "知道p不在[0,1]时构造会抛错"
+  ]
 }

@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "部署模型API",
-  "optional_challenge": "挑战：Docker化部署并输出压测报告"
+  "optional_challenge": "挑战：为/predict定义Pydantic响应模型与统一错误码，补httpx集成测试",
+  "mastery": [
+    "能用FastAPI暴露GET /health与POST /predict",
+    "能利用自动校验返回422",
+    "能实现批量预测端点"
+  ]
 }

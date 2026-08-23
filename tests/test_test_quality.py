@@ -79,7 +79,17 @@ def _is_empty_body(func) -> bool:
 
 
 def _const_truthiness(node):
-    """若node是字面常量，返回其真值；否则返回None"""
+    """若node是字面常量/字面集合，返回其真值；否则返回None
+
+    P2: 除ast.Constant外，覆盖List/Tuple/Set/Dict字面量——
+    非空集合静态恒真（assert [1] / assert {"a": 1}），空集合恒假。
+    """
+    # 字面集合（非Constant节点）
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        return len(node.elts) > 0
+    if isinstance(node, ast.Dict):
+        return len(node.keys) > 0
+
     if not isinstance(node, ast.Constant):
         return None
     value = node.value
@@ -91,7 +101,7 @@ def _const_truthiness(node):
         return bool(value)
     if isinstance(value, str):
         return len(value) > 0
-    if isinstance(value, (tuple, list, set, dict)):
+    if isinstance(value, (tuple, list, set, dict, frozenset)):
         return len(value) > 0
     return None
 

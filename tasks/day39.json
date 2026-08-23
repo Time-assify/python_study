@@ -25,9 +25,16 @@
   "test_module": "day39_test",
   "skills": [
     "system.pipeline",
-    "system.event_bus"
+    "system.retry",
+    "system.event_bus",
+    "system.health_check"
   ],
   "estimated_minutes": 60,
   "core_task": "实现Agent系统整合",
-  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
+  "optional_challenge": "挑战：为Pipeline步骤增加超时控制与失败降级fallback输出",
+  "mastery": [
+    "能实现链式Pipeline并传播异常",
+    "能实现恰好retries+1次的失败重试",
+    "能实现发布订阅与健康检查failures清单"
+  ]
 }

@@ -26,5 +26,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "设计有效提示",
-  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
+  "optional_challenge": "挑战：设计少样本分类prompt矩阵实验（示例数量×格式两种维度），总结对回答质量的影响",
+  "mastery": [
+    "能组织few-shot示例且保证query位于其后",
+    "会在prompt中注入一步步思考引导",
+    "知道system prompt应以角色开头"
+  ]
 }

@@ -26,5 +26,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现Transformer块",
-  "optional_challenge": "挑战：真实语料微调一个小型文本分类器"
+  "optional_challenge": "挑战：给self-attention加因果mask(causal mask)，验证位置i无法看到>j的信息",
+  "mastery": [
+    "能手写softmax(QK^T/sqrt(d))V并验证权重行和为1",
+    "知道多头注意力输出shape与输入一致",
+    "能写出正弦位置编码并背出pos=0的取值模式"
+  ]
 }

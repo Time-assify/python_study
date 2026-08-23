@@ -24,5 +24,11 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现常见Tensor操作",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：比较CPU Tensor与可用GPU Tensor的矩阵乘法耗时；练习broadcasting与花式索引（如提取对角线）",
+  "mastery": [
+    "能解释Tensor的shape和dtype",
+    "能完成reshape且不改变元素数量",
+    "能使用索引取得指定元素",
+    "知道CPU/GPU Tensor需要位于同一device"
+  ]
 }

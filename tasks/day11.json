@@ -25,5 +25,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现自定义数据集",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：实现返回变长序列的Dataset，并编写collate_fn完成padding批处理",
+  "mastery": [
+    "能实现__len__/__getitem__的自定义Dataset",
+    "能算出给定batch_size下的batch数量与尾批大小",
+    "知道transform应在__getitem__内生效"
+  ]
 }

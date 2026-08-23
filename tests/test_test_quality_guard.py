@@ -39,6 +39,11 @@ class TestTriviallyTrueDetection:
         "assert 1",
         "assert not False",
         "assert 1 or validate(x)",
+        # P2: 集合字面量
+        "assert [1]",
+        "assert {'a': 1}",
+        "assert (1,)",
+        "assert {1}",
     ])
     def test_catches_tautologies(self, snippet):
         (expr,) = _asserts(snippet)
@@ -54,6 +59,7 @@ class TestTriviallyTrueDetection:
         "assert not items",
         "assert score >= passing_score",
         "assert False",  # 恒假是合法的强制失败手段
+        "assert []",     # 空集合恒假，同样是合法强制失败
     ])
     def test_does_not_flag_real_assertions(self, snippet):
         (expr,) = _asserts(snippet)

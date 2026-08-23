@@ -21,5 +21,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "导出ONNX模型",
-  "optional_challenge": "挑战：Docker化部署并输出压测报告"
+  "optional_challenge": "挑战：导出支持动态batch的ONNX模型，写一个onnxruntime并发推理的小压测脚本",
+  "mastery": [
+    "能把torch模型导出为ONNX文件",
+    "会用onnxruntime加载并推理",
+    "知道dynamic_axes用于动态batch"
+  ]
 }

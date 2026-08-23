@@ -27,5 +27,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现自动评测平台",
-  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
+  "optional_challenge": "挑战：为沙箱增加函数白名单(math/len等)与危险属性访问拦截",
+  "mastery": [
+    "能实现passed/total→百分制与字母等级",
+    "知道total=0不得除零",
+    "能拦截__import__并检测死循环超时"
+  ]
 }

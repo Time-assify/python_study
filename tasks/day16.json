@@ -21,5 +21,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现训练过程可视化",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：同时记录loss/accuracy/学习率三组标量，并在TensorBoard中按命名空间分组展示",
+  "mastery": [
+    "能创建SummaryWriter并生成events文件",
+    "能按step批量写入多个标量",
+    "知道writer可以安全地多次close"
+  ]
 }

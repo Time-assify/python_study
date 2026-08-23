@@ -26,5 +26,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现Agent架构",
-  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
+  "optional_challenge": "挑战：给Agent增加最大步数限制与工具黑白名单机制",
+  "mastery": [
+    "能用Tool(name,func,description)注册工具",
+    "能按描述关键词路由goal到正确工具或澄清",
+    "能实现保留时间序的记忆recall(n)"
+  ]
 }

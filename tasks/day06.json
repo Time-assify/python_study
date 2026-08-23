@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现数据清洗流程",
-  "optional_challenge": "挑战：用一份真实CSV完成完整清洗+分析小报告"
+  "optional_challenge": "挑战：对一份含缺失值/重复行的真实CSV完成清洗小报告（记录删除行数与理由）",
+  "mastery": [
+    "能用pandas删除NaN行与重复行",
+    "能做min-max归一化并处理常数列除零",
+    "能读懂数据清洗前后的shape变化"
+  ]
 }

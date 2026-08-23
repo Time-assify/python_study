@@ -25,5 +25,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现常见优化器",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：SGD+Momentum与Adam在同一二次函数上的收敛对比，整理成3条结论",
+  "mastery": [
+    "能构建SGD/Adam优化器并拒绝非法lr",
+    "能完成一个完整的zero_grad-backward-step训练步",
+    "会用StepLR让学习率按周期衰减"
+  ]
 }

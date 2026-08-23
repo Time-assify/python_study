@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "核心必做：\n- 实现DetectionDataset\n- 理解box格式(xyxy)\n- 实现/理解average_precision计算\n- 使用合成小数据完成 训练前→评估 全流程",
-  "optional_challenge": "VOC/COCO真实数据训练检测模型并计算真实mAP"
+  "optional_challenge": "挑战：在合成场景中加入遮挡目标，观察AP@0.5相对干净场景的退化幅度",
+  "mastery": [
+    "能实现返回(image,target{boxes,labels})的检测Dataset",
+    "知道xyxy坐标满足x1<x2,y1<y2",
+    "能实现完美预测AP=1的评估函数"
+  ]
 }

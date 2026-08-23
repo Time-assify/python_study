@@ -24,5 +24,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现多层感知机",
-  "optional_challenge": "挑战：在真实小型数据集上完成训练并用TensorBoard记录曲线"
+  "optional_challenge": "挑战：用小型synthetic数据集训练MLP拟合sin(x)，绘制loss下降曲线（matplotlib或打印ASCII曲线均可）",
+  "mastery": [
+    "能用nn.Module组装Linear-ReLU-Linear",
+    "会数模型的参数总量(含bias)",
+    "能为名字字符串构建对应激活函数并拒绝未知名"
+  ]
 }

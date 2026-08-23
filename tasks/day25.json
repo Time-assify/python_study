@@ -23,5 +23,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "使用HuggingFace库",
-  "optional_challenge": "挑战：真实语料微调一个小型文本分类器"
+  "optional_challenge": "挑战：用BertConfig构造不同层数的模型，统计参数量随深度/宽度的增长曲线",
+  "mastery": [
+    "能把input_ids送进HF模型拿到last_hidden_state",
+    "会统计HF模型参数量",
+    "知道pad token约定用0右侧填充"
+  ]
 }

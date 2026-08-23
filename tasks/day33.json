@@ -28,5 +28,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现RAG系统",
-  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
+  "optional_challenge": "挑战：用TF-IDF加权替代词重叠打分，对比两组查询的检索排序质量",
+  "mastery": [
+    "能实现带overlap的文本切块并拒绝非法参数",
+    "会计算余弦相似度",
+    "能按关键词相关性检索Top-K文档"
+  ]
 }

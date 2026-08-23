@@ -18,6 +18,10 @@ class Task:
     tests: List[str]
     resources: List[str] = None
     hints: List[str] = None
+    core_task: str = ""
+    mastery: List[str] = None
+    optional_challenge: str = ""
+    estimated_minutes: int = 60
     
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
@@ -29,7 +33,11 @@ class Task:
             "description": self.description,
             "tests": self.tests,
             "resources": self.resources or [],
-            "hints": self.hints or []
+            "hints": self.hints or [],
+            "core_task": self.core_task,
+            "mastery": self.mastery or [],
+            "optional_challenge": self.optional_challenge,
+            "estimated_minutes": self.estimated_minutes,
         }
 
 
@@ -90,7 +98,11 @@ class TaskManager:
             description=data.get("description", ""),
             tests=data["tests"],
             resources=data.get("resources", []),
-            hints=data.get("hints", [])
+            hints=data.get("hints", []),
+            core_task=data.get("core_task", ""),
+            mastery=data.get("mastery", []),
+            optional_challenge=data.get("optional_challenge", ""),
+            estimated_minutes=data.get("estimated_minutes", 60),
         )
         
         # 缓存任务
@@ -168,7 +180,11 @@ class TaskManager:
             description=task_data.get("description", ""),
             tests=task_data["tests"],
             resources=task_data.get("resources", []),
-            hints=task_data.get("hints", [])
+            hints=task_data.get("hints", []),
+            core_task=task_data.get("core_task", ""),
+            mastery=task_data.get("mastery", []),
+            optional_challenge=task_data.get("optional_challenge", ""),
+            estimated_minutes=task_data.get("estimated_minutes", 60),
         )
         
         # 保存到文件

@@ -29,5 +29,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "实现AI学习导师",
-  "optional_challenge": "挑战：接入真实LLM API（自费额度）跑通端到端Demo"
+  "optional_challenge": "挑战：让recommend_next_task考虑trend——declining时先安排复习再推进新任务",
+  "mastery": [
+    "能按最近3次均值±5判定trend",
+    "能按阈值过滤并降序输出薄弱点",
+    "能根据最薄弱错误推荐主题"
+  ]
 }

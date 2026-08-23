@@ -25,5 +25,10 @@
   ],
   "estimated_minutes": 60,
   "core_task": "开发完整AI应用",
-  "optional_challenge": "挑战：Docker化部署并输出压测报告"
+  "optional_challenge": "挑战：让PipelineApp支持async handler，Monitor新增QPS统计",
+  "mastery": [
+    "能用dataclass+yaml完成配置roundtrip",
+    "能实现按注册顺序执行的pipeline",
+    "会用计数器Monitor统计事件"
+  ]
 }

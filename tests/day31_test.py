@@ -40,7 +40,7 @@ def _require(name):
     return obj
 
 
-@pytest.mark.skill("llm.client", "json_parsing")
+@pytest.mark.skill("llm.client")
 class TestAvailability:
     def test_no_key_not_available(self):
         client_cls = _require("LLMClient")
@@ -78,7 +78,7 @@ class FakeTransport:
         return iter(self.chunks)
 
 
-@pytest.mark.skill("llm.client", "json_parsing")
+@pytest.mark.skill("llm.streaming")
 class TestStreaming:
     """任务要求: 流式响应（全部使用mock，不访问真实API）"""
 
@@ -126,7 +126,7 @@ class TestStreaming:
         assert transport.call_count == 1
 
 
-@pytest.mark.skill("llm.client", "json_parsing")
+@pytest.mark.skill("llm.retry")
 class TestRetry:
     """任务要求: 错误重试（全部使用mock）"""
 
@@ -163,7 +163,7 @@ class TestRetry:
         )
 
 
-@pytest.mark.skill("llm.client", "json_parsing")
+@pytest.mark.skill("llm.json_parsing")
 class TestParseResponse:
     def test_plain_json(self):
         parse = _require("parse_response")
@@ -186,7 +186,7 @@ class TestParseResponse:
             pass
 
 
-@pytest.mark.skill("llm.client", "json_parsing")
+@pytest.mark.skill("text.chunking")
 class TestChunking:
     def test_chunk_sizes(self):
         chunk = _require("chunk_text")
