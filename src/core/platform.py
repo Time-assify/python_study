@@ -199,18 +199,26 @@ class TrainingPlatform:
             logger.warning("[_save_review_history] Failed to save review history: %s", e)
     
     def _get_error_history(self, current_day: int) -> List[Dict[str, Any]]:
-        """获取历史错误记录 - 从submission_history读取真实错误"""
+        """获取历史错误记录（P0-4/P0-5）
+        
+        - 返回 newest-first 列表（最近的错误在最前）
+        - 不过滤 day < current_day：同一天重复提交的历史错误也要可见
+          （当前submission尚未写入history，所以读到的是之前所有提交）
+        
+        Schema（与CodeReviewAgent._build_prompt约定一致）:
+            [{"day": int, "error_type": str, "message": str, "test_score": float}]
+        """
         history = []
         submissions = self.database.get_submission_history(limit=50)
         for sub in submissions:
-            if sub["day"] < current_day and sub.get("errors"):
-                for err in sub["errors"]:
-                    history.append({
-                        "day": sub["day"],
-                        "error_type": err.get("error_type", "Unknown"),
-                        "message": err.get("message", "")[:200],
-                        "test_score": sub["test_score"]
-                    })
+            errors = sub.get("errors") or []
+            for err in errors:
+                history.append({
+                    "day": sub["day"],
+                    "error_type": err.get("error_type", "Unknown"),
+                    "message": (err.get("message", "") or "")[:200],
+                    "test_score": sub["test_score"]
+                })
         return history
     
     def _extract_errors_from_test(self, test_result) -> List[Dict[str, Any]]:

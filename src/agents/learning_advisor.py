@@ -1,62 +1,71 @@
-"""Learning Advisor - 学习建议生成模块"""
+"""Learning Advisor - 学习建议生成模块
+
+P1-1: 综合使用StudentProfile的完整字段：
+- error_statistics（客观错误，来自ErrorClassifier）
+- knowledge_gap_statistics（AI判断的知识漏洞）
+- trend（improving/stable/declining）
+- strengths
+"""
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 
 from ..models import StudentProfile
 
 
-# 知识点与学习建议映射
-KNOWLEDGE_ADVICE = {
-    "PyTorch Tensor维度": {
-        "related": ["TensorShapeError", "维度不匹配", "shape"],
+# 客观错误类型 -> 知识点映射
+ERROR_TOPIC_MAP = {
+    "TensorShapeError": {
+        "topic": "PyTorch Tensor维度",
         "advice": [
-            "建议重新学习：PyTorch Tensor维度",
-            "增加：CNN shape练习",
-            "复习 torch.view() 和 torch.reshape() 用法",
-            "练习：print(tensor.shape) 观察维度变化"
+            "优先复习：PyTorch Tensor shape与Conv2d尺寸计算",
+            "练习：print(tensor.shape)观察每层维度变化",
+            "复习 torch.view() 和 torch.reshape() 用法"
         ]
     },
-    "Python基础语法": {
-        "related": ["SyntaxError", "语法错误"],
+    "SyntaxError": {
+        "topic": "Python基础语法",
         "advice": [
             "建议重新学习：Python基础语法",
-            "复习缩进、括号、冒号规则",
-            "使用IDE的语法检查功能"
+            "复习缩进、括号、冒号规则"
         ]
     },
-    "模块导入": {
-        "related": ["ImportError", "ModuleNotFoundError"],
+    "ImportError": {
+        "topic": "模块导入",
         "advice": [
             "建议重新学习：Python模块导入",
-            "检查pip install是否安装",
-            "确认导入路径是否正确",
-            "复习 from ... import ... 和 import ... 的区别"
+            "确认依赖已安装、导入路径正确"
         ]
     },
-    "PyTorch模型定义": {
-        "related": ["模型错误", "nn.Module"],
+    "LogicError": {
+        "topic": "逻辑与边界条件",
         "advice": [
-            "建议重新学习：PyTorch nn.Module",
-            "复习 __init__ 和 forward 方法",
-            "练习：手写一个简单的Linear模型"
+            "建议练习：边界条件分析（空输入/极值）",
+            "用print或断言验证中间变量"
         ]
     },
-    "训练循环": {
-        "related": ["训练错误", "loss", "optimizer"],
+    "RuntimeError": {
+        "topic": "运行时错误排查",
         "advice": [
-            "建议重新学习：训练循环流程",
-            "复习：zero_grad → forward → loss → backward → step",
-            "练习：手写完整训练循环"
+            "建议学习：阅读traceback定位错误根因"
         ]
     },
-    "数据加载": {
-        "related": ["DataLoader", "Dataset", "数据错误"],
+    "TimeoutError": {
+        "topic": "性能优化",
         "advice": [
-            "建议重新学习：PyTorch数据加载",
-            "复习 Dataset 和 DataLoader 的关系",
-            "练习：自定义Dataset类"
+            "建议学习：算法复杂度与向量化操作"
         ]
     },
+}
+
+# AI知识漏洞关键词 -> 知识点映射
+GAP_TOPIC_MAP = {
+    "tensor": {"topic": "PyTorch Tensor维度", "advice": ["增加：CNN shape练习"]},
+    "维度": {"topic": "PyTorch Tensor维度", "advice": ["增加：CNN shape练习"]},
+    "shape": {"topic": "PyTorch Tensor维度", "advice": ["增加：CNN shape练习"]},
+    "训练循环": {"topic": "训练循环流程", "advice": ["复习：zero_grad → forward → loss → backward → step"]},
+    "loss": {"topic": "损失函数", "advice": ["复习常见loss的输入输出shape约定"]},
+    "导入": {"topic": "模块导入", "advice": ["复习 from ... import ... 与 import ... 的区别"]},
+    "数据加载": {"topic": "Dataset/DataLoader", "advice": ["练习：自定义Dataset类"]},
 }
 
 
@@ -66,6 +75,7 @@ class LearningAdvice:
     weaknesses: List[str]
     suggestions: List[str]
     priority_topics: List[str]
+    trend_note: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -73,53 +83,93 @@ class LearningAdvice:
 
 class LearningAdvisor:
     """学习建议生成器
-
-    根据学生画像生成下一步学习建议。
+    
+    根据学生画像（错误统计+知识漏洞+趋势+优点）生成下一步学习建议。
     """
 
     def __init__(self):
         pass
 
     def generate_advice(self, profile: StudentProfile) -> LearningAdvice:
-        """根据学生画像生成学习建议
-
+        """综合学生画像生成学习建议
+        
         Args:
-            profile: 学生画像
+            profile: 学生画像（含error_statistics/knowledge_gap_statistics/trend/strengths）
 
         Returns:
             LearningAdvice对象
         """
-        weaknesses = []
+        error_stats = profile.error_statistics or {}
+        gap_stats = profile.knowledge_gap_statistics or {}
+        
+        weaknesses = list(profile.weaknesses or [])
         suggestions = []
         priority_topics = []
-
-        error_stats = profile.error_statistics or {}
-
-        if not error_stats:
+        
+        # 1. 基于客观错误生成建议
+        for error_type, count in sorted(error_stats.items(), key=lambda x: -x[1]):
+            if count >= 2:
+                weaknesses.append(f"{error_type} ({count}次)")
+            config = ERROR_TOPIC_MAP.get(error_type)
+            if config:
+                suggestions.extend(config["advice"])
+                priority_topics.append(config["topic"])
+            else:
+                suggestions.append(f"建议复习：{error_type}相关知识")
+        
+        # 2. 基于AI判断的知识漏洞生成建议（与客观错误交叉验证）
+        for gap, count in sorted(gap_stats.items(), key=lambda x: -x[1]):
+            matched = False
+            for keyword, config in GAP_TOPIC_MAP.items():
+                if keyword in gap:
+                    if config["topic"] not in priority_topics:
+                        priority_topics.append(config["topic"])
+                    suggestions.extend(config["advice"])
+                    matched = True
+                    break
+            if not matched and count >= 2:
+                weaknesses.append(f"{gap} ({count}次)")
+                suggestions.append(f"针对性练习：{gap}")
+        
+        # 3. 基于trend给出节奏建议
+        trend_note = ""
+        if profile.trend == "declining":
+            trend_note = "近期成绩下降，建议降低下一任务难度并安排复习"
+            suggestions.insert(0, trend_note)
+        elif profile.trend == "improving":
+            trend_note = "近期成绩持续提升，可以按计划继续推进"
+        
+        # 4. 基于strengths给予正向反馈
+        if profile.strengths:
+            top_strength = profile.strengths[0]
+            suggestions.append(f"继续保持优点：{top_strength}")
+        
+        # 无任何数据时的默认建议
+        if not error_stats and not gap_stats:
             return LearningAdvice(
                 weaknesses=[],
                 suggestions=["暂无历史数据，请先完成几次练习"],
-                priority_topics=[]
+                priority_topics=[],
+                trend_note=trend_note
             )
-
-        for error_type, count in sorted(error_stats.items(), key=lambda x: -x[1]):
-            weaknesses.append(f"{error_type} ({count}次)")
-
-            matched = False
-            for topic, config in KNOWLEDGE_ADVICE.items():
-                if error_type in config["related"] or any(r in error_type for r in config["related"]):
-                    suggestions.extend(config["advice"])
-                    priority_topics.append(topic)
-                    matched = True
-                    break
-
-            if not matched:
-                suggestions.append(f"建议复习：{error_type}相关知识")
-
+        
+        # 去重保序
+        seen = set()
+        unique_suggestions = []
+        for s in suggestions:
+            if s not in seen:
+                seen.add(s)
+                unique_suggestions.append(s)
+        unique_topics = []
+        for t in priority_topics:
+            if t not in unique_topics:
+                unique_topics.append(t)
+        
         return LearningAdvice(
-            weaknesses=list(set(weaknesses)),
-            suggestions=list(set(suggestions)),
-            priority_topics=list(set(priority_topics))
+            weaknesses=list(dict.fromkeys(weaknesses)),
+            suggestions=unique_suggestions,
+            priority_topics=unique_topics,
+            trend_note=trend_note
         )
 
     def get_priority_score(self, error_type: str, count: int) -> int:

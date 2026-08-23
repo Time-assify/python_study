@@ -1,145 +1,129 @@
 # Day 01 Tests: Python工程环境
+#
+# answer.py 必须实现（接口约定）:
+# - create_project_structure(project_name) -> dict  包含 root/src/tests/configs/data/logs 键
+# - create_config_file(config_path) -> bool         创建yaml配置文件
+# - setup_logger(log_file, level=logging.INFO) -> logger  写入日志文件
 import pytest
 import os
-import sys
-import tempfile
-import shutil
 import logging
-from pathlib import Path
+import tempfile
 
 try:
-    from answer import create_project_structure, create_config_file, setup_logger
-    HAS_ANSWER = True
-except ImportError:
-    HAS_ANSWER = False
+    import answer
+except ModuleNotFoundError as e:
+    if getattr(e, "name", "") == "answer":
+        answer = None
+    else:
+        raise
+except Exception:
+    raise
 
 
-@pytest.mark.skipif(not HAS_ANSWER, reason="answer module not available")
+def test_answer_module_imports():
+    """answer exists -> import errors are FAIL; only skip when repo has no submission"""
+    if answer is None:
+        pytest.skip("no answer.py under review (TestEngine injects it during real grading)")
+
+
+def _require(name):
+    """获取answer中要求的函数；缺失时明确FAIL并提示"""
+    if answer is None:
+        pytest.skip("no answer.py under review")
+    fn = getattr(answer, name, None)
+    if fn is None:
+        pytest.fail(f"必须实现 {name}()")
+    return fn
+
+
 class TestProjectStructure:
     """测试项目结构创建"""
-    
+
     def test_create_structure_returns_dict(self):
         """测试返回值是字典"""
+        fn = _require("create_project_structure")
         with tempfile.TemporaryDirectory() as tmpdir:
-            project_name = os.path.join(tmpdir, "test_project")
-            result = create_project_structure(project_name)
+            result = fn(os.path.join(tmpdir, "proj"))
             assert isinstance(result, dict)
-    
+
     def test_create_structure_has_required_dirs(self):
-        """测试包含必需的目录"""
+        """测试包含必需的目录键"""
+        fn = _require("create_project_structure")
         with tempfile.TemporaryDirectory() as tmpdir:
-            project_name = os.path.join(tmpdir, "test_project")
-            result = create_project_structure(project_name)
-            
-            required_keys = ["root", "src", "tests", "configs", "data", "logs"]
-            for key in required_keys:
+            result = fn(os.path.join(tmpdir, "proj"))
+            for key in ["root", "src", "tests", "configs", "data", "logs"]:
                 assert key in result, f"缺少目录: {key}"
-    
+
     def test_create_structure_creates_directories(self):
-        """测试实际创建了目录"""
+        """边界条件: 测试实际创建了目录"""
+        fn = _require("create_project_structure")
         with tempfile.TemporaryDirectory() as tmpdir:
-            project_name = os.path.join(tmpdir, "test_project")
-            result = create_project_structure(project_name)
-            
+            result = fn(os.path.join(tmpdir, "proj"))
             for dir_path in result.values():
                 assert os.path.isdir(dir_path), f"目录不存在: {dir_path}"
-    
+
     def test_create_structure_creates_init_file(self):
         """测试创建了__init__.py"""
+        fn = _require("create_project_structure")
         with tempfile.TemporaryDirectory() as tmpdir:
-            project_name = os.path.join(tmpdir, "test_project")
-            create_project_structure(project_name)
-            
-            init_file = os.path.join(project_name, "src", "__init__.py")
-            assert os.path.exists(init_file), "__init__.py不存在"
+            fn(os.path.join(tmpdir, "proj"))
+            assert os.path.exists(os.path.join(tmpdir, "proj", "src", "__init__.py"))
 
 
-@pytest.mark.skipif(not HAS_ANSWER, reason="answer module not available")
 class TestConfigFile:
     """测试配置文件创建"""
-    
+
     def test_create_config_returns_true(self):
-        """测试返回True"""
+        fn = _require("create_config_file")
         with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = os.path.join(tmpdir, "config.yaml")
-            result = create_config_file(config_path)
-            assert result is True
-    
-    def test_create_config_creates_file(self):
-        """测试创建了文件"""
+            assert fn(os.path.join(tmpdir, "config.yaml")) is True
+
+    def test_create_config_creates_file_with_content(self):
+        """边界条件: 文件存在且内容非空"""
+        fn = _require("create_config_file")
         with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = os.path.join(tmpdir, "config.yaml")
-            create_config_file(config_path)
-            assert os.path.exists(config_path)
-    
-    def test_create_config_has_content(self):
-        """测试文件有内容"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            config_path = os.path.join(tmpdir, "config.yaml")
-            create_config_file(config_path)
-            
-            with open(config_path, "r", encoding="utf-8") as f:
+            path = os.path.join(tmpdir, "config.yaml")
+            fn(path)
+            assert os.path.exists(path)
+            with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
-                assert len(content) > 0
-                assert "project" in content.lower() or "config" in content.lower()
+            assert len(content) > 0
+            assert "project" in content.lower() or "config" in content.lower()
 
 
-@pytest.mark.skipif(not HAS_ANSWER, reason="answer module not available")
 class TestLogger:
     """测试日志系统"""
-    
+
     def test_setup_logger_creates_file(self):
-        """测试创建日志文件"""
-        log_file = os.path.join(os.getcwd(), "test_temp.log")
+        """错误处理: 日志文件被创建且可写入"""
+        fn = _require("setup_logger")
+        log_file = os.path.join(os.getcwd(), "test_temp_d01.log")
+        lg = None
         try:
-            # 清除之前的处理器
-            logger = logging.getLogger("ml_project")
-            logger.handlers.clear()
-            
-            setup_logger(log_file)
-            logger.info("测试日志消息")
-            
-            # 刷新处理器
-            for handler in logger.handlers:
-                handler.flush()
-            
-            assert os.path.exists(log_file)
+            lg = fn(log_file, level=logging.INFO)
+            lg.info("测试日志消息")
+            for h in lg.handlers:
+                h.flush()
+            assert os.path.exists(log_file), "日志文件未被创建"
+            assert os.path.getsize(log_file) > 0, "日志文件为空"
         finally:
-            # 清理
-            for handler in logging.getLogger("ml_project").handlers[:]:
-                handler.close()
-                logging.getLogger("ml_project").removeHandler(handler)
-            if os.path.exists(log_file):
+            if lg is not None:
+                for h in lg.handlers[:]:
+                    try:
+                        h.close()
+                    except Exception:
+                        pass
+                    lg.removeHandler(h)
+            for h in logging.getLogger("ml_project").handlers[:]:
                 try:
-                    os.remove(log_file)
-                except:
+                    h.close()
+                except Exception:
                     pass
-    
-    def test_setup_logger_writes_content(self):
-        """测试日志文件有内容"""
-        log_file = os.path.join(os.getcwd(), "test_temp2.log")
-        try:
-            # 清除之前的处理器
-            logger = logging.getLogger("ml_project")
-            logger.handlers.clear()
-            
-            setup_logger(log_file, level=logging.INFO)
-            logger.info("测试日志消息")
-            
-            # 刷新处理器
-            for handler in logger.handlers:
-                handler.flush()
-            
-            assert os.path.getsize(log_file) > 0
-        finally:
-            # 清理
-            for handler in logging.getLogger("ml_project").handlers[:]:
-                handler.close()
-                logging.getLogger("ml_project").removeHandler(handler)
+                logging.getLogger("ml_project").removeHandler(h)
             if os.path.exists(log_file):
                 try:
                     os.remove(log_file)
-                except:
+                except OSError:
                     pass
 
 

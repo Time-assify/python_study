@@ -1,176 +1,346 @@
-"""Integration tests for Learning Profile Pipeline"""
+"""P0-3: 完整Pipeline集成测试 - 真实TrainingPlatform.evaluate_submission()
+
+覆盖:
+- Case A: 正确提交（全链路落库）
+- Case B: 逻辑错误（LogicError分类+error_statistics更新）
+- Case C: 语法错误（final_score=0）
+- Case D: 死循环（timeout=True传播到EvaluationResult）
+- Case E: DeepSeek不可用（ai_score=None, final==test_score）
+- Case F: 历史反馈（第二次Prompt包含第一次错误）
+"""
 import json
-import tempfile
-import os
-import shutil
+import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.models import LearningRecord, StudentProfile, ReviewResult
+import src.database as database_module
+import src.llm as llm_module
 from src.database.db import Database
-from src.agents.code_review_agent import CodeReviewAgent
-from src.agents.learning_advisor import LearningAdvisor
-from src.analyzer import ErrorClassifier
+from src.core.platform import TrainingPlatform
+from src.models import LearningRecord
 
 
-class TestLearningPipelineIntegration:
-    """完整Pipeline集成测试"""
+# ---------------- Day02 标准答案（与tests/day02_test.py契约一致） ----------------
+CORRECT_DAY02 = '''"""Day02正确答案"""
+import functools
+import time as _time
 
-    def setup_method(self):
-        self.tmp_dir = tempfile.mkdtemp()
-        self.db_path = os.path.join(self.tmp_dir, "test.db")
-        self.db = Database(self.db_path)
 
-    def teardown_method(self):
-        self.db.close()
-        shutil.rmtree(self.tmp_dir, ignore_errors=True)
+def repeat(n):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            if n <= 0:
+                raise ValueError("n必须为正整数")
+            result = None
+            for _ in range(n):
+                result = fn(*args, **kwargs)
+            return result
+        return wrapper
+    return deco
 
-    def test_submission_history_persistence(self):
-        """测试Case A: 提交记录正确持久化到数据库"""
-        record = LearningRecord(
-            day=1,
-            task_id="1",
-            submission_path="submissions/day01/answer.py",
-            test_score=85.0,
-            ai_score=78.0,
-            final_score=82.9,
-            errors=[{"test_name": "test1", "message": "failed", "error_type": "LogicError"}],
-            knowledge_gaps=["Tensor维度"],
-            suggestions=["多练习"]
+
+def memoize(func):
+    cache = {}
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return wrapper
+
+
+def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+
+
+def chunked(iterable, size):
+    if size < 1:
+        raise ValueError("size必须>=1")
+    buf = []
+    for item in iterable:
+        buf.append(item)
+        if len(buf) == size:
+            yield buf
+            buf = []
+    if buf:
+        yield buf
+
+
+class Timer:
+    def __enter__(self):
+        self._start = _time.perf_counter()
+        self.elapsed = 0.0
+        return self
+
+    def __exit__(self, *exc):
+        self.elapsed = _time.perf_counter() - self._start
+        return False
+'''
+
+# Day02 错误答案：fibonacci返回list而非生成器 + repeat不校验负数 → LogicError
+WRONG_DAY02 = '''"""Day02错误答案"""
+import functools
+import time as _time
+
+
+def repeat(n):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            result = None
+            for _ in range(n):
+                result = fn(*args, **kwargs)
+            return result
+        return wrapper
+    return deco
+
+
+def memoize(func):
+    cache = {}
+    @functools.wraps(func)
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return wrapper
+
+
+def fibonacci(n):
+    # BUG: 返回list而不是生成器
+    out = []
+    a, b = 0, 1
+    for _ in range(n):
+        out.append(a)
+        a, b = b, a + b
+    return out
+
+
+def chunked(iterable, size):
+    if size < 1:
+        raise ValueError("size必须>=1")
+    buf = []
+    for item in iterable:
+        buf.append(item)
+        if len(buf) == size:
+            yield buf
+            buf = []
+    if buf:
+        yield buf
+
+
+class Timer:
+    def __enter__(self):
+        self._start = _time.perf_counter()
+        self.elapsed = 0.0
+        return self
+
+    def __exit__(self, *exc):
+        self.elapsed = _time.perf_counter() - self._start
+        return False
+'''
+
+
+class FakeLLM:
+    """可用的Mock LLM"""
+
+    def __init__(self):
+        self.chat_calls = []
+
+    def is_available(self):
+        return True
+
+    def chat(self, messages, model=None, temperature=0.7, max_tokens=2000):
+        self.chat_calls.append(messages)
+
+        class R:
+            content = json.dumps({
+                "score": 85,
+                "summary": "质量不错",
+                "strengths": ["结构清晰"],
+                "issues": [],
+                "knowledge_gaps": [],
+                "improvement": ["继续"],
+                "next_learning": [],
+            })
+
+        return R()
+
+    @staticmethod
+    def _extract_json(content):
+        try:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            if start != -1 and end > start:
+                return json.loads(content[start:end])
+        except (json.JSONDecodeError, ValueError):
+            pass
+        return None
+
+
+@pytest.fixture()
+def make_platform(tmp_path, monkeypatch):
+    """构造带临时DB和Mock LLM的真实TrainingPlatform"""
+
+    def _make(llm_available=True):
+        db = Database(str(tmp_path / f"db_{id(_make)}.sqlite"))
+
+        monkeypatch.setattr(database_module, "Database", lambda *a, **k: db)
+
+        if llm_available:
+            fake_llm = FakeLLM()
+        else:
+            fake_llm = MagicMock()
+            fake_llm.is_available.return_value = False
+
+        monkeypatch.setattr(llm_module, "DeepSeekClient", lambda *a, **k: fake_llm)
+
+        plat = TrainingPlatform()
+        plat.database = db
+        return plat, fake_llm, db
+
+    return _make
+
+
+def _write_answer(tmp_path, code):
+    """每个测试有独立tmp_path，直接平铺写入"""
+    p = tmp_path / "answer.py"
+    p.write_text(code, encoding="utf-8")
+    return p
+
+
+class TestCaseACorrectSubmission:
+    def test_full_pipeline_correct(self, make_platform, tmp_path):
+        """Case A: 正确提交→全链路验证"""
+        plat, _llm, db = make_platform()
+        ans = _write_answer(tmp_path, CORRECT_DAY02)
+
+        result = plat.evaluate_submission(2, ans)
+
+        assert result.syntax_valid is True
+        assert result.execution_success is True
+        assert result.test_score == 100.0
+        assert result.final_score >= 100.0 * 0.7  # AI加权后仍很高
+
+        # submission_history写入
+        subs = db.get_submission_history(day=2)
+        assert len(subs) == 1
+        assert subs[0]["test_score"] == 100.0
+
+        # review_history写入
+        reviews = db.get_review_history(day=2)
+        assert len(reviews) == 1
+        assert reviews[0]["review_result"].get("score") == 85
+
+        # StudentProfile可读取
+        profile = db.update_profile()
+        assert profile["total_submissions"] >= 1
+
+
+class TestCaseBLogicError:
+    def test_logic_error_classified(self, make_platform, tmp_path):
+        """Case B: 逻辑错误→LogicError分类+error_statistics更新"""
+        plat, _llm, db = make_platform()
+        ans = _write_answer(tmp_path, WRONG_DAY02)
+
+        result = plat.evaluate_submission(2, ans)
+
+        assert result.test_score < 100.0, "错误实现不应满分"
+
+        errors = result.to_dict()  # 确认结果可用
+        stats = db.get_error_statistics()
+        assert stats.get("LogicError", 0) >= 1, \
+            f"AssertionError应被分类为LogicError: {stats}"
+
+        profile = db.update_profile()
+        assert "LogicError" in profile["error_statistics"]
+
+    def test_wrong_answer_recorded_with_errors(self, make_platform, tmp_path):
+        plat, _llm, db = make_platform()
+        ans = _write_answer(tmp_path, WRONG_DAY02)
+        plat.evaluate_submission(2, ans)
+        rec = db.get_submission_history(day=2)[0]
+        assert len(rec["errors"]) >= 1
+        assert any(e["error_type"] == "LogicError" for e in rec["errors"])
+
+
+class TestCaseCSyntaxError:
+    def test_syntax_error_zero_score(self, make_platform, tmp_path):
+        """Case C: 语法错误→syntax_valid=False, final_score=0"""
+        plat, _llm, _db = make_platform()
+        ans = _write_answer(tmp_path, "def broken(:\n    pass\n")
+
+        result = plat.evaluate_submission(2, ans)
+
+        assert result.syntax_valid is False
+        assert result.final_score == 0.0
+
+
+class TestCaseDInfiniteLoop:
+    def test_timeout_propagates(self, make_platform, tmp_path):
+        """Case D: 死循环→timeout=True且final_score=0"""
+        plat, _llm, _db = make_platform()
+        plat.code_executor.timeout = 2   # 缩短执行检查超时
+        plat.test_engine.timeout = 4     # 缩短pytest超时
+        ans = _write_answer(tmp_path, "while True:\n    pass\n")
+
+        result = plat.evaluate_submission(2, ans)
+
+        # 必须显式检查timeout字段传播（不能只查score）
+        assert result.timeout is True, "TestEngine超时必须传播到EvaluationResult.timeout"
+        assert result.final_score == 0.0
+
+
+class TestCaseELLUnavailable:
+    def test_ai_off_does_not_affect_pytest(self, make_platform, tmp_path):
+        """Case E: AI不可用→ai_score=None, final==test_score"""
+        plat, _llm, db = make_platform(llm_available=False)
+        ans = _write_answer(tmp_path, CORRECT_DAY02)
+
+        result = plat.evaluate_submission(2, ans)
+
+        assert result.ai_score is None
+        assert result.final_score == result.test_score == 100.0
+
+        # fallback的70分不得入库参与评分
+        reviews = db.get_review_history(day=2)
+        assert reviews[0]["review_result"]["score"] is None
+
+
+class TestCaseFHistoryFeedback:
+    def test_second_prompt_contains_first_error(self, make_platform, tmp_path):
+        """Case F: 第一次TensorShapeError→第二次Prompt可见（含同日重提交）"""
+        plat, fake_llm, db = make_platform()
+
+        # 模拟第一次提交产生的真实数据库记录（走真实save路径）
+        seed = LearningRecord(
+            day=2,
+            task_id="2",
+            submission_path=str(tmp_path / "first.py"),
+            test_score=40.0,
+            ai_score=None,
+            final_score=40.0,
+            errors=[{
+                "test_name": "test_matmul",
+                "message": "RuntimeError: mat1 and mat2 shapes cannot be multiplied",
+                "error_type": "TensorShapeError",
+            }],
         )
-        record_id = self.db.save_submission_history(record)
-        assert record_id > 0
+        assert db.save_submission_history(seed) > 0
 
-        # 验证数据完整写入
-        history = self.db.get_submission_history(day=1)
-        assert len(history) == 1
-        h = history[0]
-        assert h["day"] == 1
-        assert h["test_score"] == 85.0
-        assert h["ai_score"] == 78.0
-        assert h["final_score"] == 82.9
-        assert h["errors"][0]["error_type"] == "LogicError"
-        assert h["knowledge_gaps"] == ["Tensor维度"]
-        assert h["suggestions"] == ["多练习"]
+        ans = _write_answer(tmp_path, CORRECT_DAY02)
+        plat.evaluate_submission(2, ans)  # 第二次提交（同day）
 
-    def test_review_history_persistence(self):
-        """测试: review记录正确持久化"""
-        review_result = {
-            "score": 80,
-            "summary": "Good",
-            "strengths": ["代码清晰"],
-            "issues": ["命名不规范"],
-            "knowledge_gaps": ["训练循环"],
-            "improvement": ["多练习"],
-            "next_learning": ["PyTorch"]
-        }
-        record_id = self.db.save_review_history(day=1, code_snippet="def foo(): pass", review_result=review_result)
-        assert record_id > 0
-
-        history = self.db.get_review_history(day=1)
-        assert len(history) == 1
-        assert history[0]["review_result"]["score"] == 80
-        assert history[0]["review_result"]["knowledge_gaps"] == ["训练循环"]
-
-    def test_ai_unavailable_score_is_none(self):
-        """测试Case B: AI不可用时 ai_score=None，最终分数=test_score"""
-        mock_llm = MagicMock()
-        mock_llm.is_available.return_value = False
-        agent = CodeReviewAgent(mock_llm)
-
-        result = agent.review(
-            day=1, code="test", task={}, requirement="",
-            pytest_result={}, profile=StudentProfile()
+        assert len(fake_llm.chat_calls) >= 1
+        user_prompt = fake_llm.chat_calls[0][1]["content"]
+        assert "TensorShapeError" in user_prompt, (
+            "第二次Review的Prompt必须包含第一次的TensorShapeError:\n"
+            + user_prompt[:800]
         )
-
-        assert result.score is None
-        assert result.review_status == "fallback"
-
-        # 验证：AI不可用时，platform不会将70分参与评分
-        # 模拟platform逻辑
-        ai_score = None
-        if result.review_status == "success" and result.score is not None:
-            ai_score = result.score
-        assert ai_score is None
-
-    def test_profile_error_and_knowledge_gap_separation(self):
-        """测试Case C: error_statistics和knowledge_gap_statistics分离"""
-        # 添加带errors的提交
-        for i in range(3):
-            record = LearningRecord(
-                day=i+1, task_id=str(i+1), test_score=80.0, final_score=80.0,
-                errors=[
-                    {"test_name": "test", "message": "shape error", "error_type": "TensorShapeError"},
-                    {"test_name": "test2", "message": "import error", "error_type": "ImportError"}
-                ]
-            )
-            self.db.save_submission_history(record)
-
-        # 添加带knowledge_gaps的review
-        review_result = {"knowledge_gaps": ["Tensor维度", "Tensor维度", "训练循环"], "strengths": ["代码规范"]}
-        self.db.save_review_history(day=1, code_snippet="test", review_result=review_result)
-
-        # 验证分离
-        error_stats = self.db.get_error_statistics()
-        kg_stats = self.db.get_knowledge_gap_statistics()
-
-        assert error_stats.get("TensorShapeError", 0) == 3
-        assert error_stats.get("ImportError", 0) == 3
-        assert kg_stats.get("Tensor维度", 0) == 2
-        assert kg_stats.get("训练循环", 0) == 1
-
-    def test_history_format_for_prompt(self):
-        """测试Case D: 历史记录格式匹配CodeReviewAgent._build_prompt期望"""
-        # 第一次提交
-        record1 = LearningRecord(
-            day=1, task_id="1", test_score=70.0, final_score=70.0,
-            errors=[
-                {"test_name": "test_matmul", "message": "mat1 and mat2 shapes cannot be multiplied", "error_type": "TensorShapeError"}
-            ]
-        )
-        self.db.save_submission_history(record1)
-
-        # 模拟_get_error_history读取
-        history = []
-        submissions = self.db.get_submission_history(limit=50)
-        for sub in submissions:
-            if sub["day"] < 2 and sub.get("errors"):
-                for err in sub["errors"]:
-                    history.append({
-                        "day": sub["day"],
-                        "error_type": err.get("error_type", "Unknown"),
-                        "message": err.get("message", "")[:200],
-                        "test_score": sub["test_score"]
-                    })
-
-        assert len(history) == 1
-        assert history[0]["day"] == 1
-        assert history[0]["error_type"] == "TensorShapeError"
-        assert "mat1 and mat2" in history[0]["message"]
-        assert history[0]["test_score"] == 70.0
-
-    def test_update_profile_comprehensive(self):
-        """测试update_profile返回完整画像"""
-        # 添加数据
-        for i in range(3):
-            record = LearningRecord(
-                day=i+1, task_id=str(i+1), test_score=80.0+i*5, final_score=80.0+i*5,
-                errors=[{"test_name": "test", "message": "err", "error_type": "SyntaxError"}]
-            )
-            self.db.save_submission_history(record)
-
-        review_result = {"knowledge_gaps": ["Python语法", "Python语法"], "strengths": ["代码结构清晰"]}
-        self.db.save_review_history(day=1, code_snippet="test", review_result=review_result)
-
-        profile = self.db.update_profile()
-        assert profile["total_submissions"] == 3
-        assert profile["average_score"] > 0
-        assert "SyntaxError" in profile["error_statistics"]
-        assert "Python语法" in profile["knowledge_gap_statistics"]
-        assert len(profile["weaknesses"]) > 0
-        assert len(profile["strengths"]) > 0
-        assert profile["trend"] in ("improving", "stable", "declining")

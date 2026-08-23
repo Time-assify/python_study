@@ -163,9 +163,10 @@ class CodeReviewAgent:
                 prompt += f"\n{i}. {test.get('test_name', 'unknown')}: {test.get('message', '')[:200]}"
 
         if history:
-            prompt += "\n\n### 历史错误记录"
-            for h in history[-3:]:
-                prompt += f"\n- Day {h.get('day', '?')}: {h.get('error_type', 'unknown')}: {h.get('message', '')[:100]}"
+            # P0-4: history约定为 newest-first，取最近5条
+            prompt += "\n\n### 历史错误记录（最近的在前）"
+            for h in history[:5]:
+                prompt += f"\n- Day {h.get('day', '?')}: {h.get('error_type', 'unknown')}: {str(h.get('message', ''))[:100]}"
 
         if profile:
             prompt += "\n\n### 学生画像"
