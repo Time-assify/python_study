@@ -4,7 +4,6 @@
 # - mse_loss(y_true, y_pred) -> float
 # - LinearRegression 类: fit(X, y, lr=0.05, iters=800) / predict(X) -> ndarray
 #   X为(n,1)数组，内部用梯度下降
-import numpy as np
 import pytest
 
 try:
@@ -16,6 +15,13 @@ except ModuleNotFoundError as e:
         raise
 except Exception:
     raise
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+requires_numpy = pytest.mark.skipif(np is None, reason="numpy未安装（环境问题）")
 
 
 def test_answer_module_imports():

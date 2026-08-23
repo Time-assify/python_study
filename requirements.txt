@@ -8,6 +8,13 @@ uvicorn>=0.24.0
 pytest>=7.4.3
 pytest-json-report>=1.5.0
 
+# Data processing (Day06-07 curriculum tests)
+numpy>=1.24.0
+pandas>=2.0.0
+
+# HTTP client for FastAPI TestClient (Day29)
+httpx>=0.25.0
+
 # LLM client (DeepSeek uses OpenAI compatible API)
 openai>=1.3.0
 
