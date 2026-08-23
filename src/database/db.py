@@ -41,17 +41,9 @@ class SubmissionRecord:
 
 
 class Database:
-    """SQLite数据库管理类
-    
-    管理学习进度和提交记录。
-    """
+    """SQLite数据库管理类"""
     
     def __init__(self, db_path: str = "data/progress.db"):
-        """初始化数据库
-        
-        Args:
-            db_path: 数据库文件路径
-        """
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = None
@@ -93,8 +85,8 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 day INTEGER NOT NULL,
                 code_snippet TEXT DEFAULT '',
-                review_result TEXT DEFAULT '{}',
-                timestamp TEXT NOT NULL
+                review_json TEXT DEFAULT '{}',
+                created_at TEXT NOT NULL
             )
         """)
         
@@ -104,18 +96,20 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 day INTEGER NOT NULL,
                 task_id TEXT DEFAULT '',
-                code_path TEXT NOT NULL,
+                submission_path TEXT NOT NULL,
                 test_score REAL DEFAULT 0.0,
-                ai_score REAL DEFAULT 0.0,
+                ai_score REAL,
                 final_score REAL DEFAULT 0.0,
-                created_time TEXT NOT NULL
+                errors_json TEXT DEFAULT '[]',
+                knowledge_gaps_json TEXT DEFAULT '[]',
+                suggestions_json TEXT DEFAULT '[]',
+                timestamp TEXT NOT NULL
             )
         """)
         
         self.conn.commit()
     
     def close(self):
-        """关闭数据库连接"""
         if self.conn:
             self.conn.close()
     
@@ -125,17 +119,9 @@ class Database:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
     
-    # Progress表操作
+    # ========== Progress表操作 ==========
     
     def save_progress(self, progress: ProgressRecord) -> int:
-        """保存学习进度
-        
-        Args:
-            progress: ProgressRecord对象
-            
-        Returns:
-            记录ID
-        """
         try:
             cursor = self.conn.execute("""
                 INSERT OR REPLACE INTO progress (day, score, test_result, ai_review, timestamp)
@@ -154,25 +140,12 @@ class Database:
             return -1
     
     def get_progress(self, day: int) -> Optional[ProgressRecord]:
-        """获取指定天的学习进度
-        
-        Args:
-            day: 天数
-            
-        Returns:
-            ProgressRecord对象
-        """
         try:
-            cursor = self.conn.execute(
-                "SELECT * FROM progress WHERE day = ?", (day,)
-            )
+            cursor = self.conn.execute("SELECT * FROM progress WHERE day = ?", (day,))
             row = cursor.fetchone()
-            
             if row:
                 return ProgressRecord(
-                    id=row["id"],
-                    day=row["day"],
-                    score=row["score"],
+                    id=row["id"], day=row["day"], score=row["score"],
                     test_result=json.loads(row["test_result"]),
                     ai_review=json.loads(row["ai_review"]),
                     timestamp=row["timestamp"]
@@ -183,45 +156,25 @@ class Database:
             return None
     
     def get_all_progress(self) -> List[ProgressRecord]:
-        """获取所有学习进度
-        
-        Returns:
-            ProgressRecord列表
-        """
         try:
             cursor = self.conn.execute("SELECT * FROM progress ORDER BY day")
             rows = cursor.fetchall()
-            
-            progress_list = []
-            for row in rows:
-                progress_list.append(ProgressRecord(
-                    id=row["id"],
-                    day=row["day"],
-                    score=row["score"],
+            return [
+                ProgressRecord(
+                    id=row["id"], day=row["day"], score=row["score"],
                     test_result=json.loads(row["test_result"]),
                     ai_review=json.loads(row["ai_review"]),
                     timestamp=row["timestamp"]
-                ))
-            return progress_list
+                )
+                for row in rows
+            ]
         except sqlite3.Error as e:
             print(f"获取所有进度失败: {e}")
             return []
     
     def update_progress_score(self, day: int, score: float) -> bool:
-        """更新指定天的分数
-        
-        Args:
-            day: 天数
-            score: 新分数
-            
-        Returns:
-            是否更新成功
-        """
         try:
-            self.conn.execute(
-                "UPDATE progress SET score = ? WHERE day = ?",
-                (score, day)
-            )
+            self.conn.execute("UPDATE progress SET score = ? WHERE day = ?", (score, day))
             self.conn.commit()
             return True
         except sqlite3.Error as e:
@@ -229,14 +182,6 @@ class Database:
             return False
     
     def delete_progress(self, day: int) -> bool:
-        """删除指定天的进度
-        
-        Args:
-            day: 天数
-            
-        Returns:
-            是否删除成功
-        """
         try:
             self.conn.execute("DELETE FROM progress WHERE day = ?", (day,))
             self.conn.commit()
@@ -245,27 +190,14 @@ class Database:
             print(f"删除进度失败: {e}")
             return False
     
-    # Submissions表操作
+    # ========== Submissions表操作 ==========
     
     def save_submission(self, submission: SubmissionRecord) -> int:
-        """保存提交记录
-        
-        Args:
-            submission: SubmissionRecord对象
-            
-        Returns:
-            记录ID
-        """
         try:
             cursor = self.conn.execute("""
                 INSERT INTO submissions (day, file_path, commit_time, score)
                 VALUES (?, ?, ?, ?)
-            """, (
-                submission.day,
-                submission.file_path,
-                submission.commit_time,
-                submission.score
-            ))
+            """, (submission.day, submission.file_path, submission.commit_time, submission.score))
             self.conn.commit()
             return cursor.lastrowid
         except sqlite3.Error as e:
@@ -273,58 +205,31 @@ class Database:
             return -1
     
     def get_submissions_by_day(self, day: int) -> List[SubmissionRecord]:
-        """获取指定天的所有提交记录
-        
-        Args:
-            day: 天数
-            
-        Returns:
-            SubmissionRecord列表
-        """
         try:
             cursor = self.conn.execute(
-                "SELECT * FROM submissions WHERE day = ? ORDER BY commit_time DESC",
-                (day,)
+                "SELECT * FROM submissions WHERE day = ? ORDER BY commit_time DESC", (day,)
             )
-            rows = cursor.fetchall()
-            
-            submissions = []
-            for row in rows:
-                submissions.append(SubmissionRecord(
-                    id=row["id"],
-                    day=row["day"],
-                    file_path=row["file_path"],
-                    commit_time=row["commit_time"],
-                    score=row["score"]
-                ))
-            return submissions
+            return [
+                SubmissionRecord(
+                    id=row["id"], day=row["day"], file_path=row["file_path"],
+                    commit_time=row["commit_time"], score=row["score"]
+                )
+                for row in cursor.fetchall()
+            ]
         except sqlite3.Error as e:
             print(f"获取提交记录失败: {e}")
             return []
     
     def get_latest_submission(self, day: int) -> Optional[SubmissionRecord]:
-        """获取指定天的最新提交记录
-        
-        Args:
-            day: 天数
-            
-        Returns:
-            SubmissionRecord对象
-        """
         try:
             cursor = self.conn.execute(
-                "SELECT * FROM submissions WHERE day = ? ORDER BY commit_time DESC LIMIT 1",
-                (day,)
+                "SELECT * FROM submissions WHERE day = ? ORDER BY commit_time DESC LIMIT 1", (day,)
             )
             row = cursor.fetchone()
-            
             if row:
                 return SubmissionRecord(
-                    id=row["id"],
-                    day=row["day"],
-                    file_path=row["file_path"],
-                    commit_time=row["commit_time"],
-                    score=row["score"]
+                    id=row["id"], day=row["day"], file_path=row["file_path"],
+                    commit_time=row["commit_time"], score=row["score"]
                 )
             return None
         except sqlite3.Error as e:
@@ -332,7 +237,6 @@ class Database:
             return None
     
     def get_total_submissions(self) -> int:
-        """获取总提交次数"""
         try:
             cursor = self.conn.execute("SELECT COUNT(*) as count FROM submissions")
             row = cursor.fetchone()
@@ -342,27 +246,14 @@ class Database:
             return 0
     
     def get_learning_statistics(self) -> Dict[str, Any]:
-        """获取学习统计信息
-        
-        Returns:
-            统计信息字典
-        """
         try:
-            # 总完成天数
             cursor = self.conn.execute("SELECT COUNT(DISTINCT day) as completed_days FROM progress")
             completed_days = cursor.fetchone()["completed_days"]
-            
-            # 平均分
             cursor = self.conn.execute("SELECT AVG(score) as avg_score FROM progress")
             avg_score = cursor.fetchone()["avg_score"] or 0.0
-            
-            # 最高分
             cursor = self.conn.execute("SELECT MAX(score) as max_score FROM progress")
             max_score = cursor.fetchone()["max_score"] or 0.0
-            
-            # 总提交次数
             total_submissions = self.get_total_submissions()
-            
             return {
                 "completed_days": completed_days,
                 "total_days": 40,
@@ -375,29 +266,14 @@ class Database:
             print(f"获取统计信息失败: {e}")
             return {}
     
-    # Review History表操作
+    # ========== Review History表操作 ==========
     
     def save_review_history(self, day: int, code_snippet: str, review_result: Dict[str, Any]) -> int:
-        """保存AI审查历史
-        
-        Args:
-            day: 天数
-            code_snippet: 代码片段（前500字符）
-            review_result: 审查结果JSON
-            
-        Returns:
-            记录ID
-        """
         try:
             cursor = self.conn.execute("""
-                INSERT INTO review_history (day, code_snippet, review_result, timestamp)
+                INSERT INTO review_history (day, code_snippet, review_json, created_at)
                 VALUES (?, ?, ?, ?)
-            """, (
-                day,
-                code_snippet,
-                json.dumps(review_result),
-                datetime.now().isoformat()
-            ))
+            """, (day, code_snippet, json.dumps(review_result, ensure_ascii=False), datetime.now().isoformat()))
             self.conn.commit()
             return cursor.lastrowid
         except sqlite3.Error as e:
@@ -405,58 +281,40 @@ class Database:
             return -1
     
     def get_review_history(self, day: Optional[int] = None, limit: int = 10) -> List[Dict[str, Any]]:
-        """获取AI审查历史
-        
-        Args:
-            day: 指定天数（None则获取所有）
-            limit: 返回数量限制
-            
-        Returns:
-            审查历史列表
-        """
         try:
             if day is not None:
                 cursor = self.conn.execute(
-                    "SELECT * FROM review_history WHERE day = ? ORDER BY timestamp DESC LIMIT ?",
+                    "SELECT * FROM review_history WHERE day = ? ORDER BY created_at DESC LIMIT ?",
                     (day, limit)
                 )
             else:
                 cursor = self.conn.execute(
-                    "SELECT * FROM review_history ORDER BY timestamp DESC LIMIT ?",
-                    (limit,)
+                    "SELECT * FROM review_history ORDER BY created_at DESC LIMIT ?", (limit,)
                 )
-            
-            rows = cursor.fetchall()
             return [
                 {
                     "id": row["id"],
                     "day": row["day"],
                     "code_snippet": row["code_snippet"],
-                    "review_result": json.loads(row["review_result"]),
-                    "timestamp": row["timestamp"]
+                    "review_result": json.loads(row["review_json"]),
+                    "timestamp": row["created_at"]
                 }
-                for row in rows
+                for row in cursor.fetchall()
             ]
         except sqlite3.Error as e:
             print(f"获取审查历史失败: {e}")
             return []
     
-    # Submission History表操作
+    # ========== Submission History表操作 ==========
     
-    def save_submission_history(self, record: 'LearningRecord') -> int:
-        """保存提交历史记录
-        
-        Args:
-            record: LearningRecord对象
-            
-        Returns:
-            记录ID
-        """
+    def save_submission_history(self, record) -> int:
+        """保存LearningRecord到submission_history"""
         try:
             cursor = self.conn.execute("""
                 INSERT INTO submission_history 
-                (day, task_id, code_path, test_score, ai_score, final_score, created_time)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (day, task_id, submission_path, test_score, ai_score, final_score,
+                 errors_json, knowledge_gaps_json, suggestions_json, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 record.day,
                 record.task_id,
@@ -464,6 +322,9 @@ class Database:
                 record.test_score,
                 record.ai_score,
                 record.final_score,
+                json.dumps(record.errors, ensure_ascii=False),
+                json.dumps(record.knowledge_gaps, ensure_ascii=False),
+                json.dumps(record.suggestions, ensure_ascii=False),
                 record.timestamp
             ))
             self.conn.commit()
@@ -473,51 +334,42 @@ class Database:
             return -1
     
     def get_submission_history(self, day: Optional[int] = None, limit: int = 50) -> List[Dict[str, Any]]:
-        """获取提交历史
-        
-        Args:
-            day: 指定天数（None则获取所有）
-            limit: 返回数量限制
-            
-        Returns:
-            提交历史列表
-        """
         try:
             if day is not None:
                 cursor = self.conn.execute(
-                    "SELECT * FROM submission_history WHERE day = ? ORDER BY created_time DESC LIMIT ?",
+                    "SELECT * FROM submission_history WHERE day = ? ORDER BY timestamp DESC LIMIT ?",
                     (day, limit)
                 )
             else:
                 cursor = self.conn.execute(
-                    "SELECT * FROM submission_history ORDER BY created_time DESC LIMIT ?",
-                    (limit,)
+                    "SELECT * FROM submission_history ORDER BY timestamp DESC LIMIT ?", (limit,)
                 )
-            rows = cursor.fetchall()
             return [
                 {
                     "id": row["id"],
                     "day": row["day"],
                     "task_id": row["task_id"],
-                    "code_path": row["code_path"],
+                    "submission_path": row["submission_path"],
                     "test_score": row["test_score"],
                     "ai_score": row["ai_score"],
                     "final_score": row["final_score"],
-                    "created_time": row["created_time"]
+                    "errors": json.loads(row["errors_json"]),
+                    "knowledge_gaps": json.loads(row["knowledge_gaps_json"]),
+                    "suggestions": json.loads(row["suggestions_json"]),
+                    "timestamp": row["timestamp"]
                 }
-                for row in rows
+                for row in cursor.fetchall()
             ]
         except sqlite3.Error as e:
             print(f"获取提交历史失败: {e}")
             return []
     
     def get_submission_count(self, day: Optional[int] = None) -> int:
-        """获取提交次数"""
+        """获取提交次数 - 兼容旧调用"""
         try:
             if day is not None:
                 cursor = self.conn.execute(
-                    "SELECT COUNT(*) as count FROM submission_history WHERE day = ?",
-                    (day,)
+                    "SELECT COUNT(*) as count FROM submission_history WHERE day = ?", (day,)
                 )
             else:
                 cursor = self.conn.execute("SELECT COUNT(*) as count FROM submission_history")
@@ -528,7 +380,6 @@ class Database:
             return 0
     
     def get_average_score(self) -> float:
-        """获取平均分"""
         try:
             cursor = self.conn.execute("SELECT AVG(final_score) as avg_score FROM submission_history")
             row = cursor.fetchone()
@@ -537,55 +388,67 @@ class Database:
             print(f"获取平均分失败: {e}")
             return 0.0
     
-    def get_error_statistics(self) -> Dict[str, int]:
-        """获取错误统计（从review_history中提取knowledge_gaps）"""
-        try:
-            cursor = self.conn.execute(
-                "SELECT review_result FROM review_history ORDER BY timestamp DESC LIMIT 100"
-            )
-            rows = cursor.fetchall()
-            error_stats = {}
-            for row in rows:
-                try:
-                    review = json.loads(row["review_result"])
-                    for gap in review.get("knowledge_gaps", []):
-                        error_stats[gap] = error_stats.get(gap, 0) + 1
-                except (json.JSONDecodeError, AttributeError):
-                    continue
-            return error_stats
-        except sqlite3.Error as e:
-            print(f"获取错误统计失败: {e}")
-            return {}
-    
     def get_score_history(self, limit: int = 10) -> List[float]:
-        """获取最近分数历史（用于判断趋势）"""
         try:
             cursor = self.conn.execute(
-                "SELECT final_score FROM submission_history ORDER BY created_time DESC LIMIT ?",
-                (limit,)
+                "SELECT final_score FROM submission_history ORDER BY timestamp DESC LIMIT ?", (limit,)
             )
-            rows = cursor.fetchall()
-            return [row["final_score"] for row in rows]
+            return [row["final_score"] for row in cursor.fetchall()]
         except sqlite3.Error as e:
             print(f"获取分数历史失败: {e}")
             return []
     
-    def get_recent_strengths(self, limit: int = 5) -> List[str]:
-        """获取最近的strengths（从review_history中提取）"""
+    def get_error_statistics(self) -> Dict[str, int]:
+        """从submission_history的errors_json中统计客观错误类型"""
         try:
             cursor = self.conn.execute(
-                "SELECT review_result FROM review_history ORDER BY timestamp DESC LIMIT ?",
-                (limit,)
+                "SELECT errors_json FROM submission_history ORDER BY timestamp DESC LIMIT 100"
             )
-            rows = cursor.fetchall()
-            strengths = []
-            for row in rows:
+            stats = {}
+            for row in cursor.fetchall():
                 try:
-                    review = json.loads(row["review_result"])
+                    errors = json.loads(row["errors_json"])
+                    for err in errors:
+                        err_type = err.get("error_type", "Unknown")
+                        stats[err_type] = stats.get(err_type, 0) + 1
+                except (json.JSONDecodeError, AttributeError):
+                    continue
+            return stats
+        except sqlite3.Error as e:
+            print(f"获取错误统计失败: {e}")
+            return {}
+    
+    def get_knowledge_gap_statistics(self) -> Dict[str, int]:
+        """从review_history的review_json中统计AI判断的知识漏洞"""
+        try:
+            cursor = self.conn.execute(
+                "SELECT review_json FROM review_history ORDER BY created_at DESC LIMIT 100"
+            )
+            stats = {}
+            for row in cursor.fetchall():
+                try:
+                    review = json.loads(row["review_json"])
+                    for gap in review.get("knowledge_gaps", []):
+                        stats[gap] = stats.get(gap, 0) + 1
+                except (json.JSONDecodeError, AttributeError):
+                    continue
+            return stats
+        except sqlite3.Error as e:
+            print(f"获取知识漏洞统计失败: {e}")
+            return {}
+    
+    def get_recent_strengths(self, limit: int = 5) -> List[str]:
+        try:
+            cursor = self.conn.execute(
+                "SELECT review_json FROM review_history ORDER BY created_at DESC LIMIT ?", (limit,)
+            )
+            strengths = []
+            for row in cursor.fetchall():
+                try:
+                    review = json.loads(row["review_json"])
                     strengths.extend(review.get("strengths", []))
                 except (json.JSONDecodeError, AttributeError):
                     continue
-            # 去重并返回
             seen = set()
             unique = []
             for s in strengths:
@@ -598,10 +461,11 @@ class Database:
             return []
     
     def update_profile(self) -> Dict[str, Any]:
-        """根据历史记录更新学生画像，返回weakness/strength/trend"""
+        """根据历史记录更新学生画像"""
         total = self.get_submission_count()
         avg_score = self.get_average_score()
         error_stats = self.get_error_statistics()
+        knowledge_gap_stats = self.get_knowledge_gap_statistics()
         score_history = self.get_score_history(limit=10)
         recent_strengths = self.get_recent_strengths()
         
@@ -618,16 +482,20 @@ class Database:
                 elif recent_avg < older_avg - 5:
                     trend = "declining"
         
-        # 识别薄弱点
+        # 综合薄弱点（结合error_statistics和knowledge_gap_statistics）
         weaknesses = []
         for error_type, count in sorted(error_stats.items(), key=lambda x: -x[1]):
             if count >= 2:
                 weaknesses.append(f"{error_type} ({count}次)")
+        for gap, count in sorted(knowledge_gap_stats.items(), key=lambda x: -x[1]):
+            if count >= 2:
+                weaknesses.append(f"{gap} ({count}次)")
         
         return {
             "total_submissions": total,
             "average_score": avg_score,
             "error_statistics": error_stats,
+            "knowledge_gap_statistics": knowledge_gap_stats,
             "weaknesses": weaknesses,
             "strengths": recent_strengths,
             "trend": trend

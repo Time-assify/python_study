@@ -98,7 +98,7 @@ class TestCodeReviewAgent(unittest.TestCase):
         result = agent.review(self.sample_day, self.sample_code, self.sample_task,
                               self.sample_requirement, self.sample_test_result)
 
-        self.assertEqual(result.score, 70.0)
+        self.assertIsNone(result.score)
         self.assertIn("不可用", result.summary)
         self.assertEqual(result.strengths, [])
         self.assertEqual(result.knowledge_gaps, [])
@@ -147,7 +147,7 @@ class TestCodeReviewAgent(unittest.TestCase):
         agent = self.CodeReviewAgent(mock_client)
         result = agent._parse_response("这不是JSON")
 
-        self.assertEqual(result.score, 70.0)
+        self.assertIsNone(result.score)
         self.assertIn("不可用", result.summary)
 
     def test_malformed_json_with_extra_text(self):
@@ -250,7 +250,7 @@ class TestCodeReviewAgent(unittest.TestCase):
         result = agent.review(self.sample_day, self.sample_code, self.sample_task,
                               self.sample_requirement, self.sample_test_result)
 
-        self.assertEqual(result.score, 70.0)
+        self.assertIsNone(result.score)
         self.assertEqual(result.review_status, "error")
         self.assertIn("不可用", result.summary)
 

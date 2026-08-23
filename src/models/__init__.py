@@ -39,6 +39,7 @@ class StudentProfile:
     total_submissions: int = 0
     average_score: float = 0.0
     error_statistics: Dict[str, int] = None
+    knowledge_gap_statistics: Dict[str, int] = None
     weaknesses: List[str] = None
     strengths: List[str] = None
     trend: str = "stable"
@@ -46,6 +47,8 @@ class StudentProfile:
     def __post_init__(self):
         if self.error_statistics is None:
             self.error_statistics = {}
+        if self.knowledge_gap_statistics is None:
+            self.knowledge_gap_statistics = {}
         if self.weaknesses is None:
             self.weaknesses = []
         if self.strengths is None:
@@ -58,7 +61,7 @@ class StudentProfile:
 @dataclass
 class ReviewResult:
     """代码审查结果（统一名称，替代CodeReviewResult）"""
-    score: float = 0.0
+    score: Optional[float] = None
     summary: str = ""
     strengths: List[str] = None
     issues: List[str] = None

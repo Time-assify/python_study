@@ -29,15 +29,17 @@ class CodeReviewAgent:
 ## 审查维度
 你需要从以下6个维度分析学生代码：
 
-1. **代码正确性** - 逻辑是否正确，边界情况是否处理
-2. **代码结构** - 命名是否清晰，模块划分是否合理
-3. **Python规范** - 是否遵循PEP8，是否有Pythonic写法
+1. **代码结构** - 命名是否清晰，模块划分是否合理
+2. **Python/PyTorch规范** - 是否遵循PEP8，是否有Pythonic写法
+3. **可读性** - 代码是否易于理解
 4. **性能** - 是否有明显性能问题
-5. **潜在Bug** - 是否有隐藏的bug或不安全操作
+5. **潜在工程问题** - 是否有隐藏的bug或不安全操作
 6. **知识漏洞** - 学生对哪些概念理解不足
 
 ## 重要说明
-pytest测试结果已经确定了功能正确性，你的评分只关注代码质量。
+- pytest测试结果已经确定了功能正确性，你**不需要**判断代码功能是否正确
+- 你只负责评估代码质量和给出学习建议
+- 功能正确性由pytest结果决定，不要重新判断
 
 ## 输出要求
 你必须返回严格的JSON格式，不要包含任何其他文本：
@@ -185,7 +187,7 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
 {code}
 ```
 
-请从代码正确性、代码结构、Python规范、性能、潜在Bug、知识漏洞6个维度进行审查，并给出改进建议。"""
+请从代码结构、Python/PyTorch规范、可读性、性能、潜在工程问题、知识漏洞6个维度进行审查，并给出改进建议。"""
 
         return prompt
 
@@ -217,15 +219,10 @@ pytest测试结果已经确定了功能正确性，你的评分只关注代码�
         return self._default_result()
 
     def _default_result(self, day: int = 0, review_status: str = "fallback") -> CodeReviewResult:
-        """返回默认审查结果（LLM不可用时）
-
-        Args:
-            day: 当前天数
-            review_status: 审查状态
-        """
+        """返回默认审查结果（LLM不可用时）"""
         return CodeReviewResult(
             day=day,
-            score=70.0,
+            score=None,
             summary="AI审查不可用，无法进行代码分析",
             strengths=[],
             issues=["无法获取AI审查结果"],

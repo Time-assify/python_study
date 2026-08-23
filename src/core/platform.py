@@ -113,7 +113,9 @@ class TrainingPlatform:
                 history=self._get_error_history(day),
                 profile=profile
             )
-            ai_score = review_result.score
+            # 只有review_status=="success"时才使用AI评分
+            if review_result.review_status == "success" and review_result.score is not None:
+                ai_score = review_result.score
             ai_review = review_result.to_dict()
         except Exception as e:
             logger.warning("[evaluate_submission] AI review failed for day %d: %s", day, e)
@@ -197,17 +199,18 @@ class TrainingPlatform:
             logger.warning("[_save_review_history] Failed to save review history: %s", e)
     
     def _get_error_history(self, current_day: int) -> List[Dict[str, Any]]:
-        """获取历史错误记录"""
+        """获取历史错误记录 - 从submission_history读取真实错误"""
         history = []
-        progress_list = self.database.get_all_progress()
-        for p in progress_list:
-            if p.day < current_day and p.ai_review:
-                history.append({
-                    "day": p.day,
-                    "test_score": p.score,
-                    "ai_score": p.ai_review.get("score"),
-                    "summary": p.ai_review.get("summary", "")
-                })
+        submissions = self.database.get_submission_history(limit=50)
+        for sub in submissions:
+            if sub["day"] < current_day and sub.get("errors"):
+                for err in sub["errors"]:
+                    history.append({
+                        "day": sub["day"],
+                        "error_type": err.get("error_type", "Unknown"),
+                        "message": err.get("message", "")[:200],
+                        "test_score": sub["test_score"]
+                    })
         return history
     
     def _extract_errors_from_test(self, test_result) -> List[Dict[str, Any]]:
@@ -232,6 +235,7 @@ class TrainingPlatform:
             total_submissions=profile_data["total_submissions"],
             average_score=profile_data["average_score"],
             error_statistics=profile_data["error_statistics"],
+            knowledge_gap_statistics=profile_data.get("knowledge_gap_statistics", {}),
             weaknesses=profile_data["weaknesses"],
             strengths=profile_data["strengths"],
             trend=profile_data["trend"]

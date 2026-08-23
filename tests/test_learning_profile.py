@@ -62,18 +62,21 @@ class TestStudentProfile:
             total_submissions=10,
             average_score=78.5,
             error_statistics={"TensorShapeError": 5, "ImportError": 3},
+            knowledge_gap_statistics={"Tensor维度": 4, "训练循环": 2},
             weaknesses=["TensorShapeError", "ImportError"],
             strengths=["代码规范"]
         )
         assert profile.total_submissions == 10
         assert profile.average_score == 78.5
         assert profile.error_statistics["TensorShapeError"] == 5
+        assert profile.knowledge_gap_statistics["Tensor维度"] == 4
 
     def test_profile_defaults(self):
         profile = StudentProfile()
         assert profile.total_submissions == 0
         assert profile.average_score == 0.0
         assert profile.error_statistics == {}
+        assert profile.knowledge_gap_statistics == {}
         assert profile.weaknesses == []
 
     def test_profile_to_dict(self):
@@ -81,6 +84,7 @@ class TestStudentProfile:
         d = profile.to_dict()
         assert isinstance(d, dict)
         assert d["total_submissions"] == 5
+        assert "knowledge_gap_statistics" in d
 
 
 class TestErrorClassifier:
@@ -187,9 +191,11 @@ class TestLearningAdvisor:
 
     def test_priority_score(self):
         score = self.advisor.get_priority_score("TensorShapeError", 5)
+        assert isinstance(score, int)
         assert score > 0
-        score2 = self.advisor.get_priority_score("OtherError", 1)
-        assert score < score2 or score > score2  # just check it returns int
+        score_low = self.advisor.get_priority_score("TensorShapeError", 1)
+        score_high = self.advisor.get_priority_score("TensorShapeError", 5)
+        assert score_high > score_low
 
 
 class TestReviewResult:
@@ -213,7 +219,7 @@ class TestReviewResult:
 
     def test_review_result_defaults(self):
         result = ReviewResult()
-        assert result.score == 0.0
+        assert result.score is None
         assert result.strengths == []
         assert result.review_status == "success"
 
@@ -322,13 +328,30 @@ class TestDatabaseNewTables:
         stats = self.db.get_error_statistics()
         assert stats == {}
 
-    def test_error_statistics_with_reviews(self):
+    def test_error_statistics_from_submission_history(self):
+        record = LearningRecord(
+            day=1, task_id="1", test_score=80.0, final_score=80.0,
+            errors=[
+                {"test_name": "test1", "message": "TensorShapeError", "error_type": "TensorShapeError"},
+                {"test_name": "test2", "message": "ImportError", "error_type": "ImportError"}
+            ]
+        )
+        self.db.save_submission_history(record)
+        stats = self.db.get_error_statistics()
+        assert stats["TensorShapeError"] == 1
+        assert stats["ImportError"] == 1
+
+    def test_knowledge_gap_statistics_empty(self):
+        stats = self.db.get_knowledge_gap_statistics()
+        assert stats == {}
+
+    def test_knowledge_gap_statistics_with_reviews(self):
         review_result = {
             "knowledge_gaps": ["Tensor维度", "训练循环", "Tensor维度"]
         }
         self.db.save_review_history(day=1, code_snippet="test", review_result=review_result)
         
-        stats = self.db.get_error_statistics()
+        stats = self.db.get_knowledge_gap_statistics()
         assert stats["Tensor维度"] == 2
         assert stats["训练循环"] == 1
 
@@ -338,21 +361,26 @@ class TestDatabaseNewTables:
         assert profile["average_score"] == 0.0
         assert profile["weaknesses"] == []
         assert profile["trend"] == "stable"
+        assert profile["knowledge_gap_statistics"] == {}
 
     def test_update_profile_with_data(self):
-        # 添加提交历史
+        # 添加提交历史（带errors）
         for i in range(5):
-            record = LearningRecord(day=i+1, task_id=str(i+1), test_score=80.0+i*2, final_score=80.0+i*2)
+            record = LearningRecord(
+                day=i+1, task_id=str(i+1), test_score=80.0+i*2, final_score=80.0+i*2,
+                errors=[{"test_name": "test", "message": "shape error", "error_type": "TensorShapeError"}]
+            )
             self.db.save_submission_history(record)
         
-        # 添加review历史
+        # 添加review历史（带knowledge_gaps）
         review_result = {"knowledge_gaps": ["Tensor维度", "Tensor维度", "训练循环"], "strengths": ["代码规范"]}
         self.db.save_review_history(day=1, code_snippet="test", review_result=review_result)
         
         profile = self.db.update_profile()
         assert profile["total_submissions"] == 5
         assert profile["average_score"] > 0
-        assert "Tensor维度" in profile["error_statistics"]
+        assert "TensorShapeError" in profile["error_statistics"]
+        assert "Tensor维度" in profile["knowledge_gap_statistics"]
         assert len(profile["weaknesses"]) > 0
         assert len(profile["strengths"]) > 0
 
@@ -394,17 +422,6 @@ class TestCodeReviewAgentWithProfile:
         self.mock_llm.is_available.return_value = True
 
     def test_review_accepts_profile(self):
-        mock_response = MagicMock()
-        mock_response.content = json.dumps({
-            "score": 85,
-            "summary": "Good code",
-            "strengths": ["清晰"],
-            "issues": [],
-            "knowledge_gaps": ["Tensor维度"],
-            "improvement": ["多练习"],
-            "next_learning": ["PyTorch"]
-        })
-        self.mock_llm.chat.return_value = mock_response
         self.mock_llm._extract_json.return_value = {
             "score": 85,
             "summary": "Good code",
@@ -450,4 +467,20 @@ class TestCodeReviewAgentWithProfile:
             profile=StudentProfile()
         )
         
+        assert result.review_status == "fallback"
+        assert result.score is None
+
+    def test_review_fallback_score_none(self):
+        self.mock_llm.is_available.return_value = False
+        agent = CodeReviewAgent(self.mock_llm)
+        
+        result = agent.review(
+            day=1,
+            code="test",
+            task={},
+            requirement="",
+            pytest_result={},
+        )
+        
+        assert result.score is None
         assert result.review_status == "fallback"
