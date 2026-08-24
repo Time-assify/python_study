@@ -1,9 +1,9 @@
-# Day 04 Tests: 多线程/多进程
+# Day 04 Tests: 多线程/并发（核心聚焦ThreadPoolExecutor）
 #
-# answer.py 必须实现（接口约定）:
-# - run_in_threads(func, n) -> list     用n个线程执行func(i)，按完成顺序或提交顺序返回结果
+# 核心接口（multiprocessing已移至可选挑战:
+#   tests/challenges/day04_challenge_test.py）:
+# - run_in_threads(func, n) -> list     用n个线程执行func(i)，返回结果列表
 # - concurrent_map(func, items) -> list 用ThreadPoolExecutor映射，保持输入顺序
-# - make_process(target) -> multiprocessing.Process  创建进程对象（不要求启动）
 import pytest
 
 try:
@@ -17,7 +17,6 @@ except Exception:
     raise
 
 import threading
-import multiprocessing
 
 
 def test_answer_module_imports():
@@ -69,25 +68,6 @@ class TestConcurrentMap:
         """边界条件: 空输入"""
         concurrent_map = _require("concurrent_map")
         assert concurrent_map(str, []) == []
-
-
-@pytest.mark.skill("python.threading", "python.multiprocessing")
-class TestProcess:
-    def test_make_process_returns_process(self):
-        if answer is None:
-            pytest.skip("no answer.py under review")
-        make_process = getattr(answer, "make_process", None)
-        if make_process is None:
-            pytest.fail("必须实现 make_process()")
-        p = make_process(lambda: None)
-        # 兼容直接返回Process对象或返回可调用工厂
-        if isinstance(p, multiprocessing.process.BaseProcess):
-            proc = p
-        elif callable(p):
-            proc = p()
-        else:
-            pytest.fail("make_process应返回Process对象")
-        assert isinstance(proc, multiprocessing.process.BaseProcess)
 
 
 if __name__ == "__main__":

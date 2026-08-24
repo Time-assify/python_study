@@ -2,8 +2,45 @@
   "day": 8,
   "title": "Tensor基础",
   "goal": "掌握Tensor操作",
-  "task": "实现常见Tensor操作",
-  "description": "学习PyTorch的Tensor基础，包括创建、索引、变形、运算等操作。理解GPU加速计算。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "Python slicing",
+    "NumPy shape"
+  ],
+  "learn": [
+    "Tensor创建与dtype",
+    "reshape与元素数守恒",
+    "统计与索引"
+  ],
+  "required_api": [
+    {
+      "signature": "create_tensor(data) -> Tensor",
+      "description": "返回dtype=float32的tensor"
+    },
+    {
+      "signature": "reshape_tensor(t, shape) -> Tensor",
+      "description": "按tuple形状reshape；元素数不匹配时让PyTorch报错"
+    },
+    {
+      "signature": "tensor_stats(t) -> (mean, std)",
+      "description": "返回均值与标准差"
+    },
+    {
+      "signature": "index_last(t) -> Tensor",
+      "description": "取展平后的最后一个元素"
+    }
+  ],
+  "core_task": "实现常见Tensor操作",
+  "mastery": [
+    "能解释Tensor的shape和dtype",
+    "能完成reshape且不改变元素数量",
+    "能使用索引取得指定元素",
+    "知道CPU/GPU Tensor需要位于同一device"
+  ],
+  "optional_challenge": "挑战：比较CPU Tensor与可用GPU Tensor的矩阵乘法耗时；练习broadcasting与花式索引（如提取对角线）",
+  "skills": [
+    "pytorch.tensor"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_create_tensor_dtype",
@@ -13,22 +50,23 @@
     "test_reshape_preserves_elements",
     "test_stats_values"
   ],
+  "test_module": "day08_test",
+  "task": "实现常见Tensor操作",
+  "description": "学习PyTorch的Tensor基础，包括创建、索引、变形、运算等操作。理解GPU加速计算。",
   "hints": [
     "使用torch.tensor()或torch.zeros/ones/rand创建",
     "使用view()或reshape()变形",
     "使用切片进行索引"
   ],
-  "test_module": "day08_test",
-  "skills": [
-    "pytorch.tensor"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现常见Tensor操作",
-  "optional_challenge": "挑战：比较CPU Tensor与可用GPU Tensor的矩阵乘法耗时；练习broadcasting与花式索引（如提取对角线）",
-  "mastery": [
-    "能解释Tensor的shape和dtype",
-    "能完成reshape且不改变元素数量",
-    "能使用索引取得指定元素",
-    "知道CPU/GPU Tensor需要位于同一device"
-  ]
+  "hint_levels": {
+    "1": [
+      "torch.tensor(data, dtype=torch.float32)"
+    ],
+    "2": [
+      "t.reshape(*shape)；统计用t.mean()/t.std()"
+    ],
+    "3": [
+      "t.view(-1) 或 t.flatten() 可以展平tensor"
+    ]
+  }
 }

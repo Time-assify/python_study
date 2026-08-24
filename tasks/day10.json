@@ -2,8 +2,42 @@
   "day": 10,
   "title": "nn.Module神经网络",
   "goal": "构建神经网络",
-  "task": "实现多层感知机",
-  "description": "学习PyTorch的nn.Module，构建和训练神经网络。理解前向传播和反向传播。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "Tensor",
+    "Autograd",
+    "Python class继承"
+  ],
+  "learn": [
+    "nn.Module结构",
+    "参数计数",
+    "激活函数"
+  ],
+  "required_api": [
+    {
+      "signature": "MLP(in_features, hidden, out_features) -> nn.Module",
+      "description": "Linear-ReLU-Linear结构，forward输出(B, out_features)"
+    },
+    {
+      "signature": "count_parameters(model) -> int",
+      "description": "可训练参数总数（含bias）"
+    },
+    {
+      "signature": "build_activation(name) -> nn.Module",
+      "description": "'relu'/'sigmoid'/'tanh'；未知名抛ValueError"
+    }
+  ],
+  "core_task": "实现多层感知机",
+  "mastery": [
+    "能用nn.Module组装Linear-ReLU-Linear",
+    "会数模型的参数总量(含bias)",
+    "能为名字字符串构建对应激活函数并拒绝未知名"
+  ],
+  "optional_challenge": "挑战：用小型synthetic数据集训练MLP拟合sin(x)，绘制loss下降曲线（matplotlib或打印ASCII曲线均可）",
+  "skills": [
+    "pytorch.nn_module",
+    "pytorch.activation"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_forward_shape",
@@ -12,22 +46,23 @@
     "test_training_reduces_loss",
     "test_unknown_name_raises"
   ],
+  "test_module": "day10_test",
+  "task": "实现多层感知机",
+  "description": "学习PyTorch的nn.Module，构建和训练神经网络。理解前向传播和反向传播。",
   "hints": [
     "继承nn.Module类",
     "实现forward()方法",
     "使用nn.Linear定义全连接层"
   ],
-  "test_module": "day10_test",
-  "skills": [
-    "pytorch.nn_module",
-    "pytorch.activation"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现多层感知机",
-  "optional_challenge": "挑战：用小型synthetic数据集训练MLP拟合sin(x)，绘制loss下降曲线（matplotlib或打印ASCII曲线均可）",
-  "mastery": [
-    "能用nn.Module组装Linear-ReLU-Linear",
-    "会数模型的参数总量(含bias)",
-    "能为名字字符串构建对应激活函数并拒绝未知名"
-  ]
+  "hint_levels": {
+    "1": [
+      "继承nn.Module，__init__里定义层，forward里串起来"
+    ],
+    "2": [
+      "参数量 = 每层 weight数 + bias数 求和"
+    ],
+    "3": [
+      "__repr__可让print好看；build_activation可用字符串映射到nn.ReLU等"
+    ]
+  }
 }

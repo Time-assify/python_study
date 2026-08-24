@@ -2,8 +2,41 @@
   "day": 5,
   "title": "API客户端开发",
   "goal": "掌握HTTP客户端",
-  "task": "实现REST API客户端",
-  "description": "学习HTTP协议和REST API设计，使用requests库开发API客户端。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "Python字典",
+    "异常处理"
+  ],
+  "learn": [
+    "URL与query参数",
+    "requests的get/post",
+    "异常包装模式（第三方异常→业务异常）"
+  ],
+  "required_api": [
+    {
+      "signature": "build_url(base, path, params=None) -> str",
+      "description": "拼接URL；params为dict时附加查询参数；params为None时无'?'"
+    },
+    {
+      "signature": "APIClient(base_url)",
+      "description": "类：get(path)/post(path, json=None)，底层用requests"
+    },
+    {
+      "signature": "APIError(Exception)",
+      "description": "自定义业务异常：网络错误必须包装成APIError抛出"
+    }
+  ],
+  "core_task": "实现build_url与APIClient(get/post)，并把requests异常包装为APIError（不含重试）",
+  "mastery": [
+    "能拼接含query参数的URL",
+    "会使用requests发起GET/POST",
+    "能把第三方异常包装成自己的APIError"
+  ],
+  "optional_challenge": "挑战：给APIClient增加timeout参数与失败重试一次的逻辑（仅本地mock验证，不发真实请求）",
+  "skills": [
+    "python.requests",
+    "api.client"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_api_error_is_exception",
@@ -13,22 +46,23 @@
     "test_simple_path",
     "test_with_params"
   ],
+  "test_module": "day05_test",
+  "task": "实现REST API客户端",
+  "description": "学习HTTP协议和REST API设计，使用requests库开发API客户端。",
   "hints": [
     "使用requests库发送HTTP请求",
     "处理JSON响应",
     "实现重试机制"
   ],
-  "test_module": "day05_test",
-  "skills": [
-    "python.requests",
-    "api.client"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现REST API客户端",
-  "optional_challenge": "挑战：给APIClient增加timeout参数与失败重试一次的逻辑（仅本地mock验证，不发真实请求）",
-  "mastery": [
-    "能拼接带query参数的URL",
-    "能把requests异常包装成业务异常APIError",
-    "知道get/post的语义区别"
-  ]
+  "hint_levels": {
+    "1": [
+      "requests.get/post的第一个参数是完整URL"
+    ],
+    "2": [
+      "包装：try: requests... except requests.RequestException as e: raise APIError(str(e))"
+    ],
+    "3": [
+      "params用urllib.parse.urlencode或requests的params参数拼接"
+    ]
+  }
 }

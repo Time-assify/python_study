@@ -2,33 +2,65 @@
   "day": 4,
   "title": "多线程多进程",
   "goal": "掌握并发编程",
-  "task": "实现多线程下载器",
-  "description": "学习Python的多线程和多进程编程，理解GIL的限制和解决方案。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "函数作为参数",
+    "列表推导"
+  ],
+  "learn": [
+    "Thread与顺序执行的区别",
+    "ThreadPoolExecutor",
+    "map与as_completed的顺序差异",
+    "IO密集任务为什么适合线程",
+    "GIL：能解释CPU密集任务不适合大量Python线程"
+  ],
+  "required_api": [
+    {
+      "signature": "run_in_threads(func, n) -> list",
+      "description": "用n个线程执行func(i)，返回5个结果（顺序或完成序均可）"
+    },
+    {
+      "signature": "concurrent_map(func, items) -> list",
+      "description": "用ThreadPoolExecutor映射，必须保持输入顺序"
+    }
+  ],
+  "core_task": "使用ThreadPoolExecutor实现并发任务执行器：run_in_threads / concurrent_map",
+  "mastery": [
+    "能说明Thread与顺序执行的区别",
+    "会用ThreadPoolExecutor提交任务",
+    "会用map与as_completed并知道返回顺序差异",
+    "能解释IO密集任务适合线程、CPU密集不适合（GIL）"
+  ],
+  "optional_challenge": "挑战：实现make_process()返回未启动的multiprocessing.Process对象并对比CPU密集任务。自测: pytest tests/challenges/day04_challenge_test.py。失败不影响当天通过",
+  "skills": [
+    "python.threading",
+    "python.multiprocessing"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_empty_items",
-    "test_make_process_returns_process",
     "test_order_preserved",
     "test_run_in_threads_executes_all",
     "test_run_in_threads_uses_threads",
     "test_zero_threads"
   ],
+  "test_module": "day04_test",
+  "task": "实现多线程下载器",
+  "description": "学习Python的多线程和多进程编程，理解GIL的限制和解决方案。",
   "hints": [
     "使用threading.Thread创建线程",
     "使用multiprocessing.Process创建进程",
     "使用ThreadPoolExecutor管理线程池"
   ],
-  "test_module": "day04_test",
-  "skills": [
-    "python.threading",
-    "python.multiprocessing"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现多线程下载器",
-  "optional_challenge": "挑战：用concurrent.futures重写run_in_threads，对比as_completed与map的返回顺序差异",
-  "mastery": [
-    "能用ThreadPoolExecutor并发执行并保持结果顺序",
-    "知道GIL对CPU密集任务的影响",
-    "能创建进程对象并理解线程/进程适用场景"
-  ]
+  "hint_levels": {
+    "1": [
+      "from concurrent.futures import ThreadPoolExecutor"
+    ],
+    "2": [
+      "executor.map保持输入顺序；as_completed按完成顺序"
+    ],
+    "3": [
+      "run_in_threads: with ThreadPoolExecutor(max_workers=n) as ex: return list(ex.map(func, range(n)))"
+    ]
+  }
 }

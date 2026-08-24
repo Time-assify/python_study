@@ -1,13 +1,11 @@
 # Day 02 Tests: 高级Python
 #
-# answer.py 必须实现（接口约定）:
+# 核心接口（Timer上下文管理器已移至可选挑战:
+#   tests/challenges/day02_challenge_test.py）:
 # - repeat(n)                      装饰器工厂：被装饰函数执行n次，返回最后一次结果；n<=0 抛 ValueError
 # - memoize(func)                  装饰器：缓存相同参数的调用结果
 # - fibonacci(n)                   生成器函数：yield前n个斐波那契数
 # - chunked(iterable, size)        生成器函数：按size分块yield列表；size<1 抛 ValueError
-# - Timer                          上下文管理器类：with结束后可通过 .elapsed 获取耗时(秒)
-import time
-
 import pytest
 
 try:
@@ -110,23 +108,6 @@ class TestGenerators:
         chunked = _require("chunked")
         with pytest.raises(ValueError):
             list(chunked([1, 2, 3], 0))
-
-
-@pytest.mark.skill("python.decorator", "python.generator", "python.context_manager")
-class TestContextManager:
-    """任务要求检查: 上下文管理器"""
-
-    def test_timer_measures_elapsed(self):
-        if answer is None:
-            pytest.skip("no answer.py under review")
-        timer_cls = getattr(answer, "Timer", None)
-        if timer_cls is None:
-            pytest.fail("必须实现 Timer 类（上下文管理器）")
-        with timer_cls() as t:
-            time.sleep(0.05)
-        elapsed = getattr(t, "elapsed", None)
-        assert elapsed is not None, "退出with后Timer应有elapsed属性"
-        assert elapsed >= 0.04, f"计时偏差过大: {elapsed}"
 
 
 if __name__ == "__main__":

@@ -2,8 +2,44 @@
   "day": 3,
   "title": "面向对象设计",
   "goal": "设计ML框架基类",
-  "task": "设计机器学习框架的基类结构",
-  "description": "学习面向对象编程的高级特性，包括抽象基类、接口设计、多态等。设计一个机器学习框架的基类结构。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "Python类与继承"
+  ],
+  "learn": [
+    "abc模块与抽象基类",
+    "抽象方法",
+    "多态"
+  ],
+  "required_api": [
+    {
+      "signature": "BaseModel(ABC)",
+      "description": "抽象基类：声明抽象方法fit(X, y)与predict(X)；不可实例化"
+    },
+    {
+      "signature": "LinearModel(BaseModel)",
+      "description": "具体子类：实现fit/predict（简单规则即可）"
+    },
+    {
+      "signature": "OptimizerBase(ABC)",
+      "description": "抽象基类：声明抽象方法step(params)"
+    }
+  ],
+  "core_task": "设计ML框架基类结构：BaseModel/LinearModel/OptimizerBase（见Required API）",
+  "mastery": [
+    "能用abc定义抽象基类且解释不可实例化的原因",
+    "能让子类通过统一接口被多态调用",
+    "知道抽象方法必须被子类实现"
+  ],
+  "optional_challenge": "挑战：为BaseModel增加from_config(dict)工厂方法，并解释多态如何让训练代码不感知具体子类",
+  "resources": [
+    "https://realpython.com/python-interface/",
+    "https://docs.python.org/3/library/abc.html"
+  ],
+  "skills": [
+    "python.oop",
+    "python.abc"
+  ],
   "tests": [
     "test_abstract_methods_declared",
     "test_answer_module_imports",
@@ -14,27 +50,24 @@
     "test_optimizer_base_abstract",
     "test_polymorphism"
   ],
-  "resources": [
-    "https://realpython.com/python-interface/",
-    "https://docs.python.org/3/library/abc.html"
-  ],
+  "test_module": "day03_test",
+  "task": "设计机器学习框架的基类结构",
+  "description": "学习面向对象编程的高级特性，包括抽象基类、接口设计、多态等。设计一个机器学习框架的基类结构。",
   "hints": [
     "使用abc模块定义抽象基类",
     "设计清晰的接口规范",
     "利用多态实现灵活的代码结构",
     "考虑ML框架的常见组件：模型、损失函数、优化器"
   ],
-  "test_module": "day03_test",
-  "skills": [
-    "python.oop",
-    "python.abc"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "设计机器学习框架的基类结构",
-  "optional_challenge": "挑战：为BaseModel增加from_config(dict)工厂方法，并解释多态如何让训练代码不感知具体子类",
-  "mastery": [
-    "能用abc定义抽象基类且解释不可实例化的原因",
-    "能让子类通过统一接口被多态调用",
-    "知道抽象方法必须被子类实现"
-  ]
+  "hint_levels": {
+    "1": [
+      "from abc import ABC, abstractmethod"
+    ],
+    "2": [
+      "抽象方法只有声明没有实现体（docstring即可）"
+    ],
+    "3": [
+      "class BaseModel(ABC): @abstractmethod def fit(self, X, y): ..."
+    ]
+  }
 }

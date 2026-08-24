@@ -2,8 +2,41 @@
   "day": 9,
   "title": "Autograd自动微分",
   "goal": "理解自动微分",
-  "task": "实现梯度计算",
-  "description": "学习PyTorch的自动微分机制，理解计算图和反向传播。掌握requires_grad和backward()。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "Tensor",
+    "函数求导基本概念"
+  ],
+  "learn": [
+    "requires_grad与backward",
+    "梯度取值",
+    "链式法则",
+    "梯度累积"
+  ],
+  "required_api": [
+    {
+      "signature": "quadratic(a, b, c, x) -> Tensor",
+      "description": "计算a*x^2+b*x+c，x可求导"
+    },
+    {
+      "signature": "gradient_at(fn, x_value) -> Tensor",
+      "description": "返回fn在x处的梯度标量"
+    },
+    {
+      "signature": "nested_fn(x) -> Tensor",
+      "description": "组合函数sin(exp(x))，用于链式法则验证"
+    }
+  ],
+  "core_task": "实现梯度计算",
+  "mastery": [
+    "能让tensor参与运算并被autograd追踪(requires_grad)",
+    "能取到标量的梯度值并验证如2x在x=3处为6",
+    "知道连续backward会累加梯度以及zero_grad的作用"
+  ],
+  "optional_challenge": "挑战：手算f(x,y)=x²y在(2,3)处的梯度，再用autograd验证；连续两次backward观察累积，插入zero_grad后再验证",
+  "skills": [
+    "pytorch.autograd"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_backward_accumulates",
@@ -12,21 +45,23 @@
     "test_nested_gradient",
     "test_quadratic_value"
   ],
+  "test_module": "day09_test",
+  "task": "实现梯度计算",
+  "description": "学习PyTorch的自动微分机制，理解计算图和反向传播。掌握requires_grad和backward()。",
   "hints": [
     "设置requires_grad=True启用梯度计算",
     "调用.backward()计算梯度",
     "使用.grad访问梯度值"
   ],
-  "test_module": "day09_test",
-  "skills": [
-    "pytorch.autograd"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现梯度计算",
-  "optional_challenge": "挑战：手算f(x,y)=x²y在(2,3)处的梯度，再用autograd验证；连续两次backward观察累积，插入zero_grad后再验证",
-  "mastery": [
-    "能让tensor参与运算并被autograd追踪(requires_grad)",
-    "能取到标量的梯度值并验证如2x在x=3处为6",
-    "知道连续backward会累加梯度以及zero_grad的作用"
-  ]
+  "hint_levels": {
+    "1": [
+      "x = torch.tensor(v, requires_grad=True); y = fn(x); y.backward()"
+    ],
+    "2": [
+      "梯度在x.grad里；注意连续backward会累加"
+    ],
+    "3": [
+      "对同一个tensor连续backward会累加梯度，用 .grad.zero_() 清零"
+    ]
+  }
 }

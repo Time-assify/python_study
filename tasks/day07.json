@@ -2,8 +2,38 @@
   "day": 7,
   "title": "Mini ML Framework",
   "goal": "构建简单ML框架",
-  "task": "实现线性回归框架",
-  "description": "综合运用所学知识，构建一个简单的机器学习框架。",
+  "estimated_minutes": 90,
+  "prerequisites": [
+    "NumPy array与shape",
+    "均值与平方",
+    "函数/类基础"
+  ],
+  "learn": [
+    "线性回归与梯度下降",
+    "向量化运算",
+    "训练循环（迭代更新参数）"
+  ],
+  "required_api": [
+    {
+      "signature": "mse_loss(y_true, y_pred) -> float",
+      "description": "均方误差；相同输入返回0"
+    },
+    {
+      "signature": "LinearRegression",
+      "description": "类: fit(X, y, lr=0.05, iters=800)梯度下降训练；predict(X)返回ndarray"
+    }
+  ],
+  "core_task": "实现mse_loss与LinearRegression(fit/predict)，在y=2x+1数据上收敛（建议：理论推导20min → 编码50min → 调试20min）",
+  "mastery": [
+    "能手写MSE公式并编码验证",
+    "能用梯度下降拟合线性关系并解释学习率影响",
+    "能在形状不匹配时给出明确报错"
+  ],
+  "optional_challenge": "挑战：把学习率调成0.5与0.001各跑一次，记录收敛差异并用三句话解释原因",
+  "skills": [
+    "ml.linear_regression",
+    "ml.loss"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_class_exists_with_api",
@@ -13,22 +43,24 @@
     "test_predict_shape",
     "test_shape_mismatch_raises"
   ],
-  "hints": [
-    "定义模型基类",
-    "实现均方误差损失",
-    "实现梯度下降优化器"
-  ],
   "test_module": "day07_test",
-  "skills": [
-    "ml.linear_regression",
-    "ml.loss"
+  "task": "实现线性回归框架",
+  "description": "综合运用所学知识，构建一个简单的机器学习框架。",
+  "hints": [
+    "MSE = mean((y_pred - y) ^ 2)",
+    "损失对w的梯度: dw = mean(2 * (y_pred - y) * x)",
+    "损失对b的梯度: db = mean(2 * (y_pred - y))",
+    "更新: w -= lr * dw;  b -= lr * db"
   ],
-  "estimated_minutes": 60,
-  "core_task": "实现线性回归框架",
-  "optional_challenge": "挑战：把学习率调成0.5与0.001各跑一次，记录收敛差异并用三句话解释原因",
-  "mastery": [
-    "能手写MSE公式并编码验证",
-    "能用梯度下降拟合线性关系并解释学习率影响",
-    "能在形状不匹配时给出明确报错"
-  ]
+  "hint_levels": {
+    "1": [
+      "先把前向计算向量化: y_pred = X @ w + b"
+    ],
+    "2": [
+      "每轮迭代：算y_pred → 算dw/db → 更新参数 → 记录loss"
+    ],
+    "3": [
+      "收敛判据参考：训练后平均绝对误差 < 0.25 即可通过测试"
+    ]
+  }
 }

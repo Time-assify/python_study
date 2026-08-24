@@ -28,33 +28,63 @@ def cmd_task(platform: TrainingPlatform, day: int):
     
     phase_info = Helpers.get_phase_info(day)
     
+    # 1. 今日主题
     print(f"Day {day}: {task.title}")
     print(f"Phase: {phase_info['name']}")
     print(f"Goal: {task.goal}")
+    # 2. 预计时间
     if getattr(task, "estimated_minutes", 0):
         print(f"Estimated: ~{task.estimated_minutes} minutes")
     print(f"\nDescription:\n{task.description}")
-    
+    # 3. 前置知识
+    prerequisites = getattr(task, "prerequisites", None) or []
+    if prerequisites:
+        print(f"\nPrerequisites:")
+        for p in prerequisites:
+            print(f"  - {p}")
+    # 4. 今天需要学习
+    learn = getattr(task, "learn", None) or []
+    if learn:
+        print(f"\n今天需要学习 (learn):")
+        for item in learn:
+            print(f"  - {item}")
+    # 5. Required API（签名+行为约定，不含实现）
+    required_api = getattr(task, "required_api", None) or []
+    if required_api:
+        print(f"\nRequired API:")
+        for api in required_api:
+            if isinstance(api, dict):
+                print(f"  {api.get('signature', '')}")
+                desc = api.get("description", "")
+                if desc:
+                    print(f"    - {desc}")
+            else:
+                print(f"  {api}")
+    # 6. 核心任务
     core_task = getattr(task, "core_task", "") or task.task
     print(f"\n核心任务:\n{core_task}")
-    
+    # 7. Mastery
     mastery = getattr(task, "mastery", None) or []
     if mastery:
         print(f"\n掌握标准 (mastery):")
         for item in mastery:
             print(f"  - {item}")
-    
-    challenge = getattr(task, "optional_challenge", "")
-    if challenge:
-        print(f"\n可选挑战 (challenge失败不影响当天通过):\n{challenge}")
-    
-    if task.tests:
-        print(f"\nTests: {', '.join(task.tests)}")
-    
-    if task.hints:
+    # 8. Hints（支持分级）
+    hint_levels = getattr(task, "hint_levels", None) or {}
+    if hint_levels:
+        print(f"\nHints (卡住时按级查看):")
+        for level in sorted(hint_levels.keys()):
+            for h in hint_levels[level]:
+                print(f"  [L{level}] {h}")
+    elif task.hints:
         print(f"\nHints:")
         for h in task.hints:
             print(f"  - {h}")
+    # 9. Optional Challenge
+    challenge = getattr(task, "optional_challenge", "")
+    if challenge:
+        print(f"\n可选挑战 (challenge失败不影响当天通过):\n{challenge}")
+    # 测试函数名属于系统内部细节，不再向学习者展示
 
 
 def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):

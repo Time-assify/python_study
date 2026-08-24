@@ -24,12 +24,24 @@ class Task:
     estimated_minutes: int = 60
     test_module: str = ""
     skills: List[str] = None
+    prerequisites: List[str] = None
+    learn: List[str] = None
+    required_api: List[Dict[str, str]] = None
+    hint_levels: Dict[str, List[str]] = None
 
     def __post_init__(self):
         if self.mastery is None:
             self.mastery = []
         if self.skills is None:
             self.skills = []
+        if self.prerequisites is None:
+            self.prerequisites = []
+        if self.learn is None:
+            self.learn = []
+        if self.required_api is None:
+            self.required_api = []
+        if self.hint_levels is None:
+            self.hint_levels = {}
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
@@ -48,6 +60,10 @@ class Task:
             "estimated_minutes": self.estimated_minutes,
             "test_module": self.test_module,
             "skills": self.skills or [],
+            "prerequisites": self.prerequisites or [],
+            "learn": self.learn or [],
+            "required_api": self.required_api or [],
+            "hint_levels": self.hint_levels or {},
         }
 
 
@@ -115,6 +131,10 @@ class TaskManager:
             estimated_minutes=data.get("estimated_minutes", 60),
             test_module=data.get("test_module", ""),
             skills=data.get("skills", []),
+            prerequisites=data.get("prerequisites", []),
+            learn=data.get("learn", []),
+            required_api=data.get("required_api", []),
+            hint_levels=data.get("hint_levels", {}),
         )
         
         # 缓存任务
@@ -199,6 +219,10 @@ class TaskManager:
             estimated_minutes=task_data.get("estimated_minutes", 60),
             test_module=task_data.get("test_module", ""),
             skills=task_data.get("skills", []),
+            prerequisites=task_data.get("prerequisites", []),
+            learn=task_data.get("learn", []),
+            required_api=task_data.get("required_api", []),
+            hint_levels=task_data.get("hint_levels", {}),
         )
         
         # 保存到文件

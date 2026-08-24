@@ -2,6 +2,8 @@
 
 防止ReviewResult字段演进后CLI仍读取旧字段（bugs/suggestions）的回归。
 Mock TrainingPlatform.evaluate_submission，不执行pytest/DeepSeek。
+
+P1-5: 增加cmd_task显示格式回归（Required API/Prerequisites/Learn/无Tests泄露）
 """
 import io
 import sys
@@ -14,7 +16,7 @@ import pytest
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from main import cmd_submit  # noqa: E402
+from main import cmd_submit, cmd_task  # noqa: E402
 from src.models import EvaluationResult  # noqa: E402
 
 
@@ -87,3 +89,48 @@ def test_legacy_fields_ignored():
     assert "\nBugs:" not in out
     assert "\nSuggestions:" not in out
     assert "new-issue" in out
+
+
+# -----------------------------------------------------------------------
+# P1-5 / P1-6: cmd_task 显示格式回归
+# -----------------------------------------------------------------------
+
+def _capture_task(day: int) -> str:
+    from src.core.platform import TrainingPlatform
+    plat = TrainingPlatform()
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        cmd_task(plat, day)
+    return buf.getvalue()
+
+
+def test_task_contains_required_api():
+    """cmd_task day1必须展示 Required API"""
+    out = _capture_task(1)
+    assert "Required API:" in out, "缺少Required API区块"
+    assert "create_project_structure" in out, "签名未出现在Required API中"
+
+
+def test_task_contains_prerequisites():
+    """cmd_task展示 Prerequisites（day1为[]不输出；day5有非空prerequisites）"""
+    out = _capture_task(5)  # day5 prerequisites: ["Python字典", "异常处理"]
+    assert "Prerequisites" in out
+
+
+def test_task_contains_learn():
+    """cmd_task day1必须展示 今天需要学习"""
+    out = _capture_task(1)
+    assert "今天需要学习" in out
+
+
+def test_task_no_test_names_leaked():
+    """cmd_task不得泄露test函数名（系统内部细节）"""
+    out = _capture_task(1)
+    assert "test_" not in out, f"不应出现test_函数名，实际输出:\n{out}"
+
+
+def test_task_contains_hint_levels():
+    """cmd_task day1展示分级提示（hint_levels）"""
+    out = _capture_task(1)
+    assert "Hints (卡住时按级查看)" in out or "[L1]" in out
+    assert "[L2]" in out or "[L3]" in out

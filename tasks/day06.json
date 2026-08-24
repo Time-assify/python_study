@@ -2,8 +2,38 @@
   "day": 6,
   "title": "NumPy/Pandas数据处理",
   "goal": "掌握数据处理",
-  "task": "实现数据清洗流程",
-  "description": "学习NumPy和Pandas库，掌握数据处理和分析的基本方法。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "Python字典与列表",
+    "基本统计概念"
+  ],
+  "learn": [
+    "DataFrame与Series",
+    "dropna与drop_duplicates",
+    "NumPy ndarray与min/max统计"
+  ],
+  "required_api": [
+    {
+      "signature": "clean_dataframe(df) -> DataFrame",
+      "description": "删除含NaN的行 + 去除完全重复行"
+    },
+    {
+      "signature": "minmax_normalize(df, column) -> Series",
+      "description": "列归一化到[0,1]；常数列返回全0.5（避免除零）"
+    }
+  ],
+  "core_task": "实现clean_dataframe与minmax_normalize（Pandas为主，NumPy数值辅助）",
+  "mastery": [
+    "会用dropna与drop_duplicates",
+    "能实现min-max归一化并处理常数列",
+    "知道本日以Pandas为主、NumPy为辅，不要求精通两个库"
+  ],
+  "optional_challenge": "挑战：对一份含缺失值/重复行的真实CSV完成清洗小报告（记录删除行数与理由）",
+  "skills": [
+    "numpy",
+    "pandas",
+    "data.cleaning"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_clean_drops_nan_rows",
@@ -11,23 +41,23 @@
     "test_normalize_constant_column",
     "test_normalize_range"
   ],
+  "test_module": "day06_test",
+  "task": "实现数据清洗流程",
+  "description": "学习NumPy和Pandas库，掌握数据处理和分析的基本方法。",
   "hints": [
     "使用numpy进行数值计算",
     "使用pandas读取和处理CSV数据",
     "实现数据清洗管道"
   ],
-  "test_module": "day06_test",
-  "skills": [
-    "numpy",
-    "pandas",
-    "data.cleaning"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现数据清洗流程",
-  "optional_challenge": "挑战：对一份含缺失值/重复行的真实CSV完成清洗小报告（记录删除行数与理由）",
-  "mastery": [
-    "能用pandas删除NaN行与重复行",
-    "能做min-max归一化并处理常数列除零",
-    "能读懂数据清洗前后的shape变化"
-  ]
+  "hint_levels": {
+    "1": [
+      "df.dropna() / df.drop_duplicates()"
+    ],
+    "2": [
+      "归一化公式: (x - min) / (max - min)；先判断max==min"
+    ],
+    "3": [
+      "常数列直接返回 df[column] * 0 + 0.5"
+    ]
+  }
 }

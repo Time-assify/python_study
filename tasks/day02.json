@@ -2,8 +2,52 @@
   "day": 2,
   "title": "高级Python",
   "goal": "掌握装饰器、生成器",
-  "task": "实现常用装饰器和生成器",
-  "description": "学习Python高级特性，包括装饰器、生成器、上下文管理器等。理解Python的函数式编程和迭代器协议。",
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "函数与闭包",
+    "可迭代对象"
+  ],
+  "learn": [
+    "装饰器如何包装函数",
+    "functools.wraps的作用",
+    "yield与惰性求值",
+    "生成器表达式"
+  ],
+  "required_api": [
+    {
+      "signature": "repeat(n) -> 装饰器工厂",
+      "description": "被装饰函数执行n次，返回最后一次结果；n<=0时调用抛ValueError"
+    },
+    {
+      "signature": "memoize(func) -> 装饰器",
+      "description": "缓存相同参数的调用结果，重复调用不再执行原函数"
+    },
+    {
+      "signature": "fibonacci(n) -> 生成器",
+      "description": "yield前n个斐波那契数(0,1,1,2,...)；n=0时为空"
+    },
+    {
+      "signature": "chunked(iterable, size) -> 生成器",
+      "description": "按size分块yield列表；size<1抛ValueError；最后一块可不足"
+    }
+  ],
+  "core_task": "实现repeat / memoize / fibonacci / chunked四个接口（Timer上下文管理器为可选挑战）",
+  "mastery": [
+    "理解装饰器如何包装函数",
+    "会使用functools.wraps保留函数元信息",
+    "会写yield生成器",
+    "理解惰性求值"
+  ],
+  "optional_challenge": "挑战：实现Timer上下文管理器（with结束后.elapsed为耗时秒）。自测: pytest tests/challenges/day02_challenge_test.py。失败不影响当天通过",
+  "resources": [
+    "https://realpython.com/primer-on-python-decorators/",
+    "https://realpython.com/introduction-to-python-generators/"
+  ],
+  "skills": [
+    "python.decorator",
+    "python.generator",
+    "python.context_manager"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_chunked_invalid_size_raises",
@@ -12,31 +56,29 @@
     "test_fibonacci_zero_terms",
     "test_memoize_caches_results",
     "test_repeat_executes_n_times",
-    "test_repeat_invalid_n_raises",
-    "test_timer_measures_elapsed"
+    "test_repeat_invalid_n_raises"
   ],
-  "resources": [
-    "https://realpython.com/primer-on-python-decorators/",
-    "https://realpython.com/introduction-to-python-generators/"
-  ],
+  "test_module": "day02_test",
+  "task": "实现常用装饰器和生成器",
+  "description": "学习Python高级特性，包括装饰器、生成器、上下文管理器等。理解Python的函数式编程和迭代器协议。",
   "hints": [
     "装饰器本质上是一个函数，它接受一个函数并返回一个新函数",
     "使用@语法糖可以简化装饰器的应用",
     "生成器使用yield语句，可以惰性生成值",
     "上下文管理器使用with语句，实现__enter__和__exit__方法"
   ],
-  "test_module": "day02_test",
-  "skills": [
-    "python.decorator",
-    "python.generator",
-    "python.context_manager"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现常用装饰器和生成器",
-  "optional_challenge": "挑战：用生成器实现一个无限斐波那契流，并用itertools.islice安全取前20项",
-  "mastery": [
-    "能手写带参数的装饰器并说明functools.wraps的作用",
-    "能用yield实现惰性序列并解释与list的区别",
-    "能实现__enter__/__exit__上下文管理器"
-  ]
+  "hint_levels": {
+    "1": [
+      "装饰器=接收函数并返回新函数",
+      "生成器函数里用yield逐个产出，而不是return列表"
+    ],
+    "2": [
+      "repeat: wrapper内部循环n次调用并保存最后结果；n<=0在wrapper调用时抛ValueError",
+      "memoize: 用dict以args为key缓存",
+      "fibonacci: 维护a,b两个变量滚动"
+    ],
+    "3": [
+      "chunked: 维护buf列表，满size即yield并清空；循环结束后buf非空再yield一次"
+    ]
+  }
 }
