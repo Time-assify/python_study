@@ -17,7 +17,8 @@
     "索引划分的互斥与覆盖",
     "top-1 accuracy实现",
     "loss curve下降形态观察",
-    "loss curve的记录与首尾判读"
+    "loss curve的记录与首尾判读",
+    "validation与gradient update的隔离铁律"
   ],
   "review_points": [
     "CNN",
@@ -43,6 +44,11 @@
       "name": "record_loss_curve",
       "signature": "record_loss_curve(model, x, y, epochs=10, lr=0.1) -> list",
       "description": "逐epoch训练并记录平均loss，返回长度为epochs的float列表；用于绘制与判读loss curve"
+    },
+    {
+      "name": "validate_model",
+      "signature": "validate_model(model, val_loader, loss_fn=None) -> dict",
+      "description": "在验证loader上评估，返回{'loss','acc'}；函数签名不含optimizer，调用前后模型参数必须完全一致（validation绝不参与梯度更新）"
     }
   ],
   "core_task": "实现NetWithReg正则化网络，以及train_validation_split / evaluate_accuracy验证闭环（train/val划分互斥且全覆盖，验证集独立评估）",
@@ -53,7 +59,9 @@
     "能实现互斥且全覆盖的train/val索引划分",
     "会计算验证集top-1准确率",
     "能说明validation集必须独立于训练集的原因",
-    "能记录整条loss curve并用首尾对比判断是否在学"
+    "能记录整条loss curve并用首尾对比判断是否在学",
+    "理解train set用于更新参数、validation set用于选择模型",
+    "知道validation阶段禁止调用optimizer.step或任何参数更新"
   ],
   "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异。挑战预习checkpoint：训练中用torch.save保存最优epoch权重、torch.load恢复后预测一致（正式深入在Day17）",
   "environment_notes": "环境要求：CPU即可完成全部核心任务；GPU可选加速，无GPU不影响评分。",
@@ -61,7 +69,8 @@
     "pytorch.batchnorm",
     "pytorch.dropout",
     "evaluation.accuracy",
-    "pytorch.training_loop"
+    "pytorch.training_loop",
+    "pytorch.validation"
   ],
   "tests": [
     "test_answer_module_imports",
@@ -74,9 +83,12 @@
     "test_evaluate_accuracy_range",
     "test_forward_shape",
     "test_invalid_p_raises",
+    "test_no_grad_pollution_required",
+    "test_params_unchanged_after_validate",
     "test_split_disjoint_and_covering",
     "test_split_min_one_val",
-    "test_split_sizes_default_ratio"
+    "test_split_sizes_default_ratio",
+    "test_validate_report_matches_manual"
   ],
   "test_module": "day14_test",
   "task": "实现正则化层",
@@ -108,12 +120,20 @@
       "content": "accuracy先argmax再与标签比对取均值"
     },
     {
+      "level": 2,
+      "content": "validate_model全程包torch.no_grad：既加速又从结构上杜绝误更新"
+    },
+    {
       "level": 3,
       "content": "判据：评估模式下同一输入两次前向结果完全一致；p越界时构造应抛错"
     },
     {
       "level": 3,
       "content": "判据：划分两集合互斥且并集覆盖全部索引；完美预测时accuracy为1"
+    },
+    {
+      "level": 3,
+      "content": "判据：调用前后逐参数torch.equal必须全部为真；loss与acc按batch加权平均"
     }
   ]
 }

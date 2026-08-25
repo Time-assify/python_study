@@ -142,5 +142,43 @@ class TestLossDiagnosis:
         assert isinstance(report, dict) and "trend" in report
 
 
+@requires_torch
+@pytest.mark.skill("pytorch.debugging")
+class TestCaseTriage:
+    """P0-3: 症状→原因→修复 三段式分诊落地"""
+
+    REQUIRED_FIX_KEYWORDS = {
+        "shape_mismatch": ("shape",),
+        "grad_not_cleared": ("zero_grad",),
+        "missing_eval_switch": ("eval",),
+        "loss_not_decreasing": ("learning",),  # learning rate / learning rate schedule
+    }
+
+    def test_known_cases_dispatch(self):
+        fn = _require("debug_training_issue")
+        for case in self.REQUIRED_FIX_KEYWORDS:
+            report = fn(case)
+            assert isinstance(report, dict), f"{case}应返回字典"
+            for key in ("issue", "symptom", "fix"):
+                assert key in report, f"{case}诊断缺少'{key}'"
+                assert isinstance(report[key], str) and report[key].strip(), \
+                    f"{case}.{key}必须非空"
+            assert report["issue"] == case, f"issue应回显病例名: {report['issue']}"
+
+    def test_fix_contains_actionable_keyword(self):
+        """修复建议必须命中关键动作词——空话式建议不合格"""
+        fn = _require("debug_training_issue")
+        for case, keywords in self.REQUIRED_FIX_KEYWORDS.items():
+            report = fn(case)
+            fix = report["fix"].lower()
+            assert any(kw in fix for kw in keywords), \
+                f"{case}的fix应包含{keywords}之一: {report['fix']}"
+
+    def test_unknown_case_raises(self):
+        fn = _require("debug_training_issue")
+        with pytest.raises(ValueError):
+            fn("alien_invasion")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

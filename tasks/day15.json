@@ -38,6 +38,11 @@
       "name": "diagnose_loss_history",
       "signature": "diagnose_loss_history(losses) -> dict",
       "description": "输入loss序列返回至少含trend(decreasing/flat/increasing)与suggestions(list)的诊断；flat或increasing必须给出排查建议"
+    },
+    {
+      "name": "debug_training_issue",
+      "signature": "debug_training_issue(error_case: str) -> dict",
+      "description": "病例分诊：case取shape_mismatch/grad_not_cleared/missing_eval_switch/loss_not_decreasing之一，返回{'issue','symptom','fix'}三段式诊断；fix必须包含可执行动作关键词（如zero_grad/eval/shape/lower learning rate）；未知病例抛ValueError"
     }
   ],
   "core_task": "实现四个诊断接口：assert_matmul_compatible / check_gradient_flow / is_eval_deterministic / diagnose_loss_history",
@@ -45,7 +50,8 @@
     "能写出包含双方shape的规范化shape错误信息",
     "能用一次反向传播后的报告判断梯度流是否健康",
     "能实证Dropout模型的train/eval确定性差异",
-    "能对flat/increasing的loss曲线给出至少一条合理排查方向"
+    "能对flat/increasing的loss曲线给出至少一条合理排查方向",
+    "能按症状→原因→修复三段式输出四类常见训练故障的诊断"
   ],
   "optional_challenge": "挑战：给check_gradient_flow增加梯度消失检测（max_abs_grad低于阈值时在报告中给出warning字段）",
   "environment_notes": "环境要求：无GPU时get_device自动回退CPU；计时对比挑战在纯CPU机器上可跳过。",
@@ -53,7 +59,8 @@
     "pytorch.tensor_shape",
     "pytorch.autograd",
     "pytorch.training_step",
-    "pytorch.training_loop"
+    "pytorch.training_loop",
+    "pytorch.debugging"
   ],
   "tests": [
     "test_answer_module_imports",
@@ -61,12 +68,15 @@
     "test_decreasing_detected",
     "test_dropout_model_deterministic_in_eval",
     "test_dropout_model_stochastic_in_train",
+    "test_fix_contains_actionable_keyword",
     "test_flat_flagged_with_suggestions",
     "test_fresh_model_has_gradients",
     "test_increasing_flagged_with_suggestions",
+    "test_known_cases_dispatch",
     "test_mismatch_raises_with_shapes_in_message",
     "test_plain_linear_always_deterministic",
     "test_short_history_handled",
+    "test_unknown_case_raises",
     "test_zero_input_still_reports"
   ],
   "test_module": "day15_test",
@@ -91,8 +101,16 @@
       "content": "is_eval_deterministic记得包torch.no_grad并在两种模式下分别调用两次前向"
     },
     {
+      "level": 2,
+      "content": "分诊用字典把四个病例映射到各自的symptom与fix模板，未知key直接raise ValueError"
+    },
+    {
       "level": 3,
       "content": "伪代码：trend判定用首尾比值——明显变小decreasing、接近1为flat、变大increasing；后两者附排查建议列表"
+    },
+    {
+      "level": 3,
+      "content": "伪代码：table={'shape_mismatch': (...), 'grad_not_cleared': ('每步loss叠加', '每个step前zero_grad'), ...}; 校验case in table后返回三字段副本"
     }
   ],
   "review_points_replace": [

@@ -170,5 +170,57 @@ class TestLossCurve:
             f"15个epoch后应明显下降: 首{curve[0]:.3f} 尾{curve[-1]:.3f}"
 
 
+@requires_torch
+@pytest.mark.skill("pytorch.validation", "evaluation.accuracy")
+class TestNoStepInValidation:
+    """P0-2: validation只做评估——绝不允许参与梯度更新"""
+
+    def test_params_unchanged_after_validate(self):
+        """铁律检查: 调用validate_model前后模型参数必须完全一致
+        （等价于validation阶段没有发生任何optimizer.step/手动更新）"""
+        validate_model = _require("validate_model")
+        model = nn.Linear(4, 2)
+        snap = [p.detach().clone() for p in model.parameters()]
+        from torch.utils.data import DataLoader, TensorDataset
+        loader = DataLoader(TensorDataset(torch.randn(8, 4), torch.randint(0, 2, (8,))),
+                            batch_size=4)
+        report = validate_model(model, loader)
+        assert isinstance(report, dict), "应返回诊断字典"
+        for p, s in zip(model.parameters(), snap):
+            assert torch.equal(p.detach(), s), \
+                "validation阶段参数发生了变化——验证集绝不参与梯度更新!"
+
+    def test_validate_report_matches_manual(self):
+        validate_model = _require("validate_model")
+        model = nn.Linear(4, 2)
+        with torch.no_grad():
+            model.weight.copy_(torch.tensor([[1.0, 0, 0, 0], [-1.0, 0, 0, 0]]))
+            model.bias.zero_()
+        x = torch.tensor([[1.0, 0, 0, 0], [1.0, 0, 0, 0],
+                          [-1.0, 0, 0, 0], [-1.0, 0, 0, 0]])
+        y = torch.tensor([0, 1, 1, 1])
+        from torch.utils.data import DataLoader, TensorDataset
+        loader = DataLoader(TensorDataset(x, y), batch_size=4)
+        report = validate_model(model, loader)
+        assert 0.0 <= float(report["acc"]) <= 1.0
+        assert float(report["acc"]) == pytest.approx(0.75), \
+            f"3/4正确应为0.75, 得到{report['acc']}"
+        assert float(report["loss"]) >= 0
+
+    def test_no_grad_pollution_required(self):
+        """验证应在no_grad语义下进行: 调用后不应给叶子参数留下累积grad负担的接口设计
+        （实现上若用了backward会显著拖慢且污染状态——这里用耗时上限粗检）"""
+        import time
+        validate_model = _require("validate_model")
+        model = nn.Linear(64, 32)
+        from torch.utils.data import DataLoader, TensorDataset
+        loader = DataLoader(TensorDataset(torch.randn(256, 64),
+                                          torch.randint(0, 32, (256,))), batch_size=64)
+        t0 = time.perf_counter()
+        validate_model(model, loader)
+        elapsed = time.perf_counter() - t0
+        assert elapsed < 5.0, f"validation异常缓慢({elapsed:.1f}s)——疑似包含训练逻辑"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

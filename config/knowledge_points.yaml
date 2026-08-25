@@ -326,3 +326,11 @@ knowledge_points:
     name: 图像变换
     category: cv
     level: 3
+  - id: pytorch.validation
+    name: 验证集评估
+    category: pytorch
+    level: 3
+  - id: pytorch.debugging
+    name: 训练调试
+    category: pytorch
+    level: 3

@@ -56,7 +56,7 @@
       "description": "跑完epochs个epoch后返回{'train_loss','val_loss','val_acc'}；train_loss为末轮按样本数加权平均；val部分每轮结束在验证loader上评估"
     }
   ],
-  "core_task": "实现SimpleCNN/count_conv_layers，训练闭环API build_optimizer / step_lr / train_one_epoch，以及串起DataLoader到Validation的fit_classifier（报告train_loss/val_loss/val_acc）",
+  "core_task": "实现SimpleCNN/count_conv_layers、训练闭环API build_optimizer / step_lr / train_one_epoch，以及fit_classifier。最终产物见required_output——只交一个类定义而没有真正训练不算完成",
   "mastery": [
     "能解释padding=1的3x3卷积不改变特征图尺寸",
     "能说出池化后尺寸减半的关系",
@@ -70,6 +70,12 @@
     "能解读训练报告中train_loss与val_acc的口径差异"
   ],
   "optional_challenge": "挑战：手动推导自己CNN每层输出尺寸与参数量，并用代码逐层验证",
+  "required_output": [
+    "一个可训练的CNN模型",
+    "一次完整训练过程",
+    "训练loss记录",
+    "验证accuracy"
+  ],
   "environment_notes": "环境要求：CPU可完成（28x28小图、30步以内冒烟训练）；GPU可选加速。",
   "skills": [
     "pytorch.cnn",

@@ -1,6 +1,6 @@
 {
   "day": 20,
-  "title": "CIFAR分类",
+  "title": "CIFAR分类与Phase毕业项目",
   "goal": "图像分类实战",
   "difficulty": 3,
   "estimated_minutes": 120,
@@ -34,31 +34,54 @@
       "name": "confusion_matrix",
       "signature": "confusion_matrix(preds, labels, num_classes) -> ndarray",
       "description": "行约定为真实类别、列为预测类别的方阵"
+    },
+    {
+      "name": "build_dataset_loaders",
+      "signature": "build_dataset_loaders(batch_size=8) -> tuple",
+      "description": "返回(train_loader, val_loader)；样本shape为(3,32,32)的合成可分两类数据，禁止下载真实CIFAR10；两集合互斥"
+    },
+    {
+      "name": "train_and_validate",
+      "signature": "train_and_validate(model, train_loader, val_loader, epochs=3, lr=0.05) -> dict",
+      "description": "完整训练+验证循环，返回{'train_loss','val_loss','val_acc'}；validation阶段不得有任何参数更新"
     }
   ],
-  "core_task": "实现CIFAR分类器",
+  "core_task": "实现build_dataset_loaders（合成可分两类(3,32,32)数据，train/val互斥划分）与train_and_validate（完整训练+验证循环，validation不更新参数），配合CIFARNet/accuracy/confusion_matrix完成端到端小项目并产出三指标报告",
   "mastery": [
     "能搭建接受(B,3,32,32)输入的分类网络",
     "能实现top-1准确率与混淆矩阵",
-    "能在小样本上快速验证模型可学习(loss明显下降)"
+    "能在小样本上快速验证模型可学习(loss明显下降)",
+    "能独立串联数据到验证的完整pipeline并产出分类评估报告"
   ],
-  "optional_challenge": "挑战：在CIFARNet上做单batch过拟合实验（train准确率打到100%），验证模型容量足够",
+  "optional_challenge": "挑战：在CIFARNet上做单batch过拟合实验（train准确率打到100%），验证模型容量足够。挑战进阶：为build_dataset_loaders加入RandomHorizontalFlip级别的轻量增强并对比val_acc变化",
+  "required_output": [
+    "合成Dataset与train/val两个DataLoader",
+    "CNN在双loader上完成训练与验证",
+    "accuracy与混淆矩阵评估报告"
+  ],
   "environment_notes": "环境要求：使用合成张量数据，无需下载CIFAR10；CPU可完成，GPU可选。",
   "skills": [
     "cv.classification",
-    "metrics.confusion_matrix"
+    "metrics.confusion_matrix",
+    "pytorch.dataset",
+    "pytorch.dataloader",
+    "pytorch.training_loop"
   ],
   "tests": [
     "test_accuracy_mismatched_lengths",
     "test_accuracy_perfect_and_half",
     "test_answer_module_imports",
+    "test_build_dataset_loaders",
+    "test_confusion_integrates_with_model",
     "test_confusion_matrix_values",
+    "test_end_to_end_training",
     "test_forward_shape",
+    "test_learning_happens_on_separable_synthetic",
     "test_overfit_tiny_batch"
   ],
   "test_module": "day20_test",
   "task": "实现CIFAR分类器",
-  "description": "使用CIFAR-10数据集进行图像分类实战，构建完整的训练和评估流程。",
+  "description": "Phase 2毕业项目：独立串联Dataset/DataLoader/CNN/Training/Validation全链，验证是否真正掌握最小深度学习管线。不要求复杂模型或高精度。",
   "hints": [
     "使用torchvision.datasets.CIFAR10",
     "数据增强提高泛化能力",
