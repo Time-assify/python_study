@@ -12,6 +12,13 @@ ROOT = str(__file__).rsplit(os.sep, 1)[0]
 if ROOT and ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+# PyInstaller冻结态引导: 资源(tasks/config/configs)被解包/放置在_MEIPASS,
+# 双击exe的cwd不一定是该目录 —— 统一切过去, 相对路径与SQLite落盘都成立
+if getattr(sys, "frozen", False):
+    BUNDLE = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    if os.path.isdir(BUNDLE):
+        os.chdir(BUNDLE)
+
 
 def main(argv=None) -> int:
     argv = list(sys.argv if argv is None else argv)

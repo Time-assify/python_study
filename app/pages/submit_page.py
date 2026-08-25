@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """提交代码页：替代 `python main.py submit N`；后台线程跑评估流水线"""
+import sys
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                                QLineEdit, QPushButton, QSpinBox, QTextBrowser,
@@ -21,6 +23,15 @@ class SubmitPage(QWidget):
         title = QLabel("提交代码")
         title.setObjectName("H1")
         root.addWidget(title)
+
+        # 打包(exe)环境下诚实提示：完整评测链路建议源码方式运行
+        if getattr(sys, "frozen", False):
+            tip = QLabel("⚠ 打包运行提示：exe内评测子进程受限于冻结环境，"
+                         "如遇评分异常请用源码方式运行（pip install -r "
+                         "requirements*.txt 后 python run_app.py）。详见 build_app.md")
+            tip.setWordWrap(True)
+            tip.setStyleSheet("color: #b45309;")
+            root.addWidget(tip)
 
         bar = QHBoxLayout()
         bar.addWidget(QLabel("Day:"))
