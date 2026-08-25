@@ -12,6 +12,10 @@
     "requests的get/post",
     "异常包装模式（第三方异常→业务异常）"
   ],
+  "review_points": [
+    "threading",
+    "ThreadPoolExecutor"
+  ],
   "required_api": [
     {
       "signature": "build_url(base, path, params=None) -> str",
@@ -54,15 +58,18 @@
     "处理JSON响应",
     "实现重试机制"
   ],
-  "hint_levels": {
-    "1": [
-      "requests.get/post的第一个参数是完整URL"
-    ],
-    "2": [
-      "包装：try: requests... except requests.RequestException as e: raise APIError(str(e))"
-    ],
-    "3": [
-      "params用urllib.parse.urlencode或requests的params参数拼接"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "requests.get/post的第一个参数是完整URL"
+    },
+    {
+      "level": 2,
+      "content": "包装：try: requests... except requests.RequestException as e: raise APIError(str(e))"
+    },
+    {
+      "level": 3,
+      "content": "params用urllib.parse.urlencode或requests的params参数拼接"
+    }
+  ]
 }

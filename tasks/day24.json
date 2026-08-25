@@ -2,8 +2,24 @@
   "day": 24,
   "title": "Transformer",
   "goal": "理解Transformer",
-  "task": "实现Transformer块",
-  "description": "学习Transformer架构，实现自注意力机制和多头注意力。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "tokenize",
+    "vocab"
+  ],
+  "required_api": [],
+  "core_task": "实现Transformer块",
+  "mastery": [
+    "能手写softmax(QK^T/sqrt(d))V并验证权重行和为1",
+    "知道多头注意力输出shape与输入一致",
+    "能写出正弦位置编码并背出pos=0的取值模式"
+  ],
+  "optional_challenge": "挑战：给self-attention加因果mask(causal mask)，验证位置i无法看到>j的信息",
+  "skills": [
+    "transformer.attention",
+    "transformer.positional_encoding"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_attention_focuses_on_matching",
@@ -14,22 +30,26 @@
     "test_scaling_prevents_saturation",
     "test_values_bounded"
   ],
+  "test_module": "day24_test",
+  "task": "实现Transformer块",
+  "description": "学习Transformer架构，实现自注意力机制和多头注意力。",
   "hints": [
     "实现缩放点积注意力",
     "实现多头注意力机制",
     "添加位置编码"
   ],
-  "test_module": "day24_test",
-  "skills": [
-    "transformer.attention",
-    "transformer.positional_encoding"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现Transformer块",
-  "optional_challenge": "挑战：给self-attention加因果mask(causal mask)，验证位置i无法看到>j的信息",
-  "mastery": [
-    "能手写softmax(QK^T/sqrt(d))V并验证权重行和为1",
-    "知道多头注意力输出shape与输入一致",
-    "能写出正弦位置编码并背出pos=0的取值模式"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "实现缩放点积注意力"
+    },
+    {
+      "level": 2,
+      "content": "实现多头注意力机制"
+    },
+    {
+      "level": 3,
+      "content": "添加位置编码"
+    }
   ]
 }

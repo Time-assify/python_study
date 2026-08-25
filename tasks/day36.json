@@ -2,8 +2,24 @@
   "day": 36,
   "title": "Code Agent",
   "goal": "构建代码Agent",
-  "task": "实现代码生成Agent",
-  "description": "构建能够理解和生成代码的AI Agent，实现代码审查和修复。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "function schema",
+    "type validation"
+  ],
+  "required_api": [],
+  "core_task": "实现代码生成Agent",
+  "mastery": [
+    "能生成可通过ast编译的函数源码",
+    "能静态检出eval(与裸except风险",
+    "能做词边界安全的变量重命名"
+  ],
+  "optional_challenge": "挑战：扩展review_code检出未使用变量（AST遍历练习）",
+  "skills": [
+    "codegen.generation",
+    "codegen.review"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_bare_except_flagged",
@@ -17,22 +33,26 @@
     "test_valid_lines_pass",
     "test_word_boundary_rename"
   ],
+  "test_module": "day36_test",
+  "task": "实现代码生成Agent",
+  "description": "构建能够理解和生成代码的AI Agent，实现代码审查和修复。",
   "hints": [
     "理解代码上下文",
     "生成符合规范的代码",
     "自动修复常见错误"
   ],
-  "test_module": "day36_test",
-  "skills": [
-    "codegen.generation",
-    "codegen.review"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现代码生成Agent",
-  "optional_challenge": "挑战：扩展review_code检出未使用变量（AST遍历练习）",
-  "mastery": [
-    "能生成可通过ast编译的函数源码",
-    "能静态检出eval(与裸except风险",
-    "能做词边界安全的变量重命名"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "理解代码上下文"
+    },
+    {
+      "level": 2,
+      "content": "生成符合规范的代码"
+    },
+    {
+      "level": 3,
+      "content": "自动修复常见错误"
+    }
   ]
 }

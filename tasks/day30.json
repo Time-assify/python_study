@@ -2,8 +2,24 @@
   "day": 30,
   "title": "AI应用开发",
   "goal": "构建AI应用",
-  "task": "开发完整AI应用",
-  "description": "综合运用所学知识，开发一个完整的AI应用，包括模型训练、部署、监控。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "FastAPI",
+    "endpoint"
+  ],
+  "required_api": [],
+  "core_task": "开发完整AI应用",
+  "mastery": [
+    "能用dataclass+yaml完成配置roundtrip",
+    "能实现按注册顺序执行的pipeline",
+    "会用计数器Monitor统计事件"
+  ],
+  "optional_challenge": "挑战：让PipelineApp支持async handler，Monitor新增QPS统计",
+  "skills": [
+    "engineering.config",
+    "application.pipeline"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_counter_increments",
@@ -13,22 +29,26 @@
     "test_roundtrip",
     "test_save_load_yaml"
   ],
+  "test_module": "day30_test",
+  "task": "开发完整AI应用",
+  "description": "综合运用所学知识，开发一个完整的AI应用，包括模型训练、部署、监控。",
   "hints": [
     "设计应用架构",
     "集成模型推理",
     "添加日志和监控"
   ],
-  "test_module": "day30_test",
-  "skills": [
-    "engineering.config",
-    "application.pipeline"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "开发完整AI应用",
-  "optional_challenge": "挑战：让PipelineApp支持async handler，Monitor新增QPS统计",
-  "mastery": [
-    "能用dataclass+yaml完成配置roundtrip",
-    "能实现按注册顺序执行的pipeline",
-    "会用计数器Monitor统计事件"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "设计应用架构"
+    },
+    {
+      "level": 2,
+      "content": "集成模型推理"
+    },
+    {
+      "level": 3,
+      "content": "添加日志和监控"
+    }
   ]
 }

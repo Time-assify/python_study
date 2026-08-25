@@ -2,8 +2,24 @@
   "day": 33,
   "title": "RAG检索增强生成",
   "goal": "理解RAG架构",
-  "task": "实现RAG系统",
-  "description": "学习检索增强生成的原理和实现，构建知识问答系统。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "few-shot",
+    "system prompt"
+  ],
+  "required_api": [],
+  "core_task": "实现RAG系统",
+  "mastery": [
+    "能实现带overlap的文本切块并拒绝非法参数",
+    "会计算余弦相似度",
+    "能按关键词相关性检索Top-K文档"
+  ],
+  "optional_challenge": "挑战：用TF-IDF加权替代词重叠打分，对比两组查询的检索排序质量",
+  "skills": [
+    "rag.chunking",
+    "rag.retrieval"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_chunks_with_overlap",
@@ -16,22 +32,26 @@
     "test_overlap_ge_chunk_raises",
     "test_short_text_single_chunk"
   ],
+  "test_module": "day33_test",
+  "task": "实现RAG系统",
+  "description": "学习检索增强生成的原理和实现，构建知识问答系统。",
   "hints": [
     "文档分块处理",
     "使用向量数据库存储",
     "检索相关上下文增强回答"
   ],
-  "test_module": "day33_test",
-  "skills": [
-    "rag.chunking",
-    "rag.retrieval"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现RAG系统",
-  "optional_challenge": "挑战：用TF-IDF加权替代词重叠打分，对比两组查询的检索排序质量",
-  "mastery": [
-    "能实现带overlap的文本切块并拒绝非法参数",
-    "会计算余弦相似度",
-    "能按关键词相关性检索Top-K文档"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "文档分块处理"
+    },
+    {
+      "level": 2,
+      "content": "使用向量数据库存储"
+    },
+    {
+      "level": 3,
+      "content": "检索相关上下文增强回答"
+    }
   ]
 }

@@ -2,8 +2,24 @@
   "day": 11,
   "title": "Dataset/DataLoader",
   "goal": "掌握数据加载",
-  "task": "实现自定义数据集",
-  "description": "学习PyTorch的数据加载机制，实现自定义Dataset和DataLoader。理解数据预处理。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "nn.Module",
+    "Linear"
+  ],
+  "required_api": [],
+  "core_task": "实现自定义数据集",
+  "mastery": [
+    "能实现__len__/__getitem__的自定义Dataset",
+    "能算出给定batch_size下的batch数量与尾批大小",
+    "知道transform应在__getitem__内生效"
+  ],
+  "optional_challenge": "挑战：实现返回变长序列的Dataset，并编写collate_fn完成padding批处理",
+  "skills": [
+    "pytorch.dataset",
+    "pytorch.dataloader"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_batches_count",
@@ -13,22 +29,26 @@
     "test_len_and_getitem",
     "test_transform_applied"
   ],
+  "test_module": "day11_test",
+  "task": "实现自定义数据集",
+  "description": "学习PyTorch的数据加载机制，实现自定义Dataset和DataLoader。理解数据预处理。",
   "hints": [
     "继承Dataset类实现__getitem__和__len__",
     "使用DataLoader批量加载",
     "使用transforms进行数据预处理"
   ],
-  "test_module": "day11_test",
-  "skills": [
-    "pytorch.dataset",
-    "pytorch.dataloader"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现自定义数据集",
-  "optional_challenge": "挑战：实现返回变长序列的Dataset，并编写collate_fn完成padding批处理",
-  "mastery": [
-    "能实现__len__/__getitem__的自定义Dataset",
-    "能算出给定batch_size下的batch数量与尾批大小",
-    "知道transform应在__getitem__内生效"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "继承Dataset类实现__getitem__和__len__"
+    },
+    {
+      "level": 2,
+      "content": "使用DataLoader批量加载"
+    },
+    {
+      "level": 3,
+      "content": "使用transforms进行数据预处理"
+    }
   ]
 }

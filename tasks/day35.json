@@ -2,8 +2,24 @@
   "day": 35,
   "title": "Tool Calling",
   "goal": "掌握工具调用",
-  "task": "实现工具调用",
-  "description": "学习让LLM调用外部工具，实现函数调用和API集成。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "tool calling",
+    "agent loop"
+  ],
+  "required_api": [],
+  "core_task": "实现工具调用",
+  "mastery": [
+    "能生成含required的JSON-schema风格工具描述",
+    "能严格校验参数类型(bool≠int)",
+    "知道历史追加不应破坏原列表"
+  ],
+  "optional_challenge": "挑战：为tool_schema增加enum枚举与数值范围校验，测试非法输入被拒绝",
+  "skills": [
+    "agent.schema_validation",
+    "agent.tool_calling"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_append_preserves_order",
@@ -14,22 +30,26 @@
     "test_valid_call",
     "test_wrong_type_raises"
   ],
+  "test_module": "day35_test",
+  "task": "实现工具调用",
+  "description": "学习让LLM调用外部工具，实现函数调用和API集成。",
   "hints": [
     "定义工具描述",
     "解析LLM工具调用",
     "执行并返回结果"
   ],
-  "test_module": "day35_test",
-  "skills": [
-    "agent.schema_validation",
-    "agent.tool_calling"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现工具调用",
-  "optional_challenge": "挑战：为tool_schema增加enum枚举与数值范围校验，测试非法输入被拒绝",
-  "mastery": [
-    "能生成含required的JSON-schema风格工具描述",
-    "能严格校验参数类型(bool≠int)",
-    "知道历史追加不应破坏原列表"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "定义工具描述"
+    },
+    {
+      "level": 2,
+      "content": "解析LLM工具调用"
+    },
+    {
+      "level": 3,
+      "content": "执行并返回结果"
+    }
   ]
 }

@@ -70,12 +70,11 @@ def cmd_task(platform: TrainingPlatform, day: int):
         for item in mastery:
             print(f"  - {item}")
     # 8. Hints（支持分级）
-    hint_levels = getattr(task, "hint_levels", None) or {}
+    hint_levels = getattr(task, "hint_levels", None) or []
     if hint_levels:
         print(f"\nHints (卡住时按级查看):")
-        for level in sorted(hint_levels.keys()):
-            for h in hint_levels[level]:
-                print(f"  [L{level}] {h}")
+        for item in sorted(hint_levels, key=lambda x: x.get("level", 99)):
+            print(f"  [L{item.get('level', '?')}] {item.get('content', '')}")
     elif task.hints:
         print(f"\nHints:")
         for h in task.hints:

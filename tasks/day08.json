@@ -2,7 +2,7 @@
   "day": 8,
   "title": "Tensor基础",
   "goal": "掌握Tensor操作",
-  "estimated_minutes": 60,
+  "estimated_minutes": 90,
   "prerequisites": [
     "Python slicing",
     "NumPy shape"
@@ -11,6 +11,10 @@
     "Tensor创建与dtype",
     "reshape与元素数守恒",
     "统计与索引"
+  ],
+  "review_points": [
+    "gradient descent",
+    "MSE loss"
   ],
   "required_api": [
     {
@@ -58,15 +62,18 @@
     "使用view()或reshape()变形",
     "使用切片进行索引"
   ],
-  "hint_levels": {
-    "1": [
-      "torch.tensor(data, dtype=torch.float32)"
-    ],
-    "2": [
-      "t.reshape(*shape)；统计用t.mean()/t.std()"
-    ],
-    "3": [
-      "t.view(-1) 或 t.flatten() 可以展平tensor"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "torch.tensor(data, dtype=torch.float32)"
+    },
+    {
+      "level": 2,
+      "content": "t.reshape(*shape)；统计用t.mean()/t.std()"
+    },
+    {
+      "level": 3,
+      "content": "t.view(-1) 或 t.flatten() 可以展平tensor"
+    }
+  ]
 }

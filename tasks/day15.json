@@ -2,8 +2,24 @@
   "day": 15,
   "title": "GPU训练",
   "goal": "掌握GPU加速",
-  "task": "实现GPU训练",
-  "description": "学习如何使用GPU加速模型训练，理解CUDA编程和设备管理。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "BatchNorm",
+    "dropout"
+  ],
+  "required_api": [],
+  "core_task": "实现GPU训练",
+  "mastery": [
+    "能写出cuda优先否则cpu的设备选择逻辑",
+    "能把模型和tensor搬到同一device",
+    "能封装单步训练并返回CPU上的float loss"
+  ],
+  "optional_challenge": "挑战：编写device无关的训练函数（无GPU自动回退CPU），并对小矩阵运算计时对比",
+  "skills": [
+    "pytorch.device",
+    "pytorch.training_step"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_get_device_type",
@@ -12,22 +28,26 @@
     "test_move_tensor",
     "test_train_step_returns_float"
   ],
+  "test_module": "day15_test",
+  "task": "实现GPU训练",
+  "description": "学习如何使用GPU加速模型训练，理解CUDA编程和设备管理。",
   "hints": [
     "使用torch.cuda.is_available()检查GPU",
     "使用.to(device)转移模型和数据",
     "使用.cuda()或.gpu()方法"
   ],
-  "test_module": "day15_test",
-  "skills": [
-    "pytorch.device",
-    "pytorch.training_step"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现GPU训练",
-  "optional_challenge": "挑战：编写device无关的训练函数（无GPU自动回退CPU），并对小矩阵运算计时对比",
-  "mastery": [
-    "能写出cuda优先否则cpu的设备选择逻辑",
-    "能把模型和tensor搬到同一device",
-    "能封装单步训练并返回CPU上的float loss"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torch.cuda.is_available()检查GPU"
+    },
+    {
+      "level": 2,
+      "content": "使用.to(device)转移模型和数据"
+    },
+    {
+      "level": 3,
+      "content": "使用.cuda()或.gpu()方法"
+    }
   ]
 }

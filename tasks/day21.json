@@ -2,8 +2,24 @@
   "day": 21,
   "title": "数据增强",
   "goal": "掌握数据增强",
-  "task": "实现数据增强",
-  "description": "学习常见的数据增强技术，如翻转、旋转、裁剪等，提高模型泛化能力。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "accuracy",
+    "confusion matrix"
+  ],
+  "required_api": [],
+  "core_task": "实现数据增强",
+  "mastery": [
+    "能组合翻转/裁剪/色彩抖动的增强管线",
+    "知道增强只改变内容不改变shape",
+    "能验证p=1的翻转是确定性变换"
+  ],
+  "optional_challenge": "挑战：叠加RandomErasing与ColorJitter，可视化同一张图的8种增强结果",
+  "skills": [
+    "cv.augmentation",
+    "torchvision.transforms"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_apply_preserves_shape",
@@ -11,22 +27,26 @@
     "test_flip_deterministic_with_p1",
     "test_returns_compose"
   ],
+  "test_module": "day21_test",
+  "task": "实现数据增强",
+  "description": "学习常见的数据增强技术，如翻转、旋转、裁剪等，提高模型泛化能力。",
   "hints": [
     "使用transforms.RandomHorizontalFlip",
     "使用transforms.RandomCrop",
     "组合多种增强方式"
   ],
-  "test_module": "day21_test",
-  "skills": [
-    "cv.augmentation",
-    "torchvision.transforms"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现数据增强",
-  "optional_challenge": "挑战：叠加RandomErasing与ColorJitter，可视化同一张图的8种增强结果",
-  "mastery": [
-    "能组合翻转/裁剪/色彩抖动的增强管线",
-    "知道增强只改变内容不改变shape",
-    "能验证p=1的翻转是确定性变换"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用transforms.RandomHorizontalFlip"
+    },
+    {
+      "level": 2,
+      "content": "使用transforms.RandomCrop"
+    },
+    {
+      "level": 3,
+      "content": "组合多种增强方式"
+    }
   ]
 }

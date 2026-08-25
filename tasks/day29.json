@@ -2,8 +2,23 @@
   "day": 29,
   "title": "FastAPI部署",
   "goal": "掌握模型部署",
-  "task": "部署模型API",
-  "description": "学习使用FastAPI部署机器学习模型，构建RESTful API。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "ONNX export"
+  ],
+  "required_api": [],
+  "core_task": "部署模型API",
+  "mastery": [
+    "能用FastAPI暴露GET /health与POST /predict",
+    "能利用自动校验返回422",
+    "能实现批量预测端点"
+  ],
+  "optional_challenge": "挑战：为/predict定义Pydantic响应模型与统一错误码，补httpx集成测试",
+  "skills": [
+    "deployment.fastapi",
+    "api.server"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_batch",
@@ -12,22 +27,26 @@
     "test_predict_validation_error",
     "test_rule_consistency"
   ],
+  "test_module": "day29_test",
+  "task": "部署模型API",
+  "description": "学习使用FastAPI部署机器学习模型，构建RESTful API。",
   "hints": [
     "使用FastAPI框架",
     "实现POST预测接口",
     "添加请求验证"
   ],
-  "test_module": "day29_test",
-  "skills": [
-    "deployment.fastapi",
-    "api.server"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "部署模型API",
-  "optional_challenge": "挑战：为/predict定义Pydantic响应模型与统一错误码，补httpx集成测试",
-  "mastery": [
-    "能用FastAPI暴露GET /health与POST /predict",
-    "能利用自动校验返回422",
-    "能实现批量预测端点"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用FastAPI框架"
+    },
+    {
+      "level": 2,
+      "content": "实现POST预测接口"
+    },
+    {
+      "level": 3,
+      "content": "添加请求验证"
+    }
   ]
 }

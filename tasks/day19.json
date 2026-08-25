@@ -2,8 +2,23 @@
   "day": 19,
   "title": "ResNet残差网络",
   "goal": "理解深度网络",
-  "task": "实现ResNet块",
-  "description": "学习残差网络的原理，实现ResNet的基本构建块，理解跳跃连接。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "early stopping"
+  ],
+  "required_api": [],
+  "core_task": "实现ResNet块",
+  "mastery": [
+    "能解释残差连接为什么保持shape不变",
+    "能证明F(x)分支确实有贡献(非恒等映射)",
+    "知道梯度可以经shortcut直接回传"
+  ],
+  "optional_challenge": "挑战：把残差块改成1x1卷积降维的瓶颈结构(bottleneck)，对比参数量变化",
+  "skills": [
+    "pytorch.resnet",
+    "pytorch.tensor_shape"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_contains_multiple_blocks",
@@ -13,22 +28,26 @@
     "test_quick_training_step",
     "test_shape_preserved"
   ],
+  "test_module": "day19_test",
+  "task": "实现ResNet块",
+  "description": "学习残差网络的原理，实现ResNet的基本构建块，理解跳跃连接。",
   "hints": [
     "实现残差块类",
     "添加跳跃连接",
     "确保输入输出维度匹配"
   ],
-  "test_module": "day19_test",
-  "skills": [
-    "pytorch.resnet",
-    "pytorch.tensor_shape"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现ResNet块",
-  "optional_challenge": "挑战：把残差块改成1x1卷积降维的瓶颈结构(bottleneck)，对比参数量变化",
-  "mastery": [
-    "能解释残差连接为什么保持shape不变",
-    "能证明F(x)分支确实有贡献(非恒等映射)",
-    "知道梯度可以经shortcut直接回传"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "实现残差块类"
+    },
+    {
+      "level": 2,
+      "content": "添加跳跃连接"
+    },
+    {
+      "level": 3,
+      "content": "确保输入输出维度匹配"
+    }
   ]
 }

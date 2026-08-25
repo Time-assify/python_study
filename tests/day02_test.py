@@ -1,11 +1,11 @@
 # Day 02 Tests: 高级Python
 #
-# 核心接口（Timer上下文管理器已移至可选挑战:
-#   tests/challenges/day02_challenge_test.py）:
+# 核心接口:
 # - repeat(n)                      装饰器工厂：被装饰函数执行n次，返回最后一次结果；n<=0 抛 ValueError
 # - memoize(func)                  装饰器：缓存相同参数的调用结果
 # - fibonacci(n)                   生成器函数：yield前n个斐波那契数
 # - chunked(iterable, size)        生成器函数：按size分块yield列表；size<1 抛 ValueError
+# - Timer                          上下文管理器：with Timer(): 正常运行即可，不要求精确benchmark
 import pytest
 
 try:
@@ -108,6 +108,25 @@ class TestGenerators:
         chunked = _require("chunked")
         with pytest.raises(ValueError):
             list(chunked([1, 2, 3], 0))
+
+
+@pytest.mark.skill("python.decorator", "python.generator", "python.context_manager")
+class TestContextManager:
+    """核心(低门槛): Timer只需支持 with Timer(): 正常进出"""
+
+    def test_timer_context_runs(self):
+        Timer = _require("Timer")
+        with Timer():
+            pass
+
+    def test_timer_optional_elapsed_nonnegative(self):
+        """elapsed属性可选提供；若提供则必须>=0（不要求精确benchmark）"""
+        Timer = _require("Timer")
+        with Timer() as t:
+            sum(range(1000))
+        elapsed = getattr(t, "elapsed", None)
+        if elapsed is not None:
+            assert elapsed >= 0, f"elapsed应>=0，实际{elapsed}"
 
 
 if __name__ == "__main__":

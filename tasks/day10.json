@@ -2,7 +2,7 @@
   "day": 10,
   "title": "nn.Module神经网络",
   "goal": "构建神经网络",
-  "estimated_minutes": 60,
+  "estimated_minutes": 90,
   "prerequisites": [
     "Tensor",
     "Autograd",
@@ -12,6 +12,12 @@
     "nn.Module结构",
     "参数计数",
     "激活函数"
+  ],
+  "review_points": [
+    "Python class",
+    "exception",
+    "NumPy array",
+    "tensor"
   ],
   "required_api": [
     {
@@ -54,15 +60,18 @@
     "实现forward()方法",
     "使用nn.Linear定义全连接层"
   ],
-  "hint_levels": {
-    "1": [
-      "继承nn.Module，__init__里定义层，forward里串起来"
-    ],
-    "2": [
-      "参数量 = 每层 weight数 + bias数 求和"
-    ],
-    "3": [
-      "__repr__可让print好看；build_activation可用字符串映射到nn.ReLU等"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "继承nn.Module，__init__里定义层，forward里串起来"
+    },
+    {
+      "level": 2,
+      "content": "参数量 = 每层 weight数 + bias数 求和"
+    },
+    {
+      "level": 3,
+      "content": "__repr__可让print好看；build_activation可用字符串映射到nn.ReLU等"
+    }
+  ]
 }

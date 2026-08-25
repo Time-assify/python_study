@@ -2,8 +2,24 @@
   "day": 12,
   "title": "优化器",
   "goal": "掌握优化算法",
-  "task": "实现常见优化器",
-  "description": "学习常见的优化算法，如SGD、Adam等，理解学习率调度策略。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "Dataset",
+    "DataLoader"
+  ],
+  "required_api": [],
+  "core_task": "实现常见优化器",
+  "mastery": [
+    "能构建SGD/Adam优化器并拒绝非法lr",
+    "能完成一个完整的zero_grad-backward-step训练步",
+    "会用StepLR让学习率按周期衰减"
+  ],
+  "optional_challenge": "挑战：SGD+Momentum与Adam在同一二次函数上的收敛对比，整理成3条结论",
+  "skills": [
+    "pytorch.optimizer",
+    "pytorch.lr_scheduler"
+  ],
   "tests": [
     "test_adam_decreases_loss",
     "test_answer_module_imports",
@@ -13,22 +29,26 @@
     "test_sgd_decreases_loss",
     "test_unknown_name_raises"
   ],
+  "test_module": "day12_test",
+  "task": "实现常见优化器",
+  "description": "学习常见的优化算法，如SGD、Adam等，理解学习率调度策略。",
   "hints": [
     "使用torch.optim.SGD",
     "使用torch.optim.Adam",
     "使用torch.optim.lr_scheduler"
   ],
-  "test_module": "day12_test",
-  "skills": [
-    "pytorch.optimizer",
-    "pytorch.lr_scheduler"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现常见优化器",
-  "optional_challenge": "挑战：SGD+Momentum与Adam在同一二次函数上的收敛对比，整理成3条结论",
-  "mastery": [
-    "能构建SGD/Adam优化器并拒绝非法lr",
-    "能完成一个完整的zero_grad-backward-step训练步",
-    "会用StepLR让学习率按周期衰减"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torch.optim.SGD"
+    },
+    {
+      "level": 2,
+      "content": "使用torch.optim.Adam"
+    },
+    {
+      "level": 3,
+      "content": "使用torch.optim.lr_scheduler"
+    }
   ]
 }

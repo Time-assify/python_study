@@ -2,7 +2,7 @@
   "day": 9,
   "title": "Autograd自动微分",
   "goal": "理解自动微分",
-  "estimated_minutes": 60,
+  "estimated_minutes": 90,
   "prerequisites": [
     "Tensor",
     "函数求导基本概念"
@@ -12,6 +12,10 @@
     "梯度取值",
     "链式法则",
     "梯度累积"
+  ],
+  "review_points": [
+    "tensor",
+    "shape"
   ],
   "required_api": [
     {
@@ -53,15 +57,18 @@
     "调用.backward()计算梯度",
     "使用.grad访问梯度值"
   ],
-  "hint_levels": {
-    "1": [
-      "x = torch.tensor(v, requires_grad=True); y = fn(x); y.backward()"
-    ],
-    "2": [
-      "梯度在x.grad里；注意连续backward会累加"
-    ],
-    "3": [
-      "对同一个tensor连续backward会累加梯度，用 .grad.zero_() 清零"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "x = torch.tensor(v, requires_grad=True); y = fn(x); y.backward()"
+    },
+    {
+      "level": 2,
+      "content": "梯度在x.grad里；注意连续backward会累加"
+    },
+    {
+      "level": 3,
+      "content": "对同一个tensor连续backward会累加梯度，用 .grad.zero_() 清零"
+    }
+  ]
 }

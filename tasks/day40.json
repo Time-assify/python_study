@@ -2,8 +2,26 @@
   "day": 40,
   "title": "Final Project",
   "goal": "完成最终项目",
-  "task": "实现LearningPlatform最小闭环：注册→提交→统计→review→画像→推荐→报告导出",
-  "description": "综合前39天能力，构建学习平台的最小可用闭环。判题不再以字符串规则判定代码合格，而是验证平台状态机：两次不同提交必须产生可观测的历史统计、错误累计、画像变化与差异化推荐。",
+  "estimated_minutes": 180,
+  "prerequisites": [],
+  "review_points": [
+    "pipeline",
+    "event bus",
+    "health check"
+  ],
+  "required_api": [],
+  "core_task": "核心必做：\n- register_student注册学生\n- submit_result保存提交与错误\n- get_profile历史统计(error_statistics累计)\n- add_review保存AI建议\n- recommend_next_task按画像变化推荐\n- generate_report/export_report报告导出",
+  "mastery": [
+    "能设计注册→提交→累计错误→review→画像→推荐→报告的闭环",
+    "能保证画像随每次提交可观测变化",
+    "能让不同薄弱项产生不同推荐",
+    "能把报告导出为合法JSON"
+  ],
+  "optional_challenge": "挑战：将LearningPlatform持久化到SQLite，或接入TestEngine形成真实判题闭环",
+  "skills": [
+    "capstone.platform",
+    "documentation"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_average_score_over_history",
@@ -17,23 +35,26 @@
     "test_review_saved_and_visible",
     "test_two_submissions_saved"
   ],
+  "test_module": "day40_test",
+  "task": "实现LearningPlatform最小闭环：注册→提交→统计→review→画像→推荐→报告导出",
+  "description": "综合前39天能力，构建学习平台的最小可用闭环。判题不再以字符串规则判定代码合格，而是验证平台状态机：两次不同提交必须产生可观测的历史统计、错误累计、画像变化与差异化推荐。",
   "hints": [
     "整合所有模块",
     "编写完整文档",
     "准备项目展示"
   ],
-  "test_module": "day40_test",
-  "skills": [
-    "capstone.platform",
-    "documentation"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "核心必做：\n- register_student注册学生\n- submit_result保存提交与错误\n- get_profile历史统计(error_statistics累计)\n- add_review保存AI建议\n- recommend_next_task按画像变化推荐\n- generate_report/export_report报告导出",
-  "optional_challenge": "挑战：将LearningPlatform持久化到SQLite，或接入TestEngine形成真实判题闭环",
-  "mastery": [
-    "能设计注册→提交→累计错误→review→画像→推荐→报告的闭环",
-    "能保证画像随每次提交可观测变化",
-    "能让不同薄弱项产生不同推荐",
-    "能把报告导出为合法JSON"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "整合所有模块"
+    },
+    {
+      "level": 2,
+      "content": "编写完整文档"
+    },
+    {
+      "level": 3,
+      "content": "准备项目展示"
+    }
   ]
 }

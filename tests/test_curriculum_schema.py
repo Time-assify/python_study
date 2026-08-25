@@ -60,13 +60,15 @@ class TestDay01_10PrerequisitesAndHintLevels:
             assert "prerequisites" in d, f"day{day:02d}缺少prerequisites"
 
     def test_hint_levels_present(self):
+        """P1-5 v2格式: [{level:int, content:str}]"""
         for day in range(1, 11):
             d = _load(day)
             assert "hint_levels" in d, f"day{day:02d}缺少hint_levels"
             hl = d["hint_levels"]
-            assert isinstance(hl, dict), f"day{day:02d} hint_levels不是dict"
-            for level in ("1", "2", "3"):
-                assert level in hl, f"day{day:02d} hint_levels缺少L{level}"
+            assert isinstance(hl, list) and hl, f"day{day:02d} hint_levels必须非空list"
+            levels = {item.get("level") for item in hl}
+            for level in (1, 2, 3):
+                assert level in levels, f"day{day:02d} hint_levels缺少L{level}"
 
 
 class TestTaskManagerLoadsAll40:

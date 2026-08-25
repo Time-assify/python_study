@@ -2,8 +2,24 @@
   "day": 13,
   "title": "CNN卷积神经网络",
   "goal": "理解CNN架构",
-  "task": "实现简单CNN",
-  "description": "学习卷积神经网络的原理，实现图像分类模型。理解卷积、池化、全连接层。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "training loop",
+    "loss"
+  ],
+  "required_api": [],
+  "core_task": "实现简单CNN",
+  "mastery": [
+    "能解释padding=1的3x3卷积不改变特征图尺寸",
+    "能说出池化后尺寸减半的关系",
+    "能让梯度穿过卷积+全连接完整回传"
+  ],
+  "optional_challenge": "挑战：手动推导自己CNN每层输出尺寸与参数量，并用代码逐层验证",
+  "skills": [
+    "pytorch.cnn",
+    "pytorch.tensor_shape"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_backward_flows",
@@ -12,22 +28,26 @@
     "test_output_shape",
     "test_pooling_exists"
   ],
+  "test_module": "day13_test",
+  "task": "实现简单CNN",
+  "description": "学习卷积神经网络的原理，实现图像分类模型。理解卷积、池化、全连接层。",
   "hints": [
     "使用nn.Conv2d定义卷积层",
     "使用nn.MaxPool2d定义池化层",
     "展平后接全连接层"
   ],
-  "test_module": "day13_test",
-  "skills": [
-    "pytorch.cnn",
-    "pytorch.tensor_shape"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现简单CNN",
-  "optional_challenge": "挑战：手动推导自己CNN每层输出尺寸与参数量，并用代码逐层验证",
-  "mastery": [
-    "能解释padding=1的3x3卷积不改变特征图尺寸",
-    "能说出池化后尺寸减半的关系",
-    "能让梯度穿过卷积+全连接完整回传"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用nn.Conv2d定义卷积层"
+    },
+    {
+      "level": 2,
+      "content": "使用nn.MaxPool2d定义池化层"
+    },
+    {
+      "level": 3,
+      "content": "展平后接全连接层"
+    }
   ]
 }

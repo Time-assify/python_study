@@ -14,6 +14,10 @@
     "IO密集任务为什么适合线程",
     "GIL：能解释CPU密集任务不适合大量Python线程"
   ],
+  "review_points": [
+    "Python class",
+    "exception"
+  ],
   "required_api": [
     {
       "signature": "run_in_threads(func, n) -> list",
@@ -52,15 +56,18 @@
     "使用multiprocessing.Process创建进程",
     "使用ThreadPoolExecutor管理线程池"
   ],
-  "hint_levels": {
-    "1": [
-      "from concurrent.futures import ThreadPoolExecutor"
-    ],
-    "2": [
-      "executor.map保持输入顺序；as_completed按完成顺序"
-    ],
-    "3": [
-      "run_in_threads: with ThreadPoolExecutor(max_workers=n) as ex: return list(ex.map(func, range(n)))"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "from concurrent.futures import ThreadPoolExecutor"
+    },
+    {
+      "level": 2,
+      "content": "executor.map保持输入顺序；as_completed按完成顺序"
+    },
+    {
+      "level": 3,
+      "content": "run_in_threads: with ThreadPoolExecutor(max_workers=n) as ex: return list(ex.map(func, range(n)))"
+    }
+  ]
 }

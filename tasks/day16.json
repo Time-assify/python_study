@@ -2,29 +2,49 @@
   "day": 16,
   "title": "TensorBoard可视化",
   "goal": "掌握训练可视化",
-  "task": "实现训练过程可视化",
-  "description": "学习使用TensorBoard可视化训练过程和模型结构，监控损失和准确率。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "device",
+    "train step"
+  ],
+  "required_api": [],
+  "core_task": "实现训练过程可视化",
+  "mastery": [
+    "能创建SummaryWriter并生成events文件",
+    "能按step批量写入多个标量",
+    "知道writer可以安全地多次close"
+  ],
+  "optional_challenge": "挑战：同时记录loss/accuracy/学习率三组标量，并在TensorBoard中按命名空间分组展示",
+  "skills": [
+    "pytorch.tensorboard"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_close_idempotent",
     "test_get_writer_creates_dir",
     "test_scalar_logging_writes_event_file"
   ],
+  "test_module": "day16_test",
+  "task": "实现训练过程可视化",
+  "description": "学习使用TensorBoard可视化训练过程和模型结构，监控损失和准确率。",
   "hints": [
     "使用torch.utils.tensorboard.SummaryWriter",
     "add_scalar()记录标量",
     "add_graph()可视化模型"
   ],
-  "test_module": "day16_test",
-  "skills": [
-    "pytorch.tensorboard"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现训练过程可视化",
-  "optional_challenge": "挑战：同时记录loss/accuracy/学习率三组标量，并在TensorBoard中按命名空间分组展示",
-  "mastery": [
-    "能创建SummaryWriter并生成events文件",
-    "能按step批量写入多个标量",
-    "知道writer可以安全地多次close"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torch.utils.tensorboard.SummaryWriter"
+    },
+    {
+      "level": 2,
+      "content": "add_scalar()记录标量"
+    },
+    {
+      "level": 3,
+      "content": "add_graph()可视化模型"
+    }
   ]
 }

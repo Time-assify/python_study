@@ -2,8 +2,24 @@
   "day": 18,
   "title": "完整训练框架",
   "goal": "构建完整框架",
-  "task": "实现完整训练流程",
-  "description": "综合运用PyTorch知识，构建完整的模型训练框架，包括训练、验证、测试循环。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "checkpoint",
+    "state_dict"
+  ],
+  "required_api": [],
+  "core_task": "实现完整训练流程",
+  "mastery": [
+    "能写出单个epoch的平均loss统计",
+    "能输出验证集(loss, accuracy)",
+    "能实现patience语义的早停并理解改善即重置"
+  ],
+  "optional_challenge": "挑战：组合EarlyStopping与LR调度器，记录每个epoch的val loss并标注停止位置",
+  "skills": [
+    "pytorch.training_loop",
+    "evaluation.accuracy"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_evaluate_accuracy",
@@ -13,22 +29,26 @@
     "test_train_epoch_returns_loss",
     "test_training_converges"
   ],
+  "test_module": "day18_test",
+  "task": "实现完整训练流程",
+  "description": "综合运用PyTorch知识，构建完整的模型训练框架，包括训练、验证、测试循环。",
   "hints": [
     "实现train_one_epoch()函数",
     "实现validate()函数",
     "添加早停机制"
   ],
-  "test_module": "day18_test",
-  "skills": [
-    "pytorch.training_loop",
-    "evaluation.accuracy"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现完整训练流程",
-  "optional_challenge": "挑战：组合EarlyStopping与LR调度器，记录每个epoch的val loss并标注停止位置",
-  "mastery": [
-    "能写出单个epoch的平均loss统计",
-    "能输出验证集(loss, accuracy)",
-    "能实现patience语义的早停并理解改善即重置"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "实现train_one_epoch()函数"
+    },
+    {
+      "level": 2,
+      "content": "实现validate()函数"
+    },
+    {
+      "level": 3,
+      "content": "添加早停机制"
+    }
   ]
 }

@@ -9,6 +9,7 @@
     "YAML配置文件读写",
     "logging基础与文件Handler"
   ],
+  "review_points": [],
   "required_api": [
     {
       "signature": "create_project_structure(project_name) -> dict",
@@ -56,18 +57,30 @@
     "使用YAML配置文件",
     "配置Python日志系统"
   ],
-  "hint_levels": {
-    "1": [
-      "回顾os.makedirs(..., exist_ok=True)与os.path.join的用法",
-      "YAML就是纯文本——写入含project:的几行即可"
-    ],
-    "2": [
-      "先建root目录，再循环创建5个子目录并记录路径；src目录额外写__init__.py",
-      "logger需addHandler(FileHandler)并在返回后仍可写"
-    ],
-    "3": [
-      "伪代码：dirs={'root': abspath}; for k in [src,tests,configs,data,logs]: makedirs(join(root,k)); (join(root,'src','__init__.py')).close()",
-      "setup_logger: getLogger(名字)→setLevel→FileHandler(log_file)→addHandler→return"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "回顾os.makedirs(..., exist_ok=True)与os.path.join的用法"
+    },
+    {
+      "level": 1,
+      "content": "YAML就是纯文本——写入含project:的几行即可"
+    },
+    {
+      "level": 2,
+      "content": "先建root目录，再循环创建5个子目录并记录路径；src目录额外写__init__.py"
+    },
+    {
+      "level": 2,
+      "content": "logger需addHandler(FileHandler)并在返回后仍可写"
+    },
+    {
+      "level": 3,
+      "content": "伪代码：dirs={'root': abspath}; for k in [src,tests,configs,data,logs]: makedirs(join(root,k)); (join(root,'src','__init__.py')).close()"
+    },
+    {
+      "level": 3,
+      "content": "setup_logger: getLogger(名字)→setLevel→FileHandler(log_file)→addHandler→return"
+    }
+  ]
 }

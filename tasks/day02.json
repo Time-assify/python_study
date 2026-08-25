@@ -13,6 +13,10 @@
     "yield与惰性求值",
     "生成器表达式"
   ],
+  "review_points": [
+    "function",
+    "iterable"
+  ],
   "required_api": [
     {
       "signature": "repeat(n) -> 装饰器工厂",
@@ -29,16 +33,21 @@
     {
       "signature": "chunked(iterable, size) -> 生成器",
       "description": "按size分块yield列表；size<1抛ValueError；最后一块可不足"
+    },
+    {
+      "signature": "Timer",
+      "description": "上下文管理器类：支持 with Timer(): 正常进入退出；可选提供elapsed属性（不要求精确benchmark）"
     }
   ],
-  "core_task": "实现repeat / memoize / fibonacci / chunked四个接口（Timer上下文管理器为可选挑战）",
+  "core_task": "实现repeat / memoize / fibonacci / chunked四个接口，以及低门槛版Timer（只需with Timer():正常运行）",
   "mastery": [
     "理解装饰器如何包装函数",
     "会使用functools.wraps保留函数元信息",
     "会写yield生成器",
-    "理解惰性求值"
+    "理解惰性求值",
+    "会写基本上下文管理器（__enter__/__exit__）"
   ],
-  "optional_challenge": "挑战：实现Timer上下文管理器（with结束后.elapsed为耗时秒）。自测: pytest tests/challenges/day02_challenge_test.py。失败不影响当天通过",
+  "optional_challenge": "挑战：实现pipeline(iterable, *funcs)生成器——惰性地依次应用每个函数，例如list(pipeline(range(5), str, ...))。失败不影响当天通过",
   "resources": [
     "https://realpython.com/primer-on-python-decorators/",
     "https://realpython.com/introduction-to-python-generators/"
@@ -56,7 +65,9 @@
     "test_fibonacci_zero_terms",
     "test_memoize_caches_results",
     "test_repeat_executes_n_times",
-    "test_repeat_invalid_n_raises"
+    "test_repeat_invalid_n_raises",
+    "test_timer_context_runs",
+    "test_timer_optional_elapsed_nonnegative"
   ],
   "test_module": "day02_test",
   "task": "实现常用装饰器和生成器",
@@ -67,18 +78,38 @@
     "生成器使用yield语句，可以惰性生成值",
     "上下文管理器使用with语句，实现__enter__和__exit__方法"
   ],
-  "hint_levels": {
-    "1": [
-      "装饰器=接收函数并返回新函数",
-      "生成器函数里用yield逐个产出，而不是return列表"
-    ],
-    "2": [
-      "repeat: wrapper内部循环n次调用并保存最后结果；n<=0在wrapper调用时抛ValueError",
-      "memoize: 用dict以args为key缓存",
-      "fibonacci: 维护a,b两个变量滚动"
-    ],
-    "3": [
-      "chunked: 维护buf列表，满size即yield并清空；循环结束后buf非空再yield一次"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "装饰器=接收函数并返回新函数"
+    },
+    {
+      "level": 1,
+      "content": "生成器函数里用yield逐个产出，而不是return列表"
+    },
+    {
+      "level": 2,
+      "content": "repeat: wrapper内部循环n次调用并保存最后结果；n<=0在wrapper调用时抛ValueError"
+    },
+    {
+      "level": 2,
+      "content": "memoize: 用dict以args为key缓存"
+    },
+    {
+      "level": 2,
+      "content": "fibonacci: 维护a,b两个变量滚动"
+    },
+    {
+      "level": 2,
+      "content": "Timer: 类里实现__enter__与__exit__两个方法即可支持with"
+    },
+    {
+      "level": 3,
+      "content": "chunked: 维护buf列表，满size即yield并清空；循环结束后buf非空再yield一次"
+    },
+    {
+      "level": 3,
+      "content": "Timer伪代码: __enter__记录perf_counter()并return self；__exit__里elapsed=now-self._t"
+    }
+  ]
 }

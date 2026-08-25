@@ -2,8 +2,23 @@
   "day": 25,
   "title": "HuggingFace",
   "goal": "掌握HuggingFace",
-  "task": "使用HuggingFace库",
-  "description": "学习使用HuggingFace库进行NLP任务，包括模型加载、分词、推理。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "attention",
+    "positional encoding"
+  ],
+  "required_api": [],
+  "core_task": "使用HuggingFace库",
+  "mastery": [
+    "能把input_ids送进HF模型拿到last_hidden_state",
+    "会统计HF模型参数量",
+    "知道pad token约定用0右侧填充"
+  ],
+  "optional_challenge": "挑战：用BertConfig构造不同层数的模型，统计参数量随深度/宽度的增长曲线",
+  "skills": [
+    "huggingface.model"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_count_params_positive",
@@ -12,21 +27,26 @@
     "test_pad_ids",
     "test_pad_no_truncate_needed"
   ],
+  "test_module": "day25_test",
+  "task": "使用HuggingFace库",
+  "description": "学习使用HuggingFace库进行NLP任务，包括模型加载、分词、推理。",
   "hints": [
     "使用transformers库",
     "使用pipeline进行快速推理",
     "微调预训练模型"
   ],
-  "test_module": "day25_test",
-  "skills": [
-    "huggingface.model"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "使用HuggingFace库",
-  "optional_challenge": "挑战：用BertConfig构造不同层数的模型，统计参数量随深度/宽度的增长曲线",
-  "mastery": [
-    "能把input_ids送进HF模型拿到last_hidden_state",
-    "会统计HF模型参数量",
-    "知道pad token约定用0右侧填充"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用transformers库"
+    },
+    {
+      "level": 2,
+      "content": "使用pipeline进行快速推理"
+    },
+    {
+      "level": 3,
+      "content": "微调预训练模型"
+    }
   ]
 }

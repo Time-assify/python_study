@@ -11,6 +11,10 @@
     "抽象方法",
     "多态"
   ],
+  "review_points": [
+    "decorator",
+    "generator"
+  ],
   "required_api": [
     {
       "signature": "BaseModel(ABC)",
@@ -59,15 +63,18 @@
     "利用多态实现灵活的代码结构",
     "考虑ML框架的常见组件：模型、损失函数、优化器"
   ],
-  "hint_levels": {
-    "1": [
-      "from abc import ABC, abstractmethod"
-    ],
-    "2": [
-      "抽象方法只有声明没有实现体（docstring即可）"
-    ],
-    "3": [
-      "class BaseModel(ABC): @abstractmethod def fit(self, X, y): ..."
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "from abc import ABC, abstractmethod"
+    },
+    {
+      "level": 2,
+      "content": "抽象方法只有声明没有实现体（docstring即可）"
+    },
+    {
+      "level": 3,
+      "content": "class BaseModel(ABC): @abstractmethod def fit(self, X, y): ..."
+    }
+  ]
 }

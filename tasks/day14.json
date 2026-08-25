@@ -2,8 +2,24 @@
   "day": 14,
   "title": "BatchNorm/Dropout",
   "goal": "掌握正则化技术",
-  "task": "实现正则化层",
-  "description": "学习Batch Normalization和Dropout等正则化技术，防止过拟合。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "CNN",
+    "conv layer"
+  ],
+  "required_api": [],
+  "core_task": "实现正则化层",
+  "mastery": [
+    "知道BatchNorm把batch均值拉到0附近",
+    "能解释Dropout只在train生效、eval是确定性的",
+    "知道p不在[0,1]时构造会抛错"
+  ],
+  "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异",
+  "skills": [
+    "pytorch.batchnorm",
+    "pytorch.dropout"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_batchnorm_normalizes",
@@ -12,22 +28,26 @@
     "test_forward_shape",
     "test_invalid_p_raises"
   ],
+  "test_module": "day14_test",
+  "task": "实现正则化层",
+  "description": "学习Batch Normalization和Dropout等正则化技术，防止过拟合。",
   "hints": [
     "使用nn.BatchNorm2d进行批归一化",
     "使用nn.Dropout进行随机丢弃",
     "注意训练和评估模式的区别"
   ],
-  "test_module": "day14_test",
-  "skills": [
-    "pytorch.batchnorm",
-    "pytorch.dropout"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现正则化层",
-  "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异",
-  "mastery": [
-    "知道BatchNorm把batch均值拉到0附近",
-    "能解释Dropout只在train生效、eval是确定性的",
-    "知道p不在[0,1]时构造会抛错"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用nn.BatchNorm2d进行批归一化"
+    },
+    {
+      "level": 2,
+      "content": "使用nn.Dropout进行随机丢弃"
+    },
+    {
+      "level": 3,
+      "content": "注意训练和评估模式的区别"
+    }
   ]
 }

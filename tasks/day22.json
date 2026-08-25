@@ -2,8 +2,24 @@
   "day": 22,
   "title": "迁移学习",
   "goal": "掌握迁移学习",
-  "task": "实现迁移学习",
-  "description": "学习迁移学习的原理和应用，使用预训练模型进行微调。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "transform",
+    "augmentation"
+  ],
+  "required_api": [],
+  "core_task": "实现迁移学习",
+  "mastery": [
+    "能冻结backbone并保证分类头可训练",
+    "能证明冻结参数训练后不更新",
+    "知道特征提取要在no_grad下进行"
+  ],
+  "optional_challenge": "挑战：仅解冻最后两层微调，统计可训练参数占总参数的比例变化",
+  "skills": [
+    "transfer_learning",
+    "parameter_freezing"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_features_no_grad",
@@ -12,22 +28,26 @@
     "test_frozen_params_get_no_grad",
     "test_unfreeze_all"
   ],
+  "test_module": "day22_test",
+  "task": "实现迁移学习",
+  "description": "学习迁移学习的原理和应用，使用预训练模型进行微调。",
   "hints": [
     "使用torchvision.models中的预训练模型",
     "冻结特征提取层",
     "只训练最后的分类层"
   ],
-  "test_module": "day22_test",
-  "skills": [
-    "transfer_learning",
-    "parameter_freezing"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现迁移学习",
-  "optional_challenge": "挑战：仅解冻最后两层微调，统计可训练参数占总参数的比例变化",
-  "mastery": [
-    "能冻结backbone并保证分类头可训练",
-    "能证明冻结参数训练后不更新",
-    "知道特征提取要在no_grad下进行"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torchvision.models中的预训练模型"
+    },
+    {
+      "level": 2,
+      "content": "冻结特征提取层"
+    },
+    {
+      "level": 3,
+      "content": "只训练最后的分类层"
+    }
   ]
 }

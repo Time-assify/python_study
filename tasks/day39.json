@@ -2,8 +2,26 @@
   "day": 39,
   "title": "Agent系统整合",
   "goal": "整合Agent系统",
-  "task": "实现Agent系统整合",
-  "description": "将所有Agent模块整合为完整的系统，实现协同工作。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "progress analysis",
+    "trend"
+  ],
+  "required_api": [],
+  "core_task": "实现Agent系统整合",
+  "mastery": [
+    "能实现链式Pipeline并传播异常",
+    "能实现恰好retries+1次的失败重试",
+    "能实现发布订阅与健康检查failures清单"
+  ],
+  "optional_challenge": "挑战：为Pipeline步骤增加超时控制与失败降级fallback输出",
+  "skills": [
+    "system.pipeline",
+    "system.retry",
+    "system.event_bus",
+    "system.health_check"
+  ],
   "tests": [
     "test_all_ok",
     "test_answer_module_imports",
@@ -17,24 +35,26 @@
     "test_single_and_empty",
     "test_unsubscribed_topic_ignored"
   ],
+  "test_module": "day39_test",
+  "task": "实现Agent系统整合",
+  "description": "将所有Agent模块整合为完整的系统，实现协同工作。",
   "hints": [
     "设计模块间接口",
     "实现异步处理",
     "添加系统监控"
   ],
-  "test_module": "day39_test",
-  "skills": [
-    "system.pipeline",
-    "system.retry",
-    "system.event_bus",
-    "system.health_check"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现Agent系统整合",
-  "optional_challenge": "挑战：为Pipeline步骤增加超时控制与失败降级fallback输出",
-  "mastery": [
-    "能实现链式Pipeline并传播异常",
-    "能实现恰好retries+1次的失败重试",
-    "能实现发布订阅与健康检查failures清单"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "设计模块间接口"
+    },
+    {
+      "level": 2,
+      "content": "实现异步处理"
+    },
+    {
+      "level": 3,
+      "content": "添加系统监控"
+    }
   ]
 }

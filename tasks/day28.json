@@ -2,29 +2,49 @@
   "day": 28,
   "title": "ONNX模型导出",
   "goal": "掌握模型导出",
-  "task": "导出ONNX模型",
-  "description": "学习将PyTorch模型导出为ONNX格式，实现跨平台部署。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "mAP",
+    "detection dataset"
+  ],
+  "required_api": [],
+  "core_task": "导出ONNX模型",
+  "mastery": [
+    "能把torch模型导出为ONNX文件",
+    "会用onnxruntime加载并推理",
+    "知道dynamic_axes用于动态batch"
+  ],
+  "optional_challenge": "挑战：导出支持动态batch的ONNX模型，写一个onnxruntime并发推理的小压测脚本",
+  "skills": [
+    "deployment.onnx"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_export_creates_file",
     "test_export_signature_has_dynamic_axes",
     "test_onnx_inference_matches_torch"
   ],
+  "test_module": "day28_test",
+  "task": "导出ONNX模型",
+  "description": "学习将PyTorch模型导出为ONNX格式，实现跨平台部署。",
   "hints": [
     "使用torch.onnx.export()",
     "设置动态轴",
     "使用onnxruntime验证"
   ],
-  "test_module": "day28_test",
-  "skills": [
-    "deployment.onnx"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "导出ONNX模型",
-  "optional_challenge": "挑战：导出支持动态batch的ONNX模型，写一个onnxruntime并发推理的小压测脚本",
-  "mastery": [
-    "能把torch模型导出为ONNX文件",
-    "会用onnxruntime加载并推理",
-    "知道dynamic_axes用于动态batch"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torch.onnx.export()"
+    },
+    {
+      "level": 2,
+      "content": "设置动态轴"
+    },
+    {
+      "level": 3,
+      "content": "使用onnxruntime验证"
+    }
   ]
 }

@@ -26,8 +26,9 @@ class Task:
     skills: List[str] = None
     prerequisites: List[str] = None
     learn: List[str] = None
+    review_points: List[str] = None
     required_api: List[Dict[str, str]] = None
-    hint_levels: Dict[str, List[str]] = None
+    hint_levels: List[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.mastery is None:
@@ -38,10 +39,12 @@ class Task:
             self.prerequisites = []
         if self.learn is None:
             self.learn = []
+        if self.review_points is None:
+            self.review_points = []
         if self.required_api is None:
             self.required_api = []
         if self.hint_levels is None:
-            self.hint_levels = {}
+            self.hint_levels = []
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
@@ -62,8 +65,9 @@ class Task:
             "skills": self.skills or [],
             "prerequisites": self.prerequisites or [],
             "learn": self.learn or [],
+            "review_points": self.review_points or [],
             "required_api": self.required_api or [],
-            "hint_levels": self.hint_levels or {},
+            "hint_levels": self.hint_levels or [],
         }
 
 
@@ -133,8 +137,9 @@ class TaskManager:
             skills=data.get("skills", []),
             prerequisites=data.get("prerequisites", []),
             learn=data.get("learn", []),
+            review_points=data.get("review_points", []),
             required_api=data.get("required_api", []),
-            hint_levels=data.get("hint_levels", {}),
+            hint_levels=data.get("hint_levels", []),
         )
         
         # 缓存任务
@@ -221,8 +226,9 @@ class TaskManager:
             skills=task_data.get("skills", []),
             prerequisites=task_data.get("prerequisites", []),
             learn=task_data.get("learn", []),
+            review_points=task_data.get("review_points", []),
             required_api=task_data.get("required_api", []),
-            hint_levels=task_data.get("hint_levels", {}),
+            hint_levels=task_data.get("hint_levels", []),
         )
         
         # 保存到文件

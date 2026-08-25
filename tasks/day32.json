@@ -2,8 +2,24 @@
   "day": 32,
   "title": "Prompt Engineering",
   "goal": "掌握提示工程",
-  "task": "设计有效提示",
-  "description": "学习提示工程的技巧和最佳实践，包括Few-shot、Chain-of-Thought。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "LLM client",
+    "streaming"
+  ],
+  "required_api": [],
+  "core_task": "设计有效提示",
+  "mastery": [
+    "能组织few-shot示例且保证query位于其后",
+    "会在prompt中注入一步步思考引导",
+    "知道system prompt应以角色开头"
+  ],
+  "optional_challenge": "挑战：设计少样本分类prompt矩阵实验（示例数量×格式两种维度），总结对回答质量的影响",
+  "skills": [
+    "prompt.few_shot",
+    "prompt.chain_of_thought"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_contains_examples_and_query",
@@ -14,22 +30,26 @@
     "test_query_after_examples",
     "test_role_first"
   ],
+  "test_module": "day32_test",
+  "task": "设计有效提示",
+  "description": "学习提示工程的技巧和最佳实践，包括Few-shot、Chain-of-Thought。",
   "hints": [
     "设计清晰的指令",
     "使用示例引导",
     "分步推理提升准确性"
   ],
-  "test_module": "day32_test",
-  "skills": [
-    "prompt.few_shot",
-    "prompt.chain_of_thought"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "设计有效提示",
-  "optional_challenge": "挑战：设计少样本分类prompt矩阵实验（示例数量×格式两种维度），总结对回答质量的影响",
-  "mastery": [
-    "能组织few-shot示例且保证query位于其后",
-    "会在prompt中注入一步步思考引导",
-    "知道system prompt应以角色开头"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "设计清晰的指令"
+    },
+    {
+      "level": 2,
+      "content": "使用示例引导"
+    },
+    {
+      "level": 3,
+      "content": "分步推理提升准确性"
+    }
   ]
 }

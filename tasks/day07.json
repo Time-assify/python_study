@@ -13,6 +13,10 @@
     "向量化运算",
     "训练循环（迭代更新参数）"
   ],
+  "review_points": [
+    "NumPy array",
+    "statistics"
+  ],
   "required_api": [
     {
       "signature": "mse_loss(y_true, y_pred) -> float",
@@ -52,15 +56,18 @@
     "损失对b的梯度: db = mean(2 * (y_pred - y))",
     "更新: w -= lr * dw;  b -= lr * db"
   ],
-  "hint_levels": {
-    "1": [
-      "先把前向计算向量化: y_pred = X @ w + b"
-    ],
-    "2": [
-      "每轮迭代：算y_pred → 算dw/db → 更新参数 → 记录loss"
-    ],
-    "3": [
-      "收敛判据参考：训练后平均绝对误差 < 0.25 即可通过测试"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "先把前向计算向量化: y_pred = X @ w + b"
+    },
+    {
+      "level": 2,
+      "content": "每轮迭代：算y_pred → 算dw/db → 更新参数 → 记录loss"
+    },
+    {
+      "level": 3,
+      "content": "收敛判据参考：训练后平均绝对误差 < 0.25 即可通过测试"
+    }
+  ]
 }

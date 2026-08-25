@@ -2,8 +2,24 @@
   "day": 20,
   "title": "CIFAR分类",
   "goal": "图像分类实战",
-  "task": "实现CIFAR分类器",
-  "description": "使用CIFAR-10数据集进行图像分类实战，构建完整的训练和评估流程。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "ResNet",
+    "residual"
+  ],
+  "required_api": [],
+  "core_task": "实现CIFAR分类器",
+  "mastery": [
+    "能搭建接受(B,3,32,32)输入的分类网络",
+    "能实现top-1准确率与混淆矩阵",
+    "能在小样本上快速验证模型可学习(loss明显下降)"
+  ],
+  "optional_challenge": "挑战：在CIFARNet上做单batch过拟合实验（train准确率打到100%），验证模型容量足够",
+  "skills": [
+    "cv.classification",
+    "metrics.confusion_matrix"
+  ],
   "tests": [
     "test_accuracy_mismatched_lengths",
     "test_accuracy_perfect_and_half",
@@ -12,22 +28,26 @@
     "test_forward_shape",
     "test_overfit_tiny_batch"
   ],
+  "test_module": "day20_test",
+  "task": "实现CIFAR分类器",
+  "description": "使用CIFAR-10数据集进行图像分类实战，构建完整的训练和评估流程。",
   "hints": [
     "使用torchvision.datasets.CIFAR10",
     "数据增强提高泛化能力",
     "计算混淆矩阵分析错误"
   ],
-  "test_module": "day20_test",
-  "skills": [
-    "cv.classification",
-    "metrics.confusion_matrix"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现CIFAR分类器",
-  "optional_challenge": "挑战：在CIFARNet上做单batch过拟合实验（train准确率打到100%），验证模型容量足够",
-  "mastery": [
-    "能搭建接受(B,3,32,32)输入的分类网络",
-    "能实现top-1准确率与混淆矩阵",
-    "能在小样本上快速验证模型可学习(loss明显下降)"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torchvision.datasets.CIFAR10"
+    },
+    {
+      "level": 2,
+      "content": "数据增强提高泛化能力"
+    },
+    {
+      "level": 3,
+      "content": "计算混淆矩阵分析错误"
+    }
   ]
 }

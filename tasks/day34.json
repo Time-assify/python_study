@@ -2,8 +2,24 @@
   "day": 34,
   "title": "Agent框架",
   "goal": "构建Agent框架",
-  "task": "实现Agent架构",
-  "description": "学习AI Agent的设计模式和实现方法，构建自主决策系统。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "RAG",
+    "cosine similarity"
+  ],
+  "required_api": [],
+  "core_task": "实现Agent架构",
+  "mastery": [
+    "能用Tool(name,func,description)注册工具",
+    "能按描述关键词路由goal到正确工具或澄清",
+    "能实现保留时间序的记忆recall(n)"
+  ],
+  "optional_challenge": "挑战：给Agent增加最大步数限制与工具黑白名单机制",
+  "skills": [
+    "agent.tool",
+    "agent.memory"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_picks_correct_tool",
@@ -14,22 +30,26 @@
     "test_tool_fields",
     "test_unknown_goal_clarify"
   ],
+  "test_module": "day34_test",
+  "task": "实现Agent架构",
+  "description": "学习AI Agent的设计模式和实现方法，构建自主决策系统。",
   "hints": [
     "实现观察-思考-行动循环",
     "集成工具调用",
     "添加记忆系统"
   ],
-  "test_module": "day34_test",
-  "skills": [
-    "agent.tool",
-    "agent.memory"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现Agent架构",
-  "optional_challenge": "挑战：给Agent增加最大步数限制与工具黑白名单机制",
-  "mastery": [
-    "能用Tool(name,func,description)注册工具",
-    "能按描述关键词路由goal到正确工具或澄清",
-    "能实现保留时间序的记忆recall(n)"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "实现观察-思考-行动循环"
+    },
+    {
+      "level": 2,
+      "content": "集成工具调用"
+    },
+    {
+      "level": 3,
+      "content": "添加记忆系统"
+    }
   ]
 }

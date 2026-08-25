@@ -2,7 +2,7 @@
   "day": 6,
   "title": "NumPy/Pandas数据处理",
   "goal": "掌握数据处理",
-  "estimated_minutes": 60,
+  "estimated_minutes": 90,
   "prerequisites": [
     "Python字典与列表",
     "基本统计概念"
@@ -11,6 +11,10 @@
     "DataFrame与Series",
     "dropna与drop_duplicates",
     "NumPy ndarray与min/max统计"
+  ],
+  "review_points": [
+    "requests",
+    "APIError"
   ],
   "required_api": [
     {
@@ -49,15 +53,18 @@
     "使用pandas读取和处理CSV数据",
     "实现数据清洗管道"
   ],
-  "hint_levels": {
-    "1": [
-      "df.dropna() / df.drop_duplicates()"
-    ],
-    "2": [
-      "归一化公式: (x - min) / (max - min)；先判断max==min"
-    ],
-    "3": [
-      "常数列直接返回 df[column] * 0 + 0.5"
-    ]
-  }
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "df.dropna() / df.drop_duplicates()"
+    },
+    {
+      "level": 2,
+      "content": "归一化公式: (x - min) / (max - min)；先判断max==min"
+    },
+    {
+      "level": 3,
+      "content": "常数列直接返回 df[column] * 0 + 0.5"
+    }
+  ]
 }

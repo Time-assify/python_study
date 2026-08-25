@@ -2,8 +2,24 @@
   "day": 38,
   "title": "AI学习导师",
   "goal": "构建学习导师",
-  "task": "实现AI学习导师",
-  "description": "构建个性化的AI学习导师，分析学习进度并提供定制化建议。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "sandbox",
+    "timeout"
+  ],
+  "required_api": [],
+  "core_task": "实现AI学习导师",
+  "mastery": [
+    "能按最近3次均值±5判定trend",
+    "能按阈值过滤并降序输出薄弱点",
+    "能根据最薄弱错误推荐主题"
+  ],
+  "optional_challenge": "挑战：让recommend_next_task考虑trend——declining时先安排复习再推进新任务",
+  "skills": [
+    "learning.profile",
+    "recommendation"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_average",
@@ -17,22 +33,26 @@
     "test_trend_improving",
     "test_trend_stable"
   ],
+  "test_module": "day38_test",
+  "task": "实现AI学习导师",
+  "description": "构建个性化的AI学习导师，分析学习进度并提供定制化建议。",
   "hints": [
     "分析学习历史",
     "识别薄弱环节",
     "生成个性化学习计划"
   ],
-  "test_module": "day38_test",
-  "skills": [
-    "learning.profile",
-    "recommendation"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现AI学习导师",
-  "optional_challenge": "挑战：让recommend_next_task考虑trend——declining时先安排复习再推进新任务",
-  "mastery": [
-    "能按最近3次均值±5判定trend",
-    "能按阈值过滤并降序输出薄弱点",
-    "能根据最薄弱错误推荐主题"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "分析学习历史"
+    },
+    {
+      "level": 2,
+      "content": "识别薄弱环节"
+    },
+    {
+      "level": 3,
+      "content": "生成个性化学习计划"
+    }
   ]
 }

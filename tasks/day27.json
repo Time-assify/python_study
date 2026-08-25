@@ -2,8 +2,25 @@
   "day": 27,
   "title": "目标检测实战",
   "goal": "目标检测应用",
-  "task": "用合成数据实现目标检测数据集与AP评估流程",
-  "description": "学习目标检测的数据组织与评估指标。使用合成小数据理解box格式与mAP/AP的计算原理，不要求训练大型检测模型。真实数据训练见optional_challenge。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "IoU",
+    "NMS",
+    "anchor"
+  ],
+  "required_api": [],
+  "core_task": "核心必做：\n- 实现DetectionDataset\n- 理解box格式(xyxy)\n- 实现/理解average_precision计算\n- 使用合成小数据完成 训练前→评估 全流程",
+  "mastery": [
+    "能实现返回(image,target{boxes,labels})的检测Dataset",
+    "知道xyxy坐标满足x1<x2,y1<y2",
+    "能实现完美预测AP=1的评估函数"
+  ],
+  "optional_challenge": "挑战：在合成场景中加入遮挡目标，观察AP@0.5相对干净场景的退化幅度",
+  "skills": [
+    "detection.dataset",
+    "metrics.average_precision"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_box_coords_valid",
@@ -12,22 +29,26 @@
     "test_no_match_low_ap",
     "test_perfect_predictions"
   ],
+  "test_module": "day27_test",
+  "task": "用合成数据实现目标检测数据集与AP评估流程",
+  "description": "学习目标检测的数据组织与评估指标。使用合成小数据理解box格式与mAP/AP的计算原理，不要求训练大型检测模型。真实数据训练见optional_challenge。",
   "hints": [
     "准备Pascal VOC或COCO格式数据",
     "实现数据增强",
     "计算mAP评估指标"
   ],
-  "test_module": "day27_test",
-  "skills": [
-    "detection.dataset",
-    "metrics.average_precision"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "核心必做：\n- 实现DetectionDataset\n- 理解box格式(xyxy)\n- 实现/理解average_precision计算\n- 使用合成小数据完成 训练前→评估 全流程",
-  "optional_challenge": "挑战：在合成场景中加入遮挡目标，观察AP@0.5相对干净场景的退化幅度",
-  "mastery": [
-    "能实现返回(image,target{boxes,labels})的检测Dataset",
-    "知道xyxy坐标满足x1<x2,y1<y2",
-    "能实现完美预测AP=1的评估函数"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "准备Pascal VOC或COCO格式数据"
+    },
+    {
+      "level": 2,
+      "content": "实现数据增强"
+    },
+    {
+      "level": 3,
+      "content": "计算mAP评估指标"
+    }
   ]
 }

@@ -2,8 +2,24 @@
   "day": 23,
   "title": "NLP基础",
   "goal": "理解NLP基础",
-  "task": "实现文本处理",
-  "description": "学习自然语言处理的基础知识，包括分词、词向量、文本分类。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "transfer learning",
+    "freeze params"
+  ],
+  "required_api": [],
+  "core_task": "实现文本处理",
+  "mastery": [
+    "能实现小写化去标点的分词器",
+    "能构建含<pad>/<unk>的词表并处理OOV",
+    "能完成编码-padding/截断到定长"
+  ],
+  "optional_challenge": "挑战：实现字符级分词并与词级分词对比词表大小与OOV率",
+  "skills": [
+    "nlp.tokenization",
+    "nlp.embedding"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_backward",
@@ -18,22 +34,26 @@
     "test_unknown_word_maps_unk",
     "test_word_indices"
   ],
+  "test_module": "day23_test",
+  "task": "实现文本处理",
+  "description": "学习自然语言处理的基础知识，包括分词、词向量、文本分类。",
   "hints": [
     "使用torchtext或自定义分词",
     "使用nn.Embedding进行词嵌入",
     "处理变长序列"
   ],
-  "test_module": "day23_test",
-  "skills": [
-    "nlp.tokenization",
-    "nlp.embedding"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现文本处理",
-  "optional_challenge": "挑战：实现字符级分词并与词级分词对比词表大小与OOV率",
-  "mastery": [
-    "能实现小写化去标点的分词器",
-    "能构建含<pad>/<unk>的词表并处理OOV",
-    "能完成编码-padding/截断到定长"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torchtext或自定义分词"
+    },
+    {
+      "level": 2,
+      "content": "使用nn.Embedding进行词嵌入"
+    },
+    {
+      "level": 3,
+      "content": "处理变长序列"
+    }
   ]
 }

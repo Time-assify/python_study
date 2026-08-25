@@ -2,8 +2,22 @@
   "day": 17,
   "title": "模型检查点",
   "goal": "掌握模型保存",
-  "task": "实现模型检查点",
-  "description": "学习模型保存和加载，实现训练检查点功能，支持断点续训。",
+  "estimated_minutes": 90,
+  "prerequisites": [],
+  "review_points": [
+    "TensorBoard"
+  ],
+  "required_api": [],
+  "core_task": "实现模型检查点",
+  "mastery": [
+    "能把模型权重+epoch保存成checkpoint文件",
+    "能把权重恢复到另一个模型并验证一致",
+    "知道文件不存在时应抛出明确异常"
+  ],
+  "optional_challenge": "挑战：实现Top-K checkpoint保存（始终保留历史最优的3个epoch权重）",
+  "skills": [
+    "pytorch.checkpoint"
+  ],
   "tests": [
     "test_answer_module_imports",
     "test_load_missing_file_raises",
@@ -11,21 +25,26 @@
     "test_resume_epoch_metadata",
     "test_save_and_load_roundtrip"
   ],
+  "test_module": "day17_test",
+  "task": "实现模型检查点",
+  "description": "学习模型保存和加载，实现训练检查点功能，支持断点续训。",
   "hints": [
     "使用torch.save()保存",
     "使用torch.load()加载",
     "保存state_dict而非整个模型"
   ],
-  "test_module": "day17_test",
-  "skills": [
-    "pytorch.checkpoint"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现模型检查点",
-  "optional_challenge": "挑战：实现Top-K checkpoint保存（始终保留历史最优的3个epoch权重）",
-  "mastery": [
-    "能把模型权重+epoch保存成checkpoint文件",
-    "能把权重恢复到另一个模型并验证一致",
-    "知道文件不存在时应抛出明确异常"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "使用torch.save()保存"
+    },
+    {
+      "level": 2,
+      "content": "使用torch.load()加载"
+    },
+    {
+      "level": 3,
+      "content": "保存state_dict而非整个模型"
+    }
   ]
 }

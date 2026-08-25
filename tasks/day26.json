@@ -2,8 +2,25 @@
   "day": 26,
   "title": "YOLO目标检测",
   "goal": "理解目标检测",
-  "task": "实现YOLO检测",
-  "description": "学习YOLO目标检测算法的原理和实现，理解锚框和边界框预测。",
+  "estimated_minutes": 120,
+  "prerequisites": [],
+  "review_points": [
+    "HuggingFace",
+    "tokenizer"
+  ],
+  "required_api": [],
+  "core_task": "实现YOLO检测",
+  "mastery": [
+    "能生成网格锚框且坐标归一化到[0,1]",
+    "能手算两个框的IoU(含半重叠=50/150情形)",
+    "能实现按分数降序的NMS抑制"
+  ],
+  "optional_challenge": "挑战：把IoU换成DIoU再跑一遍NMS，比较不同阈值下保留框数量",
+  "skills": [
+    "detection.anchor",
+    "detection.iou",
+    "detection.nms"
+  ],
   "tests": [
     "test_anchor_coords_normalized",
     "test_anchor_count_and_range",
@@ -16,23 +33,26 @@
     "test_nms_keeps_distinct_with_low_threshold_effect",
     "test_nms_suppresses_overlap"
   ],
+  "test_module": "day26_test",
+  "task": "实现YOLO检测",
+  "description": "学习YOLO目标检测算法的原理和实现，理解锚框和边界框预测。",
   "hints": [
     "理解网格划分",
     "实现锚框机制",
     "使用NMS去除重叠框"
   ],
-  "test_module": "day26_test",
-  "skills": [
-    "detection.anchor",
-    "detection.iou",
-    "detection.nms"
-  ],
-  "estimated_minutes": 60,
-  "core_task": "实现YOLO检测",
-  "optional_challenge": "挑战：把IoU换成DIoU再跑一遍NMS，比较不同阈值下保留框数量",
-  "mastery": [
-    "能生成网格锚框且坐标归一化到[0,1]",
-    "能手算两个框的IoU(含半重叠=50/150情形)",
-    "能实现按分数降序的NMS抑制"
+  "hint_levels": [
+    {
+      "level": 1,
+      "content": "理解网格划分"
+    },
+    {
+      "level": 2,
+      "content": "实现锚框机制"
+    },
+    {
+      "level": 3,
+      "content": "使用NMS去除重叠框"
+    }
   ]
 }
