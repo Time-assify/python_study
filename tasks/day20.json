@@ -3,13 +3,39 @@
   "title": "CIFAR分类",
   "goal": "图像分类实战",
   "difficulty": 3,
-  "estimated_minutes": 90,
-  "prerequisites": [],
+  "estimated_minutes": 120,
+  "prerequisites": [
+    "训练循环",
+    "评估指标概念",
+    "数据增强意识"
+  ],
+  "learn": [
+    "RGB三通道输入适配",
+    "top-1准确率实现",
+    "混淆矩阵行列约定",
+    "小样本快速可行性验证"
+  ],
   "review_points": [
     "ResNet",
     "residual"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "CIFARNet",
+      "signature": "CIFARNet(num_classes=10) -> nn.Module",
+      "description": "forward从(B,3,32,32)映射到(B,num_classes)"
+    },
+    {
+      "name": "accuracy",
+      "signature": "accuracy(outputs, labels) -> float",
+      "description": "logits与标签的top-1准确率；长度不一致应报错"
+    },
+    {
+      "name": "confusion_matrix",
+      "signature": "confusion_matrix(preds, labels, num_classes) -> ndarray",
+      "description": "行约定为真实类别、列为预测类别的方阵"
+    }
+  ],
   "core_task": "实现CIFAR分类器",
   "mastery": [
     "能搭建接受(B,3,32,32)输入的分类网络",
@@ -40,15 +66,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用torchvision.datasets.CIFAR10"
+      "content": "小图分类管线：数据读入、卷积网络、指标评估三位一体"
     },
     {
       "level": 2,
-      "content": "数据增强提高泛化能力"
+      "content": "accuracy先取argmax再比对均值；混淆矩阵务必固定行为真实、列为预测"
+    },
+    {
+      "level": 2,
+      "content": "过拟合冒烟实验用单个固定batch反复训练数十步观察准确率上限"
     },
     {
       "level": 3,
-      "content": "计算混淆矩阵分析错误"
+      "content": "判据：完美预测时混淆矩阵对角线为各类样本数其余为零；长度不一致时accuracy应抛错"
     }
   ]
 }

@@ -4,12 +4,38 @@
   "goal": "构建完整框架",
   "difficulty": 3,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "DataLoader批处理",
+    "optimizer与scheduler",
+    "checkpoint"
+  ],
+  "learn": [
+    "epoch平均损失的正确加权",
+    "验证集输出(loss, accuracy)",
+    "早停patience与min_delta语义",
+    "改善即重置计数"
+  ],
   "review_points": [
     "checkpoint",
     "state_dict"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "train_one_epoch",
+      "signature": "train_one_epoch(model, loader, optimizer, loss_fn) -> float",
+      "description": "跑完一个epoch，返回平均训练loss"
+    },
+    {
+      "name": "evaluate",
+      "signature": "evaluate(model, loader, loss_fn) -> tuple",
+      "description": "在验证集上返回(loss, accuracy)二元组"
+    },
+    {
+      "name": "EarlyStopping",
+      "signature": "EarlyStopping(patience, min_delta=0.0)",
+      "description": "step(val_loss)返回是否应停止；改善不足min_delta计数递增，patience小于1时构造抛ValueError"
+    }
+  ],
   "core_task": "实现完整训练流程",
   "mastery": [
     "能写出单个epoch的平均loss统计",
@@ -41,15 +67,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "实现train_one_epoch()函数"
+      "content": "训练框架等于训练半程加验证半程，再加一个何时停下的裁判"
     },
     {
       "level": 2,
-      "content": "实现validate()函数"
+      "content": "epoch平均损失建议按batch样本数加权，而不是简单对batch求均值"
+    },
+    {
+      "level": 2,
+      "content": "早停在指标改善幅度不足min_delta时计数，达到patience即判定停止"
     },
     {
       "level": 3,
-      "content": "添加早停机制"
+      "content": "判据：改善定义为本轮val_loss小于历史最优减去min_delta；一旦改善必须清零计数"
     }
   ]
 }

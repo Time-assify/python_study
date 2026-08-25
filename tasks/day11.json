@@ -4,12 +4,32 @@
   "goal": "掌握数据加载",
   "difficulty": 3,
   "estimated_minutes": 90,
-  "prerequisites": [],
+  "prerequisites": [
+    "Tensor基础",
+    "nn.Module前向"
+  ],
+  "learn": [
+    "Dataset协议：__len__与__getitem__",
+    "DataLoader的batch_size与shuffle语义",
+    "尾批现象",
+    "transform的作用位置"
+  ],
   "review_points": [
     "nn.Module",
     "Linear"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "SimpleDataset",
+      "signature": "SimpleDataset(data, labels, transform=None) -> Dataset",
+      "description": "实现__len__与__getitem__；item返回(特征, 标签)二元组；transform存在时先作用于特征"
+    },
+    {
+      "name": "make_loader",
+      "signature": "make_loader(dataset, batch_size, shuffle=False) -> DataLoader",
+      "description": "把batch_size与shuffle透传给DataLoader并返回"
+    }
+  ],
   "core_task": "实现自定义数据集",
   "mastery": [
     "能实现__len__/__getitem__的自定义Dataset",
@@ -41,15 +61,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "继承Dataset类实现__getitem__和__len__"
+      "content": "Dataset核心是两个方法：一个报总数，一个按索引取样本"
     },
     {
       "level": 2,
-      "content": "使用DataLoader批量加载"
+      "content": "__getitem__返回(特征, 标签)二元组；transform若有则先作用于特征"
+    },
+    {
+      "level": 2,
+      "content": "make_loader里把batch_size与shuffle透传给DataLoader"
     },
     {
       "level": 3,
-      "content": "使用transforms进行数据预处理"
+      "content": "伪代码：__len__返回样本数；__getitem__: 取x后若transform则先变换，再return x与labels[i]"
     }
   ]
 }

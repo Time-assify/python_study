@@ -4,11 +4,36 @@
   "goal": "掌握模型保存",
   "difficulty": 3,
   "estimated_minutes": 90,
-  "prerequisites": [],
+  "prerequisites": [
+    "state_dict与模型结构",
+    "文件序列化基础"
+  ],
+  "learn": [
+    "state_dict的本质",
+    "checkpoint应携带的元信息",
+    "缺失文件的错误处理",
+    "恢复后的等价性验证"
+  ],
   "review_points": [
     "TensorBoard"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "save_checkpoint",
+      "signature": "save_checkpoint(model, path, epoch=0, optimizer=None)",
+      "description": "把权重与epoch元信息保存为checkpoint文件"
+    },
+    {
+      "name": "load_checkpoint",
+      "signature": "load_checkpoint(path) -> dict",
+      "description": "读出至少包含model_state与epoch两个键的字典；文件不存在抛明确异常"
+    },
+    {
+      "name": "restore_model",
+      "signature": "restore_model(model, path) -> model",
+      "description": "将checkpoint权重恢复到同构模型并返回"
+    }
+  ],
   "core_task": "实现模型检查点",
   "mastery": [
     "能把模型权重+epoch保存成checkpoint文件",
@@ -37,15 +62,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用torch.save()保存"
+      "content": "保存的是参数字典而非整个模型对象，加载时需要已有同构模型"
     },
     {
       "level": 2,
-      "content": "使用torch.load()加载"
+      "content": "checkpoint建议打包权重、epoch与可选优化器状态三类信息"
+    },
+    {
+      "level": 2,
+      "content": "恢复用严格模式加载，键不完全匹配时应立即暴露问题"
     },
     {
       "level": 3,
-      "content": "保存state_dict而非整个模型"
+      "content": "伪代码：保存即序列化含model_state与epoch的字典；加载时文件缺失要抛异常"
     }
   ]
 }

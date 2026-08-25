@@ -88,5 +88,46 @@ class TestForward:
         assert len(grads) > 0, "反向传播后应有梯度"
 
 
+@requires_torch
+@pytest.mark.skill("pytorch.cnn", "pytorch.optimizer", "pytorch.training_loop")
+class TestTrainingSmoke:
+    """训练能力冒烟（审核新增）：搭好的网络必须能真正学起来"""
+
+    def test_train_reduces_loss(self):
+        """固定小批次30步SGD后loss应明显下降"""
+        model_cls = _require("SimpleCNN")
+        model = model_cls(num_classes=3)
+        crit = nn.CrossEntropyLoss()
+        opt = torch.optim.SGD(model.parameters(), lr=0.05)
+        x = torch.randn(4, 1, 28, 28)
+        y = torch.tensor([0, 1, 2, 0])
+        first_loss = float(crit(model(x), y))
+        for _ in range(30):
+            opt.zero_grad()
+            loss = crit(model(x), y)
+            loss.backward()
+            opt.step()
+        final_loss = float(crit(model(x), y))
+        assert final_loss < first_loss * 0.9, \
+            f"训练冒烟失败: 初始{first_loss:.3f} -> 最终{final_loss:.3f}"
+
+    def test_optimizer_step_updates_params(self):
+        """一次backward+step后参数必须发生变化"""
+        model_cls = _require("SimpleCNN")
+        model = model_cls(num_classes=3)
+        snap = [p.detach().clone() for p in model.parameters()]
+        crit = nn.CrossEntropyLoss()
+        opt = torch.optim.SGD(model.parameters(), lr=0.1)
+        x = torch.randn(4, 1, 28, 28)
+        y = torch.tensor([0, 1, 2, 0])
+        crit(model(x), y).backward()
+        opt.step()
+        changed = any(
+            not torch.equal(p.detach(), s)
+            for p, s in zip(model.parameters(), snap)
+        )
+        assert changed, "optimizer.step()后参数未更新"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -4,11 +4,32 @@
   "goal": "理解深度网络",
   "difficulty": 3,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "CNN卷积尺寸计算",
+    "BatchNorm",
+    "nn.Module组合"
+  ],
+  "learn": [
+    "残差结构与恒等映射",
+    "为什么输出shape必须不变",
+    "梯度经shortcut回传",
+    "block堆叠成网"
+  ],
   "review_points": [
     "early stopping"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "ResidualBlock",
+      "signature": "ResidualBlock(channels) -> nn.Module",
+      "description": "输出shape与输入shape完全一致（x加F(x)结构）"
+    },
+    {
+      "name": "SimpleResNet",
+      "signature": "SimpleResNet(num_classes=10) -> nn.Module",
+      "description": "包含至少两个残差块；forward从(B,1,28,28)映射到(B,num_classes)"
+    }
+  ],
   "core_task": "实现ResNet块",
   "mastery": [
     "能解释残差连接为什么保持shape不变",
@@ -40,15 +61,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "实现残差块类"
+      "content": "残差连接让网络学残差F(x)，捷径通路保障梯度直达浅层"
     },
     {
       "level": 2,
-      "content": "添加跳跃连接"
+      "content": "block内两条路：卷积支路与恒等支路相加后再激活"
+    },
+    {
+      "level": 2,
+      "content": "堆叠至少两个block再接全局池化与全连接输出"
     },
     {
       "level": 3,
-      "content": "确保输入输出维度匹配"
+      "content": "伪代码：主支两层卷积归一化后与输入相加再激活；判据：任意输入shape前后一致且梯度可经捷径回传"
     }
   ]
 }

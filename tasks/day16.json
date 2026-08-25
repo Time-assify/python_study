@@ -3,13 +3,38 @@
   "title": "TensorBoard可视化",
   "goal": "掌握训练可视化",
   "difficulty": 3,
-  "estimated_minutes": 90,
-  "prerequisites": [],
+  "estimated_minutes": 60,
+  "prerequisites": [
+    "训练单步概念",
+    "device概念"
+  ],
+  "learn": [
+    "SummaryWriter生命周期",
+    "add_scalar与step语义",
+    "事件文件落盘",
+    "幂等close设计"
+  ],
   "review_points": [
     "device",
     "train step"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "get_writer",
+      "signature": "get_writer(logdir) -> SummaryWriter",
+      "description": "确保logdir目录存在并返回writer实例"
+    },
+    {
+      "name": "log_metrics",
+      "signature": "log_metrics(writer, step, metrics)",
+      "description": "metrics为名称到数值的字典，逐条写入标量曲线"
+    },
+    {
+      "name": "close_writer",
+      "signature": "close_writer(writer)",
+      "description": "安全关闭writer，重复关闭不应报错"
+    }
+  ],
   "core_task": "实现训练过程可视化",
   "mastery": [
     "能创建SummaryWriter并生成events文件",
@@ -37,15 +62,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用torch.utils.tensorboard.SummaryWriter"
+      "content": "TensorBoard通过事件文件记录标量曲线，训练脚本只负责写入"
     },
     {
       "level": 2,
-      "content": "add_scalar()记录标量"
+      "content": "get_writer负责建目录并返回writer；log_metrics遍历字典逐条记录"
+    },
+    {
+      "level": 2,
+      "content": "close要可重入：先判断是否已关闭再执行"
     },
     {
       "level": 3,
-      "content": "add_graph()可视化模型"
+      "content": "伪代码：建目录后构造writer；遍历metrics对每个名称调用add_scalar并传step"
     }
   ]
 }

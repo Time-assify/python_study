@@ -1,108 +1,328 @@
-# Curriculum Review: Day11-Day20（PyTorch核心段）
+# Day11-Day20 课程内容审核（Curriculum Content Review）
 
-> 生成于 Curriculum metadata hardening 轮（commit b4d31ac 之后）。
-> 本文档仅做内容分析，**不改代码**。下一轮根据本review逐天调整。
->
-> 当前统一状态：difficulty=3（规范固定）、estimated_minutes=90~120、
-> prerequisites=[]、required_api=[]、hint_levels仅由旧hints自动生成的L1。
+> 审核基线：v1.0 freeze（aa558d1）。
+> 本轮允许：任务JSON内容字段修正、required_api与测试同步。
+> 禁止改动：平台代码、Task Schema结构、CLI架构。
+> 标注说明：【已应用】=本轮直接修改了 tasks/dayXX.json 或测试文件；
+> 【保留观察】=设计合理无需改动；【下轮候选】=需要更多数据再决策。
 
-## 总体结论
+# Day11
 
-| 维度 | 现状 | 主要问题 |
-|------|------|----------|
-| 前置知识 | 全部为空 | Day11-20是链式递进段，空prerequisites使学生不知道"今天会用到昨天的什么" |
-| Required API | 全部为空 | 与Day01-10标准不一致；学生需读pytest才知道接口（P0-1要解决的问题在此段复现） |
-| 提示分级 | 仅L1 | 缺思路(L2)/伪代码(L3)阶梯，卡住时只能求助AI直出答案 |
-| 难度标定 | 统一3 | Day13/18/19实际工作量接近CV段的4，建议下一轮校准时保留记录 |
+## 当前目标
+
+掌握数据加载。
+
+## 当前任务
+
+实现SimpleDataset(data, labels, transform=None)与make_loader(dataset, batch_size, shuffle=False)。
+
+## 前置知识
+
+Tensor基础、nn.Module前向。【已应用：原为空】
+
+## 预计完成时间
+
+90分钟。【合理，保留】
+
+## 问题
+
+1. prerequisites为空——学生不知道要带着Day08-10的哪些知识进场。
+2. required_api为空——接口契约只存在于测试文件头注释。
+3. hint_levels是上一轮从旧hints机械生成的，L3"使用transforms进行数据预处理"根本不是伪代码，分级语义完全失效。
+4. learn字段缺失。
+
+## 修改建议
+
+- 【已应用】补prerequisites/learn/required_api（从测试契约提取三字段格式）。
+- 【已应用】重写hint_levels为真三级阶梯（概念→思路→伪代码），全段统一处理。
+- 【保留观察】审核清单要求的Dataset/DataLoader/batch/shuffle/transform五要素在现有测试中全部覆盖（transform参数、shuffle参数均有断言），无需加测。
+
+# Day12
+
+## 当前目标
+
+掌握优化算法。
+
+## 当前任务
+
+实现build_optimizer / step_lr / train_steps三个接口，覆盖优化器分发、学习率调度、完整训练三步曲。
+
+## 前置知识
+
+Autograd梯度、nn.Module前向。【已应用：原为空】
+
+## 预计完成时间
+
+90分钟。【合理，保留】
+
+## 问题
+
+1. 同Day11：prerequisites/required_api缺失、hint分级语义失效。
+2. zero_grad遗漏是本日最经典错误，但mastery未显式要求解释其原因。
+
+## 修改建议
+
+- 【已应用】补齐prerequisites/learn/required_api；重写hint_levels。
+- 【保留观察】mastery已有"能完成完整的zero_grad-backward-step训练步"，语义达标。
+- 【保留观察】挑战（SGD+Momentum对比Adam收敛）边界克制，无过度扩展。
+
+# Day13
+
+## 当前目标
+
+理解CNN架构。
+
+## 当前任务
+
+实现SimpleCNN(num_classes=10)与count_conv_layers(model)；【已应用】新增训练冒烟要求——固定小批次上SGD+交叉熵迭代数十步loss明显下降。
+
+## 前置知识
+
+Dataset/DataLoader使用、优化器训练三步曲。【已应用：原为空】
+
+## 预计完成时间
+
+120分钟。【合理，保留——含新增训练冒烟后此估时刚好]
+
+## 问题
+
+1. 审核清单明确要求CNN日必须包含loss/optimizer/backward/training loop，
+   而原测试只验证结构（卷积层计数、池化存在）与前向形状+单次backward，
+   "搭好网络却不会训练"也能满分通过——这正是清单警告的反模式。
+2. train()/eval()模式切换无任何覆盖。
+3. 同段共性问题：prerequisites/required_api/hint分级缺失。
+
+## 修改建议
+
+- 【已应用】tests/day13_test.py新增TestTrainingSmoke类（2个测试）：
+  - test_train_reduces_loss：固定batch 30步SGD，final < initial * 0.9
+  - test_optimizer_step_updates_params：step()后参数必须实际变化
+  不新增answer.py接口——复用SimpleCNN，训练循环写在测试内部。
+- 【已应用】day13 skills补充pytorch.optimizer/pytorch.training_loop并同步类标记；
+  tests[]经AST重新同步（6→8）；core_task/mastery同步加入训练冒烟与train/eval切换。
+- 【保留观察】train/eval的"行为差异"验证留给Day14（BN/Dropout才有行为差异可测），
+  Day13只要求会调用切换。
+
+# Day14
+
+## 当前目标
+
+掌握正则化技术。
+
+## 当前任务
+
+实现NetWithReg(in_features, num_classes, p_drop=0.5)，含BatchNorm1d与Dropout。
+
+## 前置知识
+
+CNN结构基础、forward形状验证。【已应用：原为空】
+
+## 预计完成时间
+
+90分钟。【合理，保留】
+
+## 问题
+
+1. 同段共性问题：前置/API/hint缺失。
+2. 单接口一天略薄，但train/eval行为差异验证有一定调试量，90分钟成立。
+
+## 修改建议
+
+- 【已应用】补齐prerequisites/learn/required_api/hint_levels。
+- 【保留观察】test_dropout_train_vs_eval精准命中本日核心能力，质量高。
+- 【保留观察】审核清单的validation/overfitting/lr/checkpoint四要素分布检查：
+  lr在Day12、checkpoint在Day17、validation在Day18、overfitting观察在
+  本日挑战（方差扫描）与Day20（单批过拟合）——链条完整，无需重排。
+
+# Day15
+
+## 当前目标
+
+掌握GPU加速。
+
+## 当前任务
+
+实现get_device / move_to_device / train_step(model, x, y, device)。
+
+## 前置知识
+
+训练循环概念、loss与optimizer关系。【已应用：原为空】
+
+## 预计完成时间
+
+90分钟。【偏松，但device抽象对新手有认知成本，保留】
+
+## 问题
+
+1. 同段共性问题：前置/API/hint缺失。
+2. 无GPU环境下计时对比挑战意义有限。
+
+## 修改建议
+
+- 【已应用】补齐四件套；hint L3给出device无关训练的伪代码骨架。
+- 【保留观察】所有测试CPU可跑（CI实证），设备抽象本身即本日知识点。
+
+# Day16
+
+## 当前目标
+
+掌握训练可视化。
+
+## 当前任务
+
+实现get_writer(logdir) / log_metrics(writer, step, metrics) / close_writer(writer)。
+
+## 前置知识
+
+训练单步概念、device概念。【已应用：原为空】
+
+## 预计完成时间
+
+60分钟。【已应用：90→60——三个小函数撑不起90分钟】
+
+## 问题
+
+1. 同段共性问题：前置/API/hint缺失。
+2. torch.utils.tensorboard运行时依赖tensorboard包，而requirements-pytorch.txt
+   只声明了torch/torchvision——真实评分环境会ImportError。
+3. 估时虚高（见上）。
+
+## 修改建议
+
+- 【已应用】requirements-pytorch.txt追加tensorboard>=2.10。
+- 【已应用】estimated_minutes降为60；补齐四件套。
+
+# Day17
+
+## 当前目标
+
+掌握模型保存。
+
+## 当前任务
+
+实现save_checkpoint / load_checkpoint / restore_model三件套。
+
+## 前置知识
+
+state_dict与模型结构、文件序列化基础。【已应用：原为空】
+
+## 预计完成时间
+
+90分钟。【合理，保留——state_dict严格加载与异常路径有调试量】
+
+## 问题
+
+1. 同段共性问题：前置/API/hint缺失。
+
+## 修改建议
+
+- 【已应用】补齐四件套；hint L3明确"权重+epoch打包、缺失抛异常"两个关键约定。
+- 【保留观察】Top-K checkpoint挑战边界克制（不引入新框架概念），保留。
+
+# Day18
+
+## 当前目标
+
+构建完整框架。
+
+## 当前任务
+
+实现train_one_epoch / evaluate / EarlyStopping(patience, min_delta)。
+
+## 前置知识
+
+DataLoader批处理、optimizer与scheduler、checkpoint。【已应用：原为空】
+
+## 预计完成时间
+
+120分钟。【合理，保留——这是Phase 2的综合日】
+
+## 问题
+
+1. 全段最高集成度的一天，但三个子系统（loop/eval/early-stop）内聚于
+   "训练框架"单一主题，不属于审核清单警告的"数据处理+模型设计+训练+
+   调参+部署"多主题混杂，无需拆分。
+2. 平均loss的加权口径（按样本数 vs 按batch数）是隐蔽坑点，原提示未覆盖。
+
+## 修改建议
+
+- 【已应用】补齐四件套；hint L2显式提示加权口径陷阱。
+- 【保留观察】EarlyStopping的patience/min_delta/重置语义已被三个测试精确锁定。
+
+# Day19
+
+## 当前目标
+
+理解深度网络。
+
+## 当前任务
+
+实现ResidualBlock(channels)（shape保持）与SimpleResNet（≥2个残差块）。
+
+## 前置知识
+
+CNN卷积尺寸计算、BatchNorm、nn.Module组合。【已应用：原为空】
+
+## 预计完成时间
+
+120分钟。【合理，保留——梯度流调试是硬时间】
+
+## 问题
+
+1. 同段共性问题：前置/API/hint缺失。
+2. test_quick_training_step已覆盖训练维度，无需再加训练测试。
+
+## 修改建议
+
+- 【已应用】补齐四件套；hint L2/L3强调shape守恒判据与捷径梯度回传。
+- 【保留观察】bottleneck瓶颈结构挑战深度合适（只对比参数量，不要求训练SOTA），
+  属克制的可选扩展。
+
+# Day20
+
+## 当前目标
+
+图像分类实战。
+
+## 当前任务
+
+实现CIFARNet((B,3,32,32)) / accuracy(top-1) / confusion_matrix；过拟合冒烟实验在挑战位。
+
+## 前置知识
+
+训练循环、评估指标概念、数据增强意识。【已应用：原为空】
+
+## 预计完成时间
+
+120分钟。【已应用：90→120——Phase收官日需网络+双指标+冒烟实验】
+
+## 问题
+
+1. 提示里出现"使用torchvision.datasets.CIFAR10"，但测试头明确声明
+   无需下载数据集——提示误导学生去下载150MB数据集。
+2. accuracy/confusion_matrix的行列与长度约定是实现歧义高发区，原提示未约定。
+3. 同段共性问题：前置/API/hint缺失。
+
+## 修改建议
+
+- 【已应用】hint_levels重写：L2固定混淆矩阵"行为真实、列为预测"约定；
+  L3给出完美预测判据与长度不一致报错要求。
+- 【已应用】estimated_minutes升为120；补齐四件套。
+- 【保留观察】数据集合成化已在测试层解决（无需下载），本轮仅修掉误导性提示。
 
 ---
 
-## Day11 Dataset/DataLoader — 90min
+## 段级结论（Day11-20）
 
-- **目标**: 掌握数据加载
-- **核心任务**: 实现自定义数据集（`__len__`/`__getitem__`、batch切分、transform应用）
-- **前置知识应为**: `Tensor`、`nn.Module`（Day08-10）
-- **风险**: 变长数据批处理是新手第一道坎；collate_fn在挑战里但核心测试可能隐式依赖默认collate行为
-- **建议**: 补required_api（如`SimpleDataset(data, transform=None)`）；prerequisites补Tensor/nn.Module；L2提示给"`__getitem__`返回`(feature, label)`元组"
+| 审核项 | 结论 |
+|--------|------|
+| 时间合理性 | Day16 90→60、Day20 90→120，其余维持 |
+| 前置知识 | 十天全部补齐，链式递进（Tensor→训练→正则→设备→可视化→保存→框架→ResNet→实战） |
+| 任务与测试匹配 | required_api全部从测试头注释提取为三字段契约；Day13补2个训练冒烟测试并AST同步 |
+| Challenge边界 | 十天挑战均未越界（无新框架概念、无可评分扩张），全部保留 |
+| Mastery对应能力 | Day13增补训练冒烟与模式切换两条；其余与测试断言对齐良好 |
+| 依赖修复 | requirements-pytorch.txt补tensorboard（Day16真实环境必需） |
 
-## Day12 优化器 — 90min
-
-- **目标**: 掌握优化算法
-- **核心任务**: optimizer factory（SGD/Adam构建、非法lr报错）+ 小收敛实验
-- **前置知识应为**: `Autograd`（zero_grad/step与梯度累积的关系）、Day10 MLP
-- **风险**: `zero_grad()`遗漏是经典错误，测试若只看loss下降无法暴露学生对梯度累积的理解
-- **建议**: mastery明确"能解释为什么每次step前要zero_grad"；挑战(动量对比)质量好，保留
-
-## Day13 CNN卷积神经网络 — 120min
-
-- **目标**: 理解CNN架构
-- **核心任务**: 实现简单CNN（Conv2d+Pool+FC），forward形状正确、反向可传播
-- **前置知识应为**: `Dataset/DataLoader`、`卷积/池化`概念、shape计算
-- **风险**: **估时最紧张的一天**——手推输出尺寸对无信号处理背景的学生耗时超预期；120min内完成"理解+编码+调试"偏乐观
-- **建议**: hints给尺寸公式`out = (in + 2p - k)/s + 1`；考虑把"逐层验证尺寸"从挑战提升为L3伪代码提示
-
-## Day14 BatchNorm/Dropout — 90min
-
-- **目标**: 掌握正则化技术
-- **核心任务**: 含BN/Dropout的网络结构 + train/eval行为差异验证
-- **前置知识应为**: `CNN前向`、`训练/推理模式`概念
-- **风险**: train vs eval差异测试依赖学生正确调用`.eval()`，若测试只查结构则掌握标准落空（现有`test_dropout_train_vs_eval`设计正确，需保持）
-- **建议**: prerequisites补"过拟合概念"；mastery加"能说出BN为什么在eval时用滑动统计量"
-
-## Day15 GPU训练 — 90min
-
-- **目标**: 掌握GPU加速
-- **核心任务**: device选择、tensor/model搬运、device无关train step
-- **前置知识应为**: `训练循环`（Day18之前先学单步，顺序合理）
-- **风险**: CI环境无GPU——所有测试必须CPU可跑（现有实现已通过CI验证）；学生本地无GPU时"计时对比"挑战意义有限
-- **建议**: 任务描述注明"无GPU环境用CPU完成，重点掌握device抽象"；挑战的计时部分标注可选
-
-## Day16 TensorBoard可视化 — 90min
-
-- **目标**: 掌握训练可视化
-- **核心任务**: SummaryWriter创建、scalar写入、幂等close
-- **前置知识应为**: `train step`、事件文件概念
-- **风险**: **tensorboard包是否在requirements中未确认**；event文件写入在慢磁盘上有延迟
-- **建议**: 下一轮核查`requirements.txt`是否含`tensorboard`；90min偏高，可降60~75min（接口面窄）
-
-## Day17 模型检查点 — 90min
-
-- **目标**: 掌握模型保存
-- **核心任务**: save/load往返、权重一致、缺失文件报错、epoch元数据恢复
-- **前置知识应为**: `state_dict`、`模型结构`、文件序列化基础
-- **风险**: load时`map_location`与strict参数容易踩坑；测试已覆盖roundtrip所以方向正确
-- **建议**: L3提示给"checkpoint dict建议含model_state/epoch/optimizer_state三键"
-
-## Day18 完整训练框架 — 120min
-
-- **目标**: 构建完整框架
-- **核心任务**: train_epoch返回loss、完整收敛流程、evaluate准确率、EarlyStopping(patience/重置/非法值)
-- **前置知识应为**: Day11-17全部（这是阶段综合日）
-- **风险**: **单日集成度最高**——三个子系统（loop/eval/early-stop）任何一处卡住都会连锁；120min是全课程最紧的之一
-- **建议**: prerequisites必须显式列出`["Dataset","DataLoader","optimizer","checkpoint"]`；考虑拆分为"先跑通loop，再加early stop"两步提交路径
-
-## Day19 ResNet残差网络 — 120min
-
-- **目标**: 理解深度网络
-- **核心任务**: ResidualBlock（形状保持、非恒等、shortcut梯度流）+ 多块堆叠
-- **前置知识应为**: `CNN`（Day13）、`BatchNorm`（Day14）、`nn.Module组合`
-- **风险**: 梯度流测试(`gradient_through_shortcut`)是最有价值的测试但也最难调试；瓶颈挑战对当天学生过深（适合保留为挑战不提升）
-- **建议**: prerequisites补`["CNN", "BatchNorm"]`；L2提示解释"F(x)+x要求F(x)与x同形，故block末尾卷积要恢复通道数"
-
-## Day20 CIFAR分类 — 90min
-
-- **目标**: 图像分类实战
-- **核心任务**: 分类器forward、tiny-batch过拟合验证容量、accuracy/confusion matrix指标
-- **前置知识应为**: Day11-19综合（Phase 2收官）
-- **风险**: **若测试触发真实CIFAR10下载则不可持续**——需确认测试用合成数据（当前测试名`test_overfit_tiny_batch`暗示合成小批次，下一轮核实）
-- **建议**: 明确"数据加载用合成张量模拟，真实CIFAR留给课后"；confusion matrix的行列语义（预测vs真实）在hints中约定
-
----
-
-## 下一轮执行清单（按优先级）
-
-1. **P0**: Day11-20全部补`required_api`（沿用Day01-10三字段格式）
-2. **P0**: Day11-20全部补`prerequisites`（上文逐天清单可直接采用）
-3. **P1**: hint_levels补齐L2/L3（上文逐天建议可作为素材）
-4. **P1**: 核实day16 tensorboard依赖、day20合成数据声明
-5. **P2**: 难度校准讨论——Day13/18/19是否升为4（涉及schema冻结的difficulty分层测试，需一并调整`test_task_schema_types.py::TestDifficultyTiers`）
+**遗留到下一轮（Day21-30审核）的观察项：**
+- hint_levels的L3仍以"伪代码/判据"为主，是否引入更细的局部代码片段级别待讨论；
+- Day20的accuracy除零口径（空输入）当前测试未覆盖，可作为Day21-30指标类任务的通用检查项。

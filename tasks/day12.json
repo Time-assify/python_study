@@ -4,12 +4,37 @@
   "goal": "掌握优化算法",
   "difficulty": 3,
   "estimated_minutes": 90,
-  "prerequisites": [],
+  "prerequisites": [
+    "Autograd梯度",
+    "nn.Module前向"
+  ],
+  "learn": [
+    "optimizer三步曲：清零梯度、反向、更新",
+    "SGD与Adam的直觉差异",
+    "非法超参数的防御式校验",
+    "StepLR周期衰减"
+  ],
   "review_points": [
     "Dataset",
     "DataLoader"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "build_optimizer",
+      "signature": "build_optimizer(params, name, lr) -> torch.optim.Optimizer",
+      "description": "按name分发到SGD或Adam；未知名或lr不合法时抛ValueError"
+    },
+    {
+      "name": "step_lr",
+      "signature": "step_lr(optimizer, step_size, gamma=0.1)",
+      "description": "返回StepLR学习率调度器，按周期乘gamma衰减"
+    },
+    {
+      "name": "train_steps",
+      "signature": "train_steps(model, data, target, optimizer, loss_fn, steps=20) -> float",
+      "description": "循环执行清零梯度、反向、更新三步，返回最终loss"
+    }
+  ],
   "core_task": "实现常见优化器",
   "mastery": [
     "能构建SGD/Adam优化器并拒绝非法lr",
@@ -41,15 +66,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用torch.optim.SGD"
+      "content": "优化器负责按梯度更新参数；调度器负责按规则改学习率"
     },
     {
       "level": 2,
-      "content": "使用torch.optim.Adam"
+      "content": "build_optimizer按name小写匹配分发；先校验lr合法性再构造"
+    },
+    {
+      "level": 2,
+      "content": "train_steps循环内固定三步：清零梯度、反向传播、更新参数"
     },
     {
       "level": 3,
-      "content": "使用torch.optim.lr_scheduler"
+      "content": "伪代码：循环steps次——zero_grad、算loss、backward、step；结束后返回最新loss"
     }
   ]
 }

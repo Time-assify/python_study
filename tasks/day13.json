@@ -4,30 +4,56 @@
   "goal": "理解CNN架构",
   "difficulty": 3,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "Dataset/DataLoader使用",
+    "优化器训练三步曲"
+  ],
+  "learn": [
+    "卷积核、padding与尺寸守恒",
+    "MaxPool2d让高宽减半",
+    "展平后的全连接输入维度",
+    "小型训练冒烟流程"
+  ],
   "review_points": [
     "training loop",
     "loss"
   ],
-  "required_api": [],
-  "core_task": "实现简单CNN",
+  "required_api": [
+    {
+      "name": "SimpleCNN",
+      "signature": "SimpleCNN(num_classes=10) -> nn.Module",
+      "description": "接受(B,1,28,28)灰度图；3x3卷积padding=1加ReLU加池化后接全连接，输出(B,num_classes)"
+    },
+    {
+      "name": "count_conv_layers",
+      "signature": "count_conv_layers(model) -> int",
+      "description": "统计模型中卷积层数量，至少为1"
+    }
+  ],
+  "core_task": "实现SimpleCNN与count_conv_layers（结构契约见Required API），并在固定小批次上跑通训练冒烟：SGD+交叉熵迭代数十步，loss明显下降",
   "mastery": [
     "能解释padding=1的3x3卷积不改变特征图尺寸",
     "能说出池化后尺寸减半的关系",
-    "能让梯度穿过卷积+全连接完整回传"
+    "能让梯度穿过卷积+全连接完整回传",
+    "能在固定小批次上完成loss下降的训练冒烟",
+    "会调用train()/eval()切换模式"
   ],
   "optional_challenge": "挑战：手动推导自己CNN每层输出尺寸与参数量，并用代码逐层验证",
   "skills": [
     "pytorch.cnn",
-    "pytorch.tensor_shape"
+    "pytorch.tensor_shape",
+    "pytorch.optimizer",
+    "pytorch.training_loop"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_backward_flows",
     "test_batch_size_one",
     "test_has_conv_layer",
+    "test_optimizer_step_updates_params",
     "test_output_shape",
-    "test_pooling_exists"
+    "test_pooling_exists",
+    "test_train_reduces_loss"
   ],
   "test_module": "day13_test",
   "task": "实现简单CNN",
@@ -40,15 +66,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用nn.Conv2d定义卷积层"
+      "content": "卷积提取空间特征，池化缩小尺寸，全连接做分类决策"
     },
     {
       "level": 2,
-      "content": "使用nn.MaxPool2d定义池化层"
+      "content": "padding为1的3x3卷积保持尺寸，池化让高宽减半；据此推全连接输入维度"
+    },
+    {
+      "level": 2,
+      "content": "训练冒烟用SGD小学习率配交叉熵，固定小批次迭代数十步观察下降"
     },
     {
       "level": 3,
-      "content": "展平后接全连接层"
+      "content": "伪代码：特征链为卷积-激活-池化；判据：数十步后loss低于初始值的九成"
     }
   ]
 }

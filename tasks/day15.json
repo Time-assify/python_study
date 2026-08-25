@@ -4,12 +4,37 @@
   "goal": "掌握GPU加速",
   "difficulty": 3,
   "estimated_minutes": 90,
-  "prerequisites": [],
+  "prerequisites": [
+    "训练循环概念",
+    "loss与optimizer关系"
+  ],
+  "learn": [
+    "cuda可用性检测",
+    "设备转移to(device)",
+    "单步训练封装",
+    "结果导出item转CPU浮点"
+  ],
   "review_points": [
     "BatchNorm",
     "dropout"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "get_device",
+      "signature": "get_device() -> torch.device",
+      "description": "cuda可用返回cuda设备，否则返回cpu"
+    },
+    {
+      "name": "move_to_device",
+      "signature": "move_to_device(obj, device)",
+      "description": "将模型或tensor移到指定device并返回"
+    },
+    {
+      "name": "train_step",
+      "signature": "train_step(model, x, y, device) -> float",
+      "description": "封装单步训练（清零梯度、反向、更新），返回CPU上的float loss"
+    }
+  ],
   "core_task": "实现GPU训练",
   "mastery": [
     "能写出cuda优先否则cpu的设备选择逻辑",
@@ -40,15 +65,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用torch.cuda.is_available()检查GPU"
+      "content": "设备选择的原则是让模型与数据始终处于同一设备"
     },
     {
       "level": 2,
-      "content": "使用.to(device)转移模型和数据"
+      "content": "get_device用可用性检测分支；move_to_device直接调用对象的to方法"
+    },
+    {
+      "level": 2,
+      "content": "train_step内部自建SGD与交叉熵，返回前用item转成CPU浮点"
     },
     {
       "level": 3,
-      "content": "使用.cuda()或.gpu()方法"
+      "content": "伪代码：取设备、搬模型与数据、前向算loss、常规三步后返回loss数值"
     }
   ]
 }

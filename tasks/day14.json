@@ -4,12 +4,27 @@
   "goal": "掌握正则化技术",
   "difficulty": 3,
   "estimated_minutes": 90,
-  "prerequisites": [],
+  "prerequisites": [
+    "CNN结构基础",
+    "forward形状验证"
+  ],
+  "learn": [
+    "BatchNorm归一化统计量",
+    "Dropout的train与eval双态",
+    "超参p的合法范围",
+    "正则化层的摆放位置"
+  ],
   "review_points": [
     "CNN",
     "conv layer"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "NetWithReg",
+      "signature": "NetWithReg(in_features, num_classes, p_drop=0.5) -> nn.Module",
+      "description": "至少包含一个BatchNorm1d与一个Dropout；forward输出(B,num_classes)"
+    }
+  ],
   "core_task": "实现正则化层",
   "mastery": [
     "知道BatchNorm把batch均值拉到0附近",
@@ -40,15 +55,19 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用nn.BatchNorm2d进行批归一化"
+      "content": "BatchNorm稳定分布加速收敛；Dropout随机失活抑制过拟合"
     },
     {
       "level": 2,
-      "content": "使用nn.Dropout进行随机丢弃"
+      "content": "层顺序参考：线性层、批归一化、激活、随机失活，重复后接输出层"
+    },
+    {
+      "level": 2,
+      "content": "验证Dropout差异需在训练与评估两种模式下分别统计输出"
     },
     {
       "level": 3,
-      "content": "注意训练和评估模式的区别"
+      "content": "判据：评估模式下同一输入两次前向结果完全一致；p越界时构造应抛错"
     }
   ]
 }

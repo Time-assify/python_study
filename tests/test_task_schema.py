@@ -118,8 +118,11 @@ class TestReviewPointsAndMinutes:
         tiers = {**{d: 60 for d in range(1, 6)},
                  6: 90, 7: 90,
                  **{d: 90 for d in range(8, 13)},
-                 13: 120, 14: 90, 15: 90, 16: 90, 17: 90,
-                 18: 120, 19: 120, 20: 90}
+                 13: 120, 14: 90, 15: 90,
+                 16: 60,  # content review day11-20: TensorBoard轻量日
+                 17: 90,
+                 18: 120, 19: 120,
+                 20: 120}  # content review day11-20: Phase收官日
         for day, expected in tiers.items():
             actual = _load(day)["estimated_minutes"]
             assert actual == expected, f"day{day:02d} estimated_minutes={actual}, 应为{expected}"
