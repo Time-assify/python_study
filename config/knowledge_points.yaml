@@ -1,0 +1,328 @@
+# Knowledge Point Registry (v1.0 冻结)
+# 平台唯一点位定义：Task.skills / test skill markers / Profile 均引用此处 id
+
+knowledge_points:
+  - id: agent.memory
+    name: Agent记忆
+    category: agent
+    level: 3
+  - id: agent.schema_validation
+    name: Schema校验
+    category: agent
+    level: 3
+  - id: agent.tool
+    name: Agent工具
+    category: agent
+    level: 3
+  - id: agent.tool_calling
+    name: 工具调用
+    category: agent
+    level: 3
+  - id: api.client
+    name: API客户端
+    category: api
+    level: 2
+  - id: api.server
+    name: API服务端
+    category: api
+    level: 3
+  - id: application.pipeline
+    name: 应用流水线
+    category: engineering
+    level: 3
+  - id: capstone.platform
+    name: 综合平台
+    category: capstone
+    level: 3
+  - id: codegen.generation
+    name: 代码生成
+    category: codegen
+    level: 3
+  - id: codegen.review
+    name: 代码审查
+    category: codegen
+    level: 3
+  - id: cv.augmentation
+    name: 数据增强
+    category: cv
+    level: 3
+  - id: cv.classification
+    name: 图像分类
+    category: cv
+    level: 3
+  - id: data.cleaning
+    name: 数据清洗
+    category: data
+    level: 3
+  - id: deployment.fastapi
+    name: FastAPI服务
+    category: deployment
+    level: 3
+  - id: deployment.onnx
+    name: ONNX导出
+    category: deployment
+    level: 3
+  - id: detection.anchor
+    name: 锚框
+    category: detection
+    level: 3
+  - id: detection.dataset
+    name: 检测数据集
+    category: detection
+    level: 3
+  - id: detection.iou
+    name: IoU
+    category: detection
+    level: 3
+  - id: detection.nms
+    name: 非极大值抑制
+    category: detection
+    level: 3
+  - id: documentation
+    name: 文档编写
+    category: engineering
+    level: 3
+  - id: engineering.config
+    name: 配置管理
+    category: engineering
+    level: 3
+  - id: engineering.sandbox
+    name: 沙箱执行
+    category: engineering
+    level: 3
+  - id: evaluation.accuracy
+    name: 准确率评估
+    category: metrics
+    level: 2
+  - id: grading.scoring
+    name: 评分系统
+    category: application
+    level: 3
+  - id: huggingface.model
+    name: HuggingFace模型
+    category: nlp
+    level: 3
+  - id: learning.profile
+    name: 学习画像
+    category: learning
+    level: 3
+  - id: llm.client
+    name: LLM客户端
+    category: llm
+    level: 3
+  - id: llm.json_parsing
+    name: JSON解析
+    category: llm
+    level: 3
+  - id: llm.retry
+    name: 重试机制
+    category: llm
+    level: 3
+  - id: llm.streaming
+    name: 流式输出
+    category: llm
+    level: 3
+  - id: metrics.average_precision
+    name: AP指标
+    category: metrics
+    level: 3
+  - id: metrics.confusion_matrix
+    name: 混淆矩阵
+    category: metrics
+    level: 2
+  - id: ml.linear_regression
+    name: 线性回归
+    category: ml
+    level: 3
+  - id: ml.loss
+    name: 损失函数
+    category: ml
+    level: 3
+  - id: nlp.embedding
+    name: 词嵌入
+    category: nlp
+    level: 3
+  - id: nlp.tokenization
+    name: 分词
+    category: nlp
+    level: 3
+  - id: numpy
+    name: NumPy数组
+    category: data
+    level: 2
+  - id: pandas
+    name: Pandas数据处理
+    category: data
+    level: 2
+  - id: parameter_freezing
+    name: 参数冻结
+    category: cv
+    level: 3
+  - id: prompt.chain_of_thought
+    name: 思维链
+    category: prompt
+    level: 3
+  - id: prompt.few_shot
+    name: 少样本提示
+    category: prompt
+    level: 3
+  - id: python.abc
+    name: 抽象基类
+    category: python
+    level: 1
+  - id: python.context_manager
+    name: 上下文管理器
+    category: python
+    level: 1
+  - id: python.decorator
+    name: 装饰器
+    category: python
+    level: 1
+  - id: python.generator
+    name: 生成器
+    category: python
+    level: 1
+  - id: python.logging
+    name: 日志模块
+    category: python
+    level: 1
+  - id: python.multiprocessing
+    name: 多进程
+    category: python
+    level: 1
+  - id: python.oop
+    name: 面向对象
+    category: python
+    level: 1
+  - id: python.project_structure
+    name: 项目结构组织
+    category: python
+    level: 1
+  - id: python.requests
+    name: HTTP请求
+    category: python
+    level: 1
+  - id: python.threading
+    name: 多线程
+    category: python
+    level: 1
+  - id: pytorch.activation
+    name: 激活函数
+    category: pytorch
+    level: 2
+  - id: pytorch.autograd
+    name: 自动求导
+    category: pytorch
+    level: 2
+  - id: pytorch.batchnorm
+    name: 批归一化
+    category: pytorch
+    level: 3
+  - id: pytorch.checkpoint
+    name: 模型检查点
+    category: pytorch
+    level: 2
+  - id: pytorch.cnn
+    name: 卷积神经网络
+    category: pytorch
+    level: 3
+  - id: pytorch.dataloader
+    name: DataLoader
+    category: pytorch
+    level: 2
+  - id: pytorch.dataset
+    name: Dataset
+    category: pytorch
+    level: 2
+  - id: pytorch.device
+    name: 设备管理
+    category: pytorch
+    level: 2
+  - id: pytorch.dropout
+    name: Dropout
+    category: pytorch
+    level: 3
+  - id: pytorch.lr_scheduler
+    name: 学习率调度
+    category: pytorch
+    level: 2
+  - id: pytorch.nn_module
+    name: nn.Module
+    category: pytorch
+    level: 2
+  - id: pytorch.optimizer
+    name: 优化器
+    category: pytorch
+    level: 2
+  - id: pytorch.resnet
+    name: 残差网络
+    category: pytorch
+    level: 3
+  - id: pytorch.tensor
+    name: Tensor基础
+    category: pytorch
+    level: 2
+  - id: pytorch.tensor_shape
+    name: Tensor维度
+    category: pytorch
+    level: 2
+  - id: pytorch.tensorboard
+    name: TensorBoard
+    category: pytorch
+    level: 2
+  - id: pytorch.training_loop
+    name: 训练循环
+    category: pytorch
+    level: 2
+  - id: pytorch.training_step
+    name: 训练单步
+    category: pytorch
+    level: 2
+  - id: rag.chunking
+    name: 文档分块
+    category: rag
+    level: 3
+  - id: rag.retrieval
+    name: 向量检索
+    category: rag
+    level: 3
+  - id: recommendation
+    name: 推荐逻辑
+    category: learning
+    level: 3
+  - id: system.event_bus
+    name: 事件总线
+    category: system
+    level: 3
+  - id: system.health_check
+    name: 健康检查
+    category: system
+    level: 3
+  - id: system.pipeline
+    name: 系统流水线
+    category: system
+    level: 3
+  - id: system.retry
+    name: 系统重试
+    category: system
+    level: 3
+  - id: text.chunking
+    name: 文本分块
+    category: rag
+    level: 3
+  - id: transfer_learning
+    name: 迁移学习
+    category: cv
+    level: 3
+  - id: transformer.attention
+    name: 注意力机制
+    category: nlp
+    level: 3
+  - id: transformer.positional_encoding
+    name: 位置编码
+    category: nlp
+    level: 3
+  - id: torchvision.transforms
+    name: 图像变换
+    category: cv
+    level: 3

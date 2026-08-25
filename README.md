@@ -1,6 +1,26 @@
-# AI Engineer Training Platform v2.0
+# AI Engineer Training Platform
 
 A 40-day AI engineer training learning system.
+
+## Current Version: v1.0（已冻结）
+
+v1.0 已完成的核心能力：
+
+- **Code Evaluation** — pytest自动化评测：语法/执行/超时判定、跳过感知计分、子进程隔离
+- **AI Review** — DeepSeek代码审查：六维度质量分析、schema校验、降级回退
+- **Learning Profile** — 学习画像：错误分类统计、知识缺口记录（knowledge_gap_records）、趋势分析
+- **Curriculum Metadata** — 课程元数据闭环：知识点注册表（config/knowledge_points.yaml）、
+  测试失败→skill→KnowledgeGapRecord自动绑定、连击难度推荐、三级hint分级
+
+### v2.0 规划方向（未实现，仅规划）
+
+多模态评测扩展、更精细的个性化推荐算法、复习调度（spaced repetition）等。
+
+### 平台功能冻结声明
+
+自 v1.0 起平台功能冻结：**不再新增** RAG / Web界面 / Multi-Agent / 自动课程生成 等
+平台级功能。后续工作重心转入**课程内容优化**（逐段审核Day11-Day40，
+参见 `docs/curriculum_review_day11_20.md`）。
 
 ## Quick Start
 
@@ -13,6 +33,9 @@ pip install -r requirements-pytorch.txt
 
 # View task
 python main.py task 1
+
+# Graded hint (level 1/2/3)
+python main.py hint 1 --level 1
 
 # Submit code
 python main.py submit 1 submissions/day01/answer.py
