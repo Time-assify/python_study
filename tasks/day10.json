@@ -2,6 +2,7 @@
   "day": 10,
   "title": "nn.Module神经网络",
   "goal": "构建神经网络",
+  "difficulty": 3,
   "estimated_minutes": 90,
   "prerequisites": [
     "Tensor",
@@ -21,14 +22,17 @@
   ],
   "required_api": [
     {
+      "name": "MLP",
       "signature": "MLP(in_features, hidden, out_features) -> nn.Module",
       "description": "Linear-ReLU-Linear结构，forward输出(B, out_features)"
     },
     {
+      "name": "count_parameters",
       "signature": "count_parameters(model) -> int",
       "description": "可训练参数总数（含bias）"
     },
     {
+      "name": "build_activation",
       "signature": "build_activation(name) -> nn.Module",
       "description": "'relu'/'sigmoid'/'tanh'；未知名抛ValueError"
     }

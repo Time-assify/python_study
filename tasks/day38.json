@@ -2,6 +2,7 @@
   "day": 38,
   "title": "AI学习导师",
   "goal": "构建学习导师",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

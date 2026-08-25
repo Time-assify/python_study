@@ -2,6 +2,7 @@
   "day": 34,
   "title": "Agent框架",
   "goal": "构建Agent框架",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

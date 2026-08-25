@@ -2,6 +2,7 @@
   "day": 30,
   "title": "AI应用开发",
   "goal": "构建AI应用",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

@@ -16,7 +16,7 @@ import pytest
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from main import cmd_submit, cmd_task  # noqa: E402
+from main import cmd_submit, cmd_task, cmd_hint  # noqa: E402
 from src.models import EvaluationResult  # noqa: E402
 
 
@@ -134,3 +134,51 @@ def test_task_contains_hint_levels():
     out = _capture_task(1)
     assert "Hints (卡住时按级查看)" in out or "[L1]" in out
     assert "[L2]" in out or "[L3]" in out
+
+
+# -----------------------------------------------------------------------
+# P0-3: hint CLI接口回归
+# -----------------------------------------------------------------------
+
+def _capture_hint(day: int, level: int) -> str:
+    from src.core.platform import TrainingPlatform
+    plat = TrainingPlatform()
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        cmd_hint(plat, day, level)
+    return buf.getvalue()
+
+
+def test_hint_level1_outputs_only_level1():
+    """--level 1只输出L1内容"""
+    out = _capture_hint(5, 1)
+    assert "[Level 1]" in out or "Level 1" in out
+    for line in out.splitlines():
+        if line.strip().startswith("- "):
+            pass  # 内容行
+    assert "[Level 2]" not in out and "[Level 3]" not in out
+
+
+def test_hint_invalid_level_rejected():
+    """level必须是1/2/3，其他值报错不输出提示"""
+    out = _capture_hint(5, 4)
+    assert "level must be 1, 2 or 3" in out
+
+
+def test_hint_day5_has_all_three_levels():
+    """day05 L1/L2/L3都有内容可取"""
+    for lv in (1, 2, 3):
+        out = _capture_hint(5, lv)
+        assert f"Level {lv}" in out
+        assert "-" in out  # 至少一条内容
+
+
+def test_hint_no_full_answer_leak():
+    """hint不得以def/class开头泄露完整实现"""
+    for day in (1, 2, 5):
+        for lv in (1, 2, 3):
+            out = _capture_hint(day, lv)
+            for line in out.splitlines():
+                stripped = line.strip().lstrip("- ").strip()
+                assert not stripped.startswith("def "), \
+                    f"day{day} L{lv}疑似完整答案: {stripped[:50]}"

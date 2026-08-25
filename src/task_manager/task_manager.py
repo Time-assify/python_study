@@ -22,6 +22,7 @@ class Task:
     mastery: List[str] = None
     optional_challenge: str = ""
     estimated_minutes: int = 60
+    difficulty: int = 3
     test_module: str = ""
     skills: List[str] = None
     prerequisites: List[str] = None
@@ -55,6 +56,7 @@ class Task:
             "task": self.task,
             "description": self.description,
             "tests": self.tests,
+            "difficulty": self.difficulty,
             "resources": self.resources or [],
             "hints": self.hints or [],
             "core_task": self.core_task,
@@ -133,6 +135,7 @@ class TaskManager:
             mastery=data.get("mastery", []),
             optional_challenge=data.get("optional_challenge", ""),
             estimated_minutes=data.get("estimated_minutes", 60),
+            difficulty=data.get("difficulty", 3),
             test_module=data.get("test_module", ""),
             skills=data.get("skills", []),
             prerequisites=data.get("prerequisites", []),
@@ -222,6 +225,7 @@ class TaskManager:
             mastery=task_data.get("mastery", []),
             optional_challenge=task_data.get("optional_challenge", ""),
             estimated_minutes=task_data.get("estimated_minutes", 60),
+            difficulty=task_data.get("difficulty", 3),
             test_module=task_data.get("test_module", ""),
             skills=task_data.get("skills", []),
             prerequisites=task_data.get("prerequisites", []),

@@ -2,6 +2,7 @@
   "day": 1,
   "title": "Python工程环境",
   "goal": "掌握项目结构",
+  "difficulty": 1,
   "estimated_minutes": 60,
   "prerequisites": [],
   "learn": [
@@ -12,14 +13,17 @@
   "review_points": [],
   "required_api": [
     {
+      "name": "create_project_structure",
       "signature": "create_project_structure(project_name) -> dict",
       "description": "创建root/src/tests/configs/data/logs目录，src下含__init__.py，返回{目录名: 路径}字典"
     },
     {
+      "name": "create_config_file",
       "signature": "create_config_file(config_path) -> bool",
       "description": "创建非空YAML配置文件（内容含project/config字样），成功返回True"
     },
     {
+      "name": "setup_logger",
       "signature": "setup_logger(log_file, level=logging.INFO) -> Logger",
       "description": "返回可写入日志文件的logger（调用info()后文件非空）"
     }

@@ -2,6 +2,7 @@
   "day": 32,
   "title": "Prompt Engineering",
   "goal": "掌握提示工程",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

@@ -2,6 +2,7 @@
   "day": 12,
   "title": "优化器",
   "goal": "掌握优化算法",
+  "difficulty": 3,
   "estimated_minutes": 90,
   "prerequisites": [],
   "review_points": [

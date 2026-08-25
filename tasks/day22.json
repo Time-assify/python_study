@@ -2,6 +2,7 @@
   "day": 22,
   "title": "迁移学习",
   "goal": "掌握迁移学习",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

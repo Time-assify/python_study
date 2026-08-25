@@ -2,6 +2,7 @@
   "day": 4,
   "title": "多线程多进程",
   "goal": "掌握并发编程",
+  "difficulty": 2,
   "estimated_minutes": 60,
   "prerequisites": [
     "函数作为参数",
@@ -20,10 +21,12 @@
   ],
   "required_api": [
     {
+      "name": "run_in_threads",
       "signature": "run_in_threads(func, n) -> list",
       "description": "用n个线程执行func(i)，返回5个结果（顺序或完成序均可）"
     },
     {
+      "name": "concurrent_map",
       "signature": "concurrent_map(func, items) -> list",
       "description": "用ThreadPoolExecutor映射，必须保持输入顺序"
     }

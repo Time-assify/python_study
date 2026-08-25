@@ -2,6 +2,7 @@
   "day": 26,
   "title": "YOLO目标检测",
   "goal": "理解目标检测",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

@@ -2,6 +2,7 @@
   "day": 8,
   "title": "Tensor基础",
   "goal": "掌握Tensor操作",
+  "difficulty": 2,
   "estimated_minutes": 90,
   "prerequisites": [
     "Python slicing",
@@ -18,18 +19,22 @@
   ],
   "required_api": [
     {
+      "name": "create_tensor",
       "signature": "create_tensor(data) -> Tensor",
       "description": "返回dtype=float32的tensor"
     },
     {
+      "name": "reshape_tensor",
       "signature": "reshape_tensor(t, shape) -> Tensor",
       "description": "按tuple形状reshape；元素数不匹配时让PyTorch报错"
     },
     {
+      "name": "tensor_stats",
       "signature": "tensor_stats(t) -> (mean, std)",
       "description": "返回均值与标准差"
     },
     {
+      "name": "index_last",
       "signature": "index_last(t) -> Tensor",
       "description": "取展平后的最后一个元素"
     }

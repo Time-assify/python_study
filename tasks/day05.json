@@ -2,6 +2,7 @@
   "day": 5,
   "title": "API客户端开发",
   "goal": "掌握HTTP客户端",
+  "difficulty": 2,
   "estimated_minutes": 60,
   "prerequisites": [
     "Python字典",
@@ -18,14 +19,17 @@
   ],
   "required_api": [
     {
+      "name": "build_url",
       "signature": "build_url(base, path, params=None) -> str",
       "description": "拼接URL；params为dict时附加查询参数；params为None时无'?'"
     },
     {
+      "name": "APIClient",
       "signature": "APIClient(base_url)",
       "description": "类：get(path)/post(path, json=None)，底层用requests"
     },
     {
+      "name": "APIError",
       "signature": "APIError(Exception)",
       "description": "自定义业务异常：网络错误必须包装成APIError抛出"
     }

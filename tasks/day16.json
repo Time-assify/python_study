@@ -2,6 +2,7 @@
   "day": 16,
   "title": "TensorBoard可视化",
   "goal": "掌握训练可视化",
+  "difficulty": 3,
   "estimated_minutes": 90,
   "prerequisites": [],
   "review_points": [

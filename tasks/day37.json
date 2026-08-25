@@ -2,6 +2,7 @@
   "day": 37,
   "title": "自动评测平台",
   "goal": "构建评测系统",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

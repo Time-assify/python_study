@@ -88,6 +88,29 @@ class ReviewResult:
 
 
 @dataclass
+class KnowledgeGapRecord:
+    """知识点缺口记录（P1-1: 供未来LearningAdvisor生成复习）
+
+    与StudentProfile.knowledge_gap_statistics(Dict[str,int])互补：
+    - statistics: 只计数，不知道对应哪个review_point
+    - record:     skill + review_point + count 三元组
+      review_point来自task.review_points，指向具体要复习的前置主题
+    """
+    skill: str = ""
+    review_point: str = ""
+    count: int = 0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    def merge(self, other: "KnowledgeGapRecord") -> "KnowledgeGapRecord":
+        """同(skill, review_point)合并计数"""
+        if self.skill != other.skill or self.review_point != other.review_point:
+            raise ValueError("cannot merge KnowledgeGapRecord with different keys")
+        return KnowledgeGapRecord(self.skill, self.review_point, self.count + other.count)
+
+
+@dataclass
 class EvaluationResult:
     """统一评估结果"""
     day: int

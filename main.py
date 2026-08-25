@@ -35,6 +35,8 @@ def cmd_task(platform: TrainingPlatform, day: int):
     # 2. 预计时间
     if getattr(task, "estimated_minutes", 0):
         print(f"Estimated: ~{task.estimated_minutes} minutes")
+    if getattr(task, "difficulty", 0):
+        print(f"Difficulty: {task.difficulty}/5")
     print(f"\nDescription:\n{task.description}")
     # 3. 前置知识
     prerequisites = getattr(task, "prerequisites", None) or []
@@ -162,6 +164,27 @@ def cmd_report(platform: TrainingPlatform):
         print(f"{p.day:<6} {p.score:<10.1f} {status}")
 
 
+def cmd_hint(platform: TrainingPlatform, day: int, level: int):
+    """按级查看提示——只输出对应level，不默认显示全部"""
+    task = platform.get_task(day)
+    if not task:
+        Helpers.print_error(f"Day {day} task not found")
+        return
+    if level not in (1, 2, 3):
+        Helpers.print_error("level must be 1, 2 or 3")
+        return
+
+    hint_levels = getattr(task, "hint_levels", None) or []
+    matched = [h["content"] for h in hint_levels if h.get("level") == level]
+    if not matched:
+        print(f"Day {day} has no level-{level} hints.")
+        return
+
+    print(f"Day {day} Hint [Level {level}]:")
+    for content in matched:
+        print(f"  - {content}")
+
+
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(
@@ -174,6 +197,12 @@ def main():
     # task
     task_parser = subparsers.add_parser("task", help="View task")
     task_parser.add_argument("day", type=int, help="Day number (1-40)")
+
+    # hint
+    hint_parser = subparsers.add_parser("hint", help="View graded hint for a task")
+    hint_parser.add_argument("day", type=int, help="Day number (1-40)")
+    hint_parser.add_argument("--level", type=int, required=True,
+                             help="Hint level: 1=direction 2=approach 3=pseudocode")
     
     # submit
     submit_parser = subparsers.add_parser("submit", help="Submit code")
@@ -195,6 +224,8 @@ def main():
     
     if args.command == "task":
         cmd_task(platform, args.day)
+    elif args.command == "hint":
+        cmd_hint(platform, args.day, args.level)
     elif args.command == "submit":
         cmd_submit(platform, args.day, args.file)
     elif args.command == "progress":

@@ -2,6 +2,7 @@
   "day": 2,
   "title": "高级Python",
   "goal": "掌握装饰器、生成器",
+  "difficulty": 2,
   "estimated_minutes": 60,
   "prerequisites": [
     "函数与闭包",
@@ -19,22 +20,27 @@
   ],
   "required_api": [
     {
+      "name": "repeat",
       "signature": "repeat(n) -> 装饰器工厂",
       "description": "被装饰函数执行n次，返回最后一次结果；n<=0时调用抛ValueError"
     },
     {
+      "name": "memoize",
       "signature": "memoize(func) -> 装饰器",
       "description": "缓存相同参数的调用结果，重复调用不再执行原函数"
     },
     {
+      "name": "fibonacci",
       "signature": "fibonacci(n) -> 生成器",
       "description": "yield前n个斐波那契数(0,1,1,2,...)；n=0时为空"
     },
     {
+      "name": "chunked",
       "signature": "chunked(iterable, size) -> 生成器",
       "description": "按size分块yield列表；size<1抛ValueError；最后一块可不足"
     },
     {
+      "name": "Timer",
       "signature": "Timer",
       "description": "上下文管理器类：支持 with Timer(): 正常进入退出；可选提供elapsed属性（不要求精确benchmark）"
     }

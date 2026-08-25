@@ -2,6 +2,7 @@
   "day": 28,
   "title": "ONNX模型导出",
   "goal": "掌握模型导出",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [

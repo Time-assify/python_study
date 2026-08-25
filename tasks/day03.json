@@ -2,6 +2,7 @@
   "day": 3,
   "title": "面向对象设计",
   "goal": "设计ML框架基类",
+  "difficulty": 2,
   "estimated_minutes": 60,
   "prerequisites": [
     "Python类与继承"
@@ -17,14 +18,17 @@
   ],
   "required_api": [
     {
+      "name": "BaseModel",
       "signature": "BaseModel(ABC)",
       "description": "抽象基类：声明抽象方法fit(X, y)与predict(X)；不可实例化"
     },
     {
+      "name": "LinearModel",
       "signature": "LinearModel(BaseModel)",
       "description": "具体子类：实现fit/predict（简单规则即可）"
     },
     {
+      "name": "OptimizerBase",
       "signature": "OptimizerBase(ABC)",
       "description": "抽象基类：声明抽象方法step(params)"
     }

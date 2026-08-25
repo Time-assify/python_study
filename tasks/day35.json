@@ -2,6 +2,7 @@
   "day": 35,
   "title": "Tool Calling",
   "goal": "掌握工具调用",
+  "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
   "review_points": [
