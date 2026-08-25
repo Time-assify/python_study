@@ -5,28 +5,43 @@
   "difficulty": 4,
   "estimated_minutes": 120,
   "prerequisites": [],
+  "learn": [
+    "图像三形态：文件、HWC数组、CHW张量"
+  ],
   "review_points": [
     "accuracy",
     "confusion matrix"
   ],
-  "required_api": [],
+  "required_api": [
+    {
+      "name": "image_to_tensor",
+      "signature": "image_to_tensor(img_hwc) -> Tensor",
+      "description": "HWC整数数组(0~255)转CHW float32张量并归一化到[0,1]；通道顺序不得置换"
+    }
+  ],
   "core_task": "实现数据增强",
   "mastery": [
     "能组合翻转/裁剪/色彩抖动的增强管线",
     "知道增强只改变内容不改变shape",
-    "能验证p=1的翻转是确定性变换"
+    "能验证p=1的翻转是确定性变换",
+    "能把图片从HWC整数形态转成CHW归一化张量并说明每一步"
   ],
   "optional_challenge": "挑战：叠加RandomErasing与ColorJitter，可视化同一张图的8种增强结果",
+  "environment_notes": "环境要求：需安装torchvision（CPU版即可）；增强在合成张量上完成，无需真实图片。",
   "skills": [
     "cv.augmentation",
-    "torchvision.transforms"
+    "torchvision.transforms",
+    "cv.image_tensor",
+    "cv.transform"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_apply_preserves_shape",
+    "test_channel_order_preserved",
     "test_contains_required_ops",
     "test_flip_deterministic_with_p1",
-    "test_returns_compose"
+    "test_returns_compose",
+    "test_shape_and_range"
   ],
   "test_module": "day21_test",
   "task": "实现数据增强",
@@ -42,8 +57,16 @@
       "content": "使用transforms.RandomHorizontalFlip"
     },
     {
+      "level": 1,
+      "content": "图像有三种形态：文件字节、HWC数组、CHW张量"
+    },
+    {
       "level": 2,
       "content": "使用transforms.RandomCrop"
+    },
+    {
+      "level": 2,
+      "content": "转换链：先除以255归一化，再把(H,W,C)轴交换为(C,H,W)"
     },
     {
       "level": 3,

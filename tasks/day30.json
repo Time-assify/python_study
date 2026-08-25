@@ -1,38 +1,85 @@
 {
   "day": 30,
-  "title": "AI应用开发",
-  "goal": "构建AI应用",
+  "title": "CV阶段综合项目",
+  "goal": "独立完成 数据→模型→训练→评价→结果展示 的完整小项目",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "CNN训练闭环",
+    "checkpoint保存恢复",
+    "yaml配置读写"
+  ],
+  "learn": [
+    "配置驱动实验",
+    "最优权重跟踪",
+    "结果可复现性(加载权重复现acc)",
+    "流水线阶段划分"
+  ],
   "review_points": [
     "FastAPI",
     "endpoint"
   ],
-  "required_api": [],
-  "core_task": "开发完整AI应用",
-  "mastery": [
-    "能用dataclass+yaml完成配置roundtrip",
-    "能实现按注册顺序执行的pipeline",
-    "会用计数器Monitor统计事件"
+  "required_api": [
+    {
+      "name": "TrainConfig",
+      "signature": "TrainConfig(epochs:int, lr:float, batch_size:int, num_classes:int=2, out_path:str='best.pt')",
+      "description": "dataclass；含from_dict/to_dict；缺必需字段抛KeyError或TypeError"
+    },
+    {
+      "name": "save_config/load_config",
+      "signature": "save_config(config, path); load_config(path)",
+      "description": "yaml持久化roundtrip，字段无损"
+    },
+    {
+      "name": "make_loaders",
+      "signature": "make_loaders(n_train=32, n_val=8, batch_size=8) -> tuple",
+      "description": "返回(train_loader, val_loader)；合成可分两类(3,32,32)，两集合互斥，禁止下载真实数据集"
+    },
+    {
+      "name": "build_model",
+      "signature": "build_model(num_classes=2) -> nn.Module",
+      "description": "小型CNN"
+    },
+    {
+      "name": "run_pipeline",
+      "signature": "run_pipeline(config) -> dict",
+      "description": "按配置执行建数据→建模型→训练→验证→保存最优权重到out_path，返回{'train_loss','val_loss','val_acc','model_path'}"
+    }
   ],
-  "optional_challenge": "挑战：让PipelineApp支持async handler，Monitor新增QPS统计",
+  "core_task": "实现TrainConfig(yaml持久化)/make_loaders/build_model/run_pipeline。run_pipeline按配置执行全链并保存最优权重；核心约90分钟内可完成，进阶优化放挑战",
+  "mastery": [
+    "能用配置对象驱动一次完整实验",
+    "能保证最优权重落盘且加载后复现val_acc",
+    "能把数据、训练、评估拆成职责清晰的阶段函数"
+  ],
+  "optional_challenge": "挑战：单batch过拟合实验验证容量。挑战进阶：run_pipeline支持可选的轻量增强开关并对比val_acc差异",
+  "required_output": [
+    "yaml训练配置文件",
+    "训练loss与validation accuracy报告",
+    "最优权重文件(model_path)"
+  ],
+  "environment_notes": "环境要求：全程CPU；仅本地文件读写（yaml配置与最优权重）。",
   "skills": [
     "engineering.config",
-    "application.pipeline"
+    "application.pipeline",
+    "cv.classification",
+    "evaluation.accuracy",
+    "pytorch.training_loop",
+    "pytorch.checkpoint"
   ],
   "tests": [
     "test_answer_module_imports",
-    "test_counter_increments",
-    "test_empty_pipeline",
-    "test_handlers_execute_in_order",
+    "test_loaders_structure",
     "test_missing_key_raises",
+    "test_pipeline_report_and_artifact",
     "test_roundtrip",
-    "test_save_load_yaml"
+    "test_saved_model_reproduces_val_acc",
+    "test_separable_data_learns",
+    "test_yaml_persistence"
   ],
   "test_module": "day30_test",
-  "task": "开发完整AI应用",
-  "description": "综合运用所学知识，开发一个完整的AI应用，包括模型训练、部署、监控。",
+  "task": "配置驱动的图像分类端到端流水线",
+  "description": "CV阶段毕业项目：不引入新知识，只考核D11-D29能力的组装——配置驱动建数据、训小CNN、验证评估、最优权重落盘并可复现。",
   "hints": [
     "设计应用架构",
     "集成模型推理",
@@ -41,15 +88,25 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "设计应用架构"
+      "content": "项目骨架五个函数正好对应五个阶段：配置、数据、模型、训练验证、产物"
     },
     {
       "level": 2,
-      "content": "集成模型推理"
+      "content": "run_pipeline内部调用make_loaders与build_model，保持函数间只通过config与返回值耦合"
+    },
+    {
+      "level": 2,
+      "content": "最优权重跟踪：val_loss创新低时torch.save(state_dict)到out_path"
     },
     {
       "level": 3,
-      "content": "添加日志和监控"
+      "content": "判据：加载model_path权重后在同一验证集上acc与报告值误差小于1e-6"
     }
+  ],
+  "review_points_replace": [
+    "training loop",
+    "validation",
+    "checkpoint",
+    "augmentation"
   ]
 }

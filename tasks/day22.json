@@ -4,19 +4,23 @@
   "goal": "掌握迁移学习",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "CNN训练闭环",
+    "state_dict与参数遍历"
+  ],
   "review_points": [
     "transform",
     "augmentation"
   ],
   "required_api": [],
-  "core_task": "实现迁移学习",
+  "core_task": "理解迁移学习流程并实现freeze_backbone/unfreeze_all/extract_features。核心是掌握冻结-特征提取-按需解冻的流程；大型预训练模型的完整微调实操放挑战",
   "mastery": [
     "能冻结backbone并保证分类头可训练",
     "能证明冻结参数训练后不更新",
     "知道特征提取要在no_grad下进行"
   ],
   "optional_challenge": "挑战：仅解冻最后两层微调，统计可训练参数占总参数的比例变化",
+  "environment_notes": "环境要求：无需下载预训练权重——测试使用小型自建backbone；CPU可完成。",
   "skills": [
     "transfer_learning",
     "parameter_freezing"

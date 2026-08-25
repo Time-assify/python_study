@@ -4,7 +4,10 @@
   "goal": "理解目标检测",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "边界框编码[x1,y1,x2,y2]",
+    "滑窗与网格概念"
+  ],
   "review_points": [
     "HuggingFace",
     "tokenizer"
@@ -14,9 +17,12 @@
   "mastery": [
     "能生成网格锚框且坐标归一化到[0,1]",
     "能手算两个框的IoU(含半重叠=50/150情形)",
-    "能实现按分数降序的NMS抑制"
+    "能实现按分数降序的NMS抑制",
+    "能解释IoU阈值如何影响匹配与NMS抑制",
+    "能说出precision与recall在检测中的含义"
   ],
   "optional_challenge": "挑战：把IoU换成DIoU再跑一遍NMS，比较不同阈值下保留框数量",
+  "environment_notes": "环境要求：纯几何/数组计算，无深度学习框架依赖。",
   "skills": [
     "detection.anchor",
     "detection.iou",

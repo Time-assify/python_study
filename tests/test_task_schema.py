@@ -123,11 +123,13 @@ class TestReviewPointsAndMinutes:
                  17: 90,
                  18: 120, 19: 120,
                  20: 120}  # content review day11-20: Phase收官日
+        # content review day21-30 (CV路径): D23重定位为轻量闭环日90, 其余维持120
+        tiers.update({**{d: 120 for d in range(21, 40)}, 23: 90})
         for day, expected in tiers.items():
             actual = _load(day)["estimated_minutes"]
             assert actual == expected, f"day{day:02d} estimated_minutes={actual}, 应为{expected}"
-        # CV/LLM段不低于120
-        for day in range(21, 40):
+        # D23重定位后为90; 其余CV/LLM段不低于120
+        for day in list(range(21, 23)) + list(range(24, 40)):
             assert _load(day)["estimated_minutes"] >= 120, f"day{day:02d}估时过低"
 
 

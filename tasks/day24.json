@@ -4,7 +4,10 @@
   "goal": "理解Transformer",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "线性层与softmax",
+    "序列数据概念"
+  ],
   "review_points": [
     "tokenize",
     "vocab"
@@ -14,9 +17,11 @@
   "mastery": [
     "能手写softmax(QK^T/sqrt(d))V并验证权重行和为1",
     "知道多头注意力输出shape与输入一致",
-    "能写出正弦位置编码并背出pos=0的取值模式"
+    "能写出正弦位置编码并背出pos=0的取值模式",
+    "能说明自注意力如何建模序列内依赖"
   ],
   "optional_challenge": "挑战：给self-attention加因果mask(causal mask)，验证位置i无法看到>j的信息",
+  "environment_notes": "环境要求：纯张量数学实现，CPU即可。",
   "skills": [
     "transformer.attention",
     "transformer.positional_encoding"

@@ -4,7 +4,10 @@
   "goal": "掌握模型部署",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "模型推理调用",
+    "HTTP请求响应基础"
+  ],
   "review_points": [
     "ONNX export"
   ],
@@ -13,9 +16,11 @@
   "mastery": [
     "能用FastAPI暴露GET /health与POST /predict",
     "能利用自动校验返回422",
-    "能实现批量预测端点"
+    "能实现批量预测端点",
+    "能区分在线推理接口与批处理接口的负载特征"
   ],
   "optional_challenge": "挑战：为/predict定义Pydantic响应模型与统一错误码，补httpx集成测试",
+  "environment_notes": "环境要求：fastapi/httpx已在基础依赖中；测试用TestClient，无网络请求。",
   "skills": [
     "deployment.fastapi",
     "api.server"

@@ -7,3 +7,5 @@
 torch>=2.1.0
 torchvision>=0.16.0
 tensorboard>=2.10
+onnx>=1.14
+onnxruntime>=1.16

@@ -4,7 +4,10 @@
   "goal": "掌握模型导出",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "CNN模型结构",
+    "推理与训练模式差异"
+  ],
   "review_points": [
     "mAP",
     "detection dataset"
@@ -14,9 +17,11 @@
   "mastery": [
     "能把torch模型导出为ONNX文件",
     "会用onnxruntime加载并推理",
-    "知道dynamic_axes用于动态batch"
+    "知道dynamic_axes用于动态batch",
+    "知道ONNX解决的是部署侧模型互换问题"
   ],
   "optional_challenge": "挑战：导出支持动态batch的ONNX模型，写一个onnxruntime并发推理的小压测脚本",
+  "environment_notes": "环境要求：需onnx与onnxruntime包（见requirements-pytorch.txt）；导出与推理在CPU完成。",
   "skills": [
     "deployment.onnx"
   ],

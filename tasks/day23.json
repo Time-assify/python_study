@@ -1,43 +1,80 @@
 {
   "day": 23,
-  "title": "NLP基础",
-  "goal": "理解NLP基础",
+  "title": "图像分类数据集与训练闭环",
+  "goal": "把CV基础能力串成第一个完整分类训练",
   "difficulty": 4,
-  "estimated_minutes": 120,
-  "prerequisites": [],
+  "estimated_minutes": 90,
+  "prerequisites": [
+    "CNN训练闭环",
+    "正则化与验证",
+    "checkpoint概念"
+  ],
+  "learn": [
+    "合成图像数据构造",
+    "Dataset封装图像样本",
+    "小CNN基线设计",
+    "训练验证双循环",
+    "最优权重保存与复现"
+  ],
   "review_points": [
     "transfer learning",
     "freeze params"
   ],
-  "required_api": [],
-  "core_task": "实现文本处理",
+  "required_api": [
+    {
+      "name": "make_color_samples",
+      "signature": "make_color_samples(n_per_class=12) -> tuple",
+      "description": "生成合成可分两类HWC整数数组(16,16,3)与0/1标签"
+    },
+    {
+      "name": "ImagesDataset",
+      "signature": "ImagesDataset(samples, labels)",
+      "description": "__getitem__返回(CHW float[0~1]张量, int标签)"
+    },
+    {
+      "name": "cnn_baseline",
+      "signature": "cnn_baseline(num_classes=2) -> nn.Module",
+      "description": "适配16x16输入的小型卷积基线"
+    },
+    {
+      "name": "train_classifier",
+      "signature": "train_classifier(model, train_loader, val_loader, epochs=5, lr=0.05, save_path=None) -> dict",
+      "description": "返回{'train_loss','val_loss','val_acc'}；给出save_path时保存最优val权重"
+    }
+  ],
+  "core_task": "实现make_color_samples / ImagesDataset / cnn_baseline / train_classifier四件套，完成合成彩色两类图像的训练与验证，并把最优权重落盘",
   "mastery": [
-    "能实现小写化去标点的分词器",
-    "能构建含<pad>/<unk>的词表并处理OOV",
-    "能完成编码-padding/截断到定长"
+    "能用合成数组构造图像Dataset并产出CHW归一化张量",
+    "能跑通训练+验证双循环并报告三项指标",
+    "会把最优权重保存到磁盘并在新模型上复现val_acc"
   ],
   "optional_challenge": "挑战：实现字符级分词并与词级分词对比词表大小与OOV率",
+  "required_output": [
+    "训练loss",
+    "validation accuracy",
+    "模型保存文件"
+  ],
+  "environment_notes": "环境要求：合成彩色图像数组，CPU可完成；无需真实图片与GPU。",
   "skills": [
-    "nlp.tokenization",
-    "nlp.embedding"
+    "cv.image_tensor",
+    "pytorch.dataset",
+    "cv.classification",
+    "evaluation.accuracy",
+    "pytorch.training_loop",
+    "pytorch.checkpoint",
+    "pytorch.dataloader"
   ],
   "tests": [
     "test_answer_module_imports",
-    "test_backward",
-    "test_empty_string",
-    "test_forward_shape",
-    "test_ids_and_padding",
-    "test_lowercase_and_split",
-    "test_min_freq_filter",
-    "test_punctuation_removed",
-    "test_special_tokens",
-    "test_truncation",
-    "test_unknown_word_maps_unk",
-    "test_word_indices"
+    "test_len_and_item_structure",
+    "test_report_and_model_file",
+    "test_saved_weights_reproduce_val_acc",
+    "test_separable_task_reaches_high_val_acc",
+    "test_values_normalized"
   ],
   "test_module": "day23_test",
-  "task": "实现文本处理",
-  "description": "学习自然语言处理的基础知识，包括分词、词向量、文本分类。",
+  "task": "实现合成图像数据集与小CNN训练闭环",
+  "description": "CV基础能力收官：HWC→CHW表示、Dataset封装、小型CNN、训练循环、验证accuracy、最优权重保存，一次打通。",
   "hints": [
     "使用torchtext或自定义分词",
     "使用nn.Embedding进行词嵌入",
@@ -46,15 +83,24 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "使用torchtext或自定义分词"
+      "content": "管线顺序：造数据→包Dataset→建模型→双循环→存权重"
     },
     {
       "level": 2,
-      "content": "使用nn.Embedding进行词嵌入"
+      "content": "ImagesDataset内部完成除以255与轴交换；标签转int再返回"
+    },
+    {
+      "level": 2,
+      "content": "train_classifier里跟踪最优val_loss，只在刷新最优时覆盖写save_path"
     },
     {
       "level": 3,
-      "content": "处理变长序列"
+      "content": "判据：强可分颜色两类8个epoch后val_acc不低于0.9；恢复权重复现acc误差小于1e-6"
     }
+  ],
+  "review_points_replace": [
+    "transform",
+    "augmentation",
+    "validation"
   ]
 }

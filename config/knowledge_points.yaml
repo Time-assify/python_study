@@ -138,11 +138,9 @@ knowledge_points:
     name: 损失函数
     category: ml
     level: 3
-  - id: nlp.embedding
     name: 词嵌入
     category: nlp
     level: 3
-  - id: nlp.tokenization
     name: 分词
     category: nlp
     level: 3
@@ -333,4 +331,12 @@ knowledge_points:
   - id: pytorch.debugging
     name: 训练调试
     category: pytorch
+    level: 3
+  - id: cv.image_tensor
+    name: 图像张量表示
+    category: cv
+    level: 2
+  - id: cv.transform
+    name: 图像变换管线
+    category: cv
     level: 3
