@@ -41,7 +41,8 @@
     "能把模型和tensor搬到同一device",
     "能封装单步训练并返回CPU上的float loss"
   ],
-  "optional_challenge": "挑战：编写device无关的训练函数（无GPU自动回退CPU），并对小矩阵运算计时对比",
+  "optional_challenge": "挑战：编写device无关的训练函数（无GPU自动回退CPU），并对小矩阵运算计时对比。挑战预习checkpoint：用torch.save保存本日模型state_dict再用torch.load恢复一致（正式深入在Day17）",
+  "environment_notes": "环境要求：无GPU时get_device自动回退CPU；计时对比挑战在纯CPU机器上可跳过。",
   "skills": [
     "pytorch.device",
     "pytorch.training_step"

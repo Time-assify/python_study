@@ -1,9 +1,8 @@
-# Day 12 Tests: 优化器 (PyTorch)
+# Day 12 Tests: Dataset/DataLoader (PyTorch)
 #
 # answer.py 必须实现（接口约定）:
-# - build_optimizer(params, name, lr) -> torch.optim.Optimizer  'sgd'/'adam'；未知名抛ValueError；lr<=0抛ValueError
-# - step_lr(optimizer, step_size, gamma=0.1) -> 学习率调度器
-# - train_steps(model, data, target, optimizer, loss_fn, steps=20) -> float  返回最终loss
+# - SimpleDataset(data, labels, transform=None)  实现 __len__/__getitem__，返回(x, label)
+# - make_loader(dataset, batch_size, shuffle=False) -> DataLoader
 import pytest
 
 try:
@@ -18,10 +17,11 @@ except Exception:
 
 try:
     import torch
-    import torch.nn as nn
+    from torch.utils.data import Dataset, DataLoader
 except ImportError:
     torch = None
-    nn = None
+    Dataset = None
+    DataLoader = None
 
 requires_torch = pytest.mark.skipif(torch is None, reason="PyTorch未安装（环境问题）")
 
@@ -37,85 +37,60 @@ def _require(name):
         pytest.skip("no answer.py under review")
     fn = getattr(answer, name, None)
     if fn is None:
-        pytest.fail(f"必须实现 {name}()")
+        pytest.fail(f"必须实现 {name}")
     return fn
 
 
-def _quadratic_model():
-    model = nn.Linear(1, 1, bias=False)
-    with torch.no_grad():
-        model.weight.fill_(4.0)
-    return model
+def _make_dataset():
+    cls = _require("SimpleDataset")
+    data = [float(i) for i in range(10)]
+    labels = [i % 2 for i in range(10)]
+    return cls(data, labels)
 
 
 @requires_torch
-@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler")
-class TestOptimizerFactory:
-    def test_build_sgd_adam(self):
-        build = _require("build_optimizer")
-        p = [nn.Parameter(torch.tensor([1.0]))]
-        assert isinstance(build(p, "sgd", 0.1), torch.optim.Optimizer)
-        assert isinstance(build(p, "adam", 0.01), torch.optim.Optimizer)
+@pytest.mark.skill("pytorch.dataset", "pytorch.dataloader")
+class TestDataset:
+    def test_is_dataset_subclass(self):
+        ds_cls = _require("SimpleDataset")
+        assert issubclass(ds_cls, Dataset), "必须继承torch.utils.data.Dataset"
 
-    def test_invalid_lr_raises(self):
-        """错误处理: lr<=0"""
-        build = _require("build_optimizer")
-        p = [nn.Parameter(torch.tensor([1.0]))]
-        with pytest.raises(ValueError):
-            build(p, "sgd", 0.0)
+    def test_len_and_getitem(self):
+        """基础功能"""
+        ds = _make_dataset()
+        assert len(ds) == 10
+        x, y = ds[0]
+        assert float(x) == 0.0 and int(y) == 0
 
-    def test_unknown_name_raises(self):
-        build = _require("build_optimizer")
-        p = [nn.Parameter(torch.tensor([1.0]))]
-        with pytest.raises(ValueError):
-            build(p, "momentum_max", 0.1)
+    def test_getitem_types(self):
+        """任务要求检查: 返回(tensor, label)对"""
+        ds = _make_dataset()
+        item = ds[5]
+        assert isinstance(item, (tuple, list)) and len(item) == 2
 
 
 @requires_torch
-@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler")
-class TestTraining:
-    def _run(self, name, lr, steps=30):
-        build = _require("build_optimizer")
-        model = _quadratic_model()
-        opt = build(model.parameters(), name, lr)
-        crit = nn.MSELoss()
-        x = torch.zeros(8, 1)
-        y = torch.zeros(8, 1)
-        losses = []
-        for _ in range(steps):
-            opt.zero_grad()
-            loss = crit(model(x), y)
-            loss.backward()
-            opt.step()
-            losses.append(float(loss))
-        return losses
+@pytest.mark.skill("pytorch.dataset", "pytorch.dataloader")
+class TestDataLoader:
+    def test_batches_count(self):
+        make_loader = _require("make_loader")
+        loader = make_loader(_make_dataset(), batch_size=4)
+        assert isinstance(loader, DataLoader)
+        batches = list(loader)
+        assert len(batches) == 3, f"10条/batch4应有3个batch(4+4+2)，得到{len(batches)}"
 
-    def test_sgd_decreases_loss(self):
-        losses = self._run("sgd", 0.1)
-        assert losses[-1] < losses[0], f"SGD训练后loss应下降: {losses[0]:.3f}->{losses[-1]:.3f}"
+    def test_last_batch_smaller(self):
+        """边界条件: 最后一个batch可以不足"""
+        make_loader = _require("make_loader")
+        batches = list(make_loader(_make_dataset(), batch_size=4))
+        assert len(batches[-1][0]) == 2
 
-    def test_adam_decreases_loss(self):
-        losses = self._run("adam", 0.5)
-        assert losses[-1] < losses[0], "Adam训练后loss应下降"
-
-
-@requires_torch
-@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler")
-class TestScheduler:
-    def test_lr_decays_after_step_size(self):
-        step_lr = _require("step_lr")
-        build = _require("build_optimizer")
-        model = _quadratic_model()
-        opt = build(model.parameters(), "sgd", 1.0)
-        sched = step_lr(opt, 2, gamma=0.1)
-        lrs = []
-        for _ in range(5):
-            lrs.append(opt.param_groups[0]["lr"])
-            opt.step()
-            sched.step()
-        # epoch0,1: 1.0; 之后衰减
-        assert abs(lrs[0] - 1.0) < 1e-9
-        assert lrs[-1] < lrs[0], f"调度器应降低学习率: {lrs}"
+    def test_transform_applied(self):
+        """transform参数应作用在每个样本上"""
+        ds_cls = _require("SimpleDataset")
+        ds = ds_cls([1.0] * 6, [0] * 6, transform=lambda x: x * 100.0)
+        x, _ = ds[0]
+        assert abs(float(x) - 100.0) < 1e-6, "transform未被应用"
 
 
 if __name__ == "__main__":

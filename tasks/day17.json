@@ -41,6 +41,7 @@
     "知道文件不存在时应抛出明确异常"
   ],
   "optional_challenge": "挑战：实现Top-K checkpoint保存（始终保留历史最优的3个epoch权重）",
+  "environment_notes": "环境要求：仅本地文件读写，无特殊设备要求。",
   "skills": [
     "pytorch.checkpoint"
   ],

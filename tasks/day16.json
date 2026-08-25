@@ -42,6 +42,7 @@
     "知道writer可以安全地多次close"
   ],
   "optional_challenge": "挑战：同时记录loss/accuracy/学习率三组标量，并在TensorBoard中按命名空间分组展示",
+  "environment_notes": "环境要求：需安装tensorboard包（见requirements-pytorch.txt）；事件文件写入本地磁盘。",
   "skills": [
     "pytorch.tensorboard"
   ],

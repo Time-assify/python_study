@@ -1,8 +1,12 @@
-# Day 11 Tests: Dataset/DataLoader (PyTorch)
+# Day 11 Tests: PyTorch Tensor基础（dtype/device/shape/requires_grad/backward）
 #
 # answer.py 必须实现（接口约定）:
-# - SimpleDataset(data, labels, transform=None)  实现 __len__/__getitem__，返回(x, label)
-# - make_loader(dataset, batch_size, shuffle=False) -> DataLoader
+# - tensor_info(t) -> dict            至少包含 shape / dtype / device 三个键
+# - to_device(t, device) -> Tensor    把张量移到指定设备并返回
+# - grad_of_quadratic(a, b, c, x_value) -> Tensor
+#     对 f(x)=a*x^2+b*x+c 在 x=x_value 处求梯度，返回标量Tensor
+# - grad_after_two_backwards(x_value) -> float
+#     同一叶子张量上两次独立前向+反向后，返回累积梯度值
 import pytest
 
 try:
@@ -17,11 +21,8 @@ except Exception:
 
 try:
     import torch
-    from torch.utils.data import Dataset, DataLoader
 except ImportError:
     torch = None
-    Dataset = None
-    DataLoader = None
 
 requires_torch = pytest.mark.skipif(torch is None, reason="PyTorch未安装（环境问题）")
 
@@ -37,60 +38,68 @@ def _require(name):
         pytest.skip("no answer.py under review")
     fn = getattr(answer, name, None)
     if fn is None:
-        pytest.fail(f"必须实现 {name}")
+        pytest.fail(f"必须实现 {name}()")
     return fn
 
 
-def _make_dataset():
-    cls = _require("SimpleDataset")
-    data = [float(i) for i in range(10)]
-    labels = [i % 2 for i in range(10)]
-    return cls(data, labels)
+@requires_torch
+@pytest.mark.skill("pytorch.tensor", "pytorch.tensor_shape")
+class TestTensorInfo:
+    def test_info_has_three_keys(self):
+        tensor_info = _require("tensor_info")
+        t = torch.randn(2, 3)
+        info = tensor_info(t)
+        assert isinstance(info, dict), "tensor_info应返回字典"
+        for key in ("shape", "dtype", "device"):
+            assert key in info, f"info缺少键: {key}"
+
+    def test_info_values(self):
+        tensor_info = _require("tensor_info")
+        t = torch.randn(4, 5)
+        info = tensor_info(t)
+        assert tuple(info["shape"]) == (4, 5), f"shape错误: {info['shape']}"
+        assert info["dtype"] == torch.float32, "默认dtype应为float32"
+        assert info["device"].type == "cpu"
 
 
 @requires_torch
-@pytest.mark.skill("pytorch.dataset", "pytorch.dataloader")
-class TestDataset:
-    def test_is_dataset_subclass(self):
-        ds_cls = _require("SimpleDataset")
-        assert issubclass(ds_cls, Dataset), "必须继承torch.utils.data.Dataset"
+@pytest.mark.skill("pytorch.tensor", "pytorch.device")
+class TestDeviceMove:
+    def test_to_device_cpu(self):
+        to_device = _require("to_device")
+        t = torch.randn(3)
+        moved = to_device(t, torch.device("cpu"))
+        assert moved.device.type == "cpu"
+        assert torch.equal(moved, t), "移动不应改变数值"
 
-    def test_len_and_getitem(self):
-        """基础功能"""
-        ds = _make_dataset()
-        assert len(ds) == 10
-        x, y = ds[0]
-        assert float(x) == 0.0 and int(y) == 0
-
-    def test_getitem_types(self):
-        """任务要求检查: 返回(tensor, label)对"""
-        ds = _make_dataset()
-        item = ds[5]
-        assert isinstance(item, (tuple, list)) and len(item) == 2
+    def test_to_device_accepts_str(self):
+        """边界: device参数也接受字符串"""
+        to_device = _require("to_device")
+        moved = to_device(torch.ones(2), "cpu")
+        assert moved.device.type == "cpu"
 
 
 @requires_torch
-@pytest.mark.skill("pytorch.dataset", "pytorch.dataloader")
-class TestDataLoader:
-    def test_batches_count(self):
-        make_loader = _require("make_loader")
-        loader = make_loader(_make_dataset(), batch_size=4)
-        assert isinstance(loader, DataLoader)
-        batches = list(loader)
-        assert len(batches) == 3, f"10条/batch4应有3个batch(4+4+2)，得到{len(batches)}"
+@pytest.mark.skill("pytorch.autograd", "pytorch.tensor")
+class TestAutogradBasics:
+    def test_grad_of_quadratic_known_value(self):
+        """f(x)=2x^2+x 在x=3处梯度应为13"""
+        fn = _require("grad_of_quadratic")
+        g = fn(a=2.0, b=1.0, c=0.0, x_value=3.0)
+        assert float(g) == pytest.approx(13.0, abs=1e-5), \
+            f"二次函数在x=3的梯度应为13, 得到{float(g)}"
 
-    def test_last_batch_smaller(self):
-        """边界条件: 最后一个batch可以不足"""
-        make_loader = _require("make_loader")
-        batches = list(make_loader(_make_dataset(), batch_size=4))
-        assert len(batches[-1][0]) == 2
+    def test_grad_returns_scalar_tensor(self):
+        fn = _require("grad_of_quadratic")
+        g = fn(1.0, 0.0, 0.0, 5.0)
+        assert torch.is_tensor(g), "应返回Tensor而不是python数值"
 
-    def test_transform_applied(self):
-        """transform参数应作用在每个样本上"""
-        ds_cls = _require("SimpleDataset")
-        ds = ds_cls([1.0] * 6, [0] * 6, transform=lambda x: x * 100.0)
-        x, _ = ds[0]
-        assert abs(float(x) - 100.0) < 1e-6, "transform未被应用"
+    def test_grads_accumulate_over_backwards(self):
+        """两次独立forward+backward后梯度应累加: d(3x)/dx 累加为6"""
+        fn = _require("grad_after_two_backwards")
+        total = float(fn(x_value=7.0))
+        assert total == pytest.approx(6.0, abs=1e-5), \
+            f"两次backward后梯度应累加为6, 得到{total}"
 
 
 if __name__ == "__main__":

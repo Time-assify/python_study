@@ -43,6 +43,7 @@
     "能实现patience语义的早停并理解改善即重置"
   ],
   "optional_challenge": "挑战：组合EarlyStopping与LR调度器，记录每个epoch的val loss并标注停止位置",
+  "environment_notes": "环境要求：CPU可完成（小合成数据集）；GPU可选加速。",
   "skills": [
     "pytorch.training_loop",
     "evaluation.accuracy"

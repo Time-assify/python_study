@@ -129,5 +129,65 @@ class TestTrainingSmoke:
         assert changed, "optimizer.step()后参数未更新"
 
 
+@requires_torch
+@pytest.mark.skill("pytorch.optimizer", "pytorch.lr_scheduler", "pytorch.training_loop")
+class TestTrainingAPI:
+    """完整训练闭环API（P0-2）: 优化器分发 / 调度器 / epoch级mini-batch训练"""
+
+    def test_build_optimizer_dispatch(self):
+        build_optimizer = _require("build_optimizer")
+        params = [torch.nn.Parameter(torch.randn(2))]
+        sgd = build_optimizer(params, "sgd", lr=0.1)
+        adam = build_optimizer(params, "adam", lr=0.001)
+        assert isinstance(sgd, torch.optim.SGD), "name='sgd'应返回SGD"
+        assert isinstance(adam, torch.optim.Adam), "name='adam'应返回Adam"
+
+    def test_build_optimizer_invalid(self):
+        build_optimizer = _require("build_optimizer")
+        params = [torch.nn.Parameter(torch.randn(2))]
+        with pytest.raises(ValueError):
+            build_optimizer(params, "rmsprop", lr=0.1)
+        with pytest.raises(ValueError):
+            build_optimizer(params, "sgd", lr=-0.1)
+
+    def test_step_lr_decays(self):
+        step_lr = _require("step_lr")
+        opt = torch.optim.SGD([torch.nn.Parameter(torch.randn(1))], lr=1.0)
+        sched = step_lr(opt, step_size=2, gamma=0.5)
+        base_lr = opt.param_groups[0]["lr"]
+        for _ in range(2):
+            opt.step()
+            sched.step()
+        after = opt.param_groups[0]["lr"]
+        assert after < base_lr, f"两个周期后学习率应衰减: {base_lr} -> {after}"
+        assert abs(after - base_lr * 0.5) < 1e-8
+
+    def test_train_one_epoch_matches_manual_avg(self):
+        """lr=0时参数不变，epoch平均loss应等于手工逐batch前向的均值"""
+        train_one_epoch = _require("train_one_epoch")
+        torch.manual_seed(0)
+        model = torch.nn.Linear(4, 2)
+        x = torch.randn(8, 4)
+        y = torch.randint(0, 2, (8,))
+        loss_fn = nn.CrossEntropyLoss()
+        opt = torch.optim.SGD(model.parameters(), lr=0.0)  # 冻结参数
+        returned = float(train_one_epoch(model, x, y, opt, loss_fn, batch_size=4))
+        with torch.no_grad():
+            expected = (loss_fn(model(x[:4]), y[:4]) + loss_fn(model(x[4:]), y[4:])) / 2
+        assert returned == pytest.approx(float(expected), rel=1e-4), \
+            f"epoch平均loss错误: 返回{returned}, 期望{float(expected)}"
+
+    def test_train_one_epoch_tail_batch(self):
+        """边界: 样本数不整除batch_size时尾批正常处理"""
+        train_one_epoch = _require("train_one_epoch")
+        model = torch.nn.Linear(4, 2)
+        x = torch.randn(7, 4)
+        y = torch.randint(0, 2, (7,))
+        out = train_one_epoch(model, x, y,
+                              torch.optim.SGD(model.parameters(), lr=0.01),
+                              nn.CrossEntropyLoss(), batch_size=3)
+        assert out >= 0.0 and out == out, "尾批场景应返回有限非负loss"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -6,6 +6,108 @@
 > 标注说明：【已应用】=本轮直接修改了 tasks/dayXX.json 或测试文件；
 > 【保留观察】=设计合理无需改动；【下轮候选】=需要更多数据再决策。
 
+---
+
+# Round2（PyTorch学习路线重排）
+
+## 修改原因总述
+
+Round1之后路线为：数据加载→优化器→CNN→正则化→设备→可视化→保存→框架→ResNet→实战。
+本轮按"P0-1重构学习顺序"要求调整为：
+
+```
+D11 Tensor基础(dtype/device/shape/requires_grad/backward)   ← 新增综合收敛日
+D12 Dataset/DataLoader                                       ← 原D11后移一天
+D13 CNN + 完整训练闭环(含build_optimizer/step_lr/train_one_epoch) ← 原D12优化器并入
+D14 正则化 + train/validation split                          ← P0-3验证闭环
+D15 设备/GPU训练 (+checkpoint挑战预习)                        ← P1-1
+D16-D20 不变（TensorBoard/检查点/完整框架/ResNet/CIFAR）
+```
+
+理由：
+1. **张量知识此前分散在Day08/09**，学生进入Phase2时缺少一个统一收敛点；
+   dtype/device/shape/requires_grad/backward五件事放在同一天形成完整心智模型，
+   避免后面每个新概念都要回补张量细节。
+2. **独立优化器日被取消**：脱离具体模型的SGD/Adam练习过于抽象；将其并入CNN
+   训练闭环（P0-2），在"让网络真正学起来"的语境下学习optimizer与scheduler。
+   StepLR随迁至Day13，避免技能丢失（pytorch.lr_scheduler归属day13）。
+3. **数据加载紧随张量日**：先会操作单个张量，再学怎么批量喂给模型，符合
+   "单元→管线"的认知顺序。
+
+## 逐日变更
+
+### Day11（内容重写：Dataset → Tensor基础）
+
+- 问题：原Day11跳过张量体系直接进数据管线；dtype/device/requires_grad散落各天无收敛点。
+- 【已应用】tests/day11_test.py重写：tensor_info(shape/dtype/device三键)、
+  to_device、grad_of_quadratic(已知值13断言)、grad_after_two_backwards(累积语义6.0断言)，
+  共8测试；skills=[pytorch.tensor/tensor_shape/device/autograd]；tasks/day11.json全量重写。
+
+### Day12（内容迁移：承接原Day11数据加载）
+
+- 问题：数据管线应晚于张量综合日。
+- 【已应用】tests/day12_test.py承接原Day11全部7个Dataset/DataLoader测试（仅换header）；
+  tasks/day12.json继承SimpleDataset/make_loader契约、hint阶梯与collate_fn挑战；
+  prerequisites改为["Tensor基础","简单网络前向"]。
+
+### Day13（P0-2：完整训练闭环）
+
+- 问题：上轮补的训练冒烟只证明"能学"，但优化器构建/调度/epoch级mini-batch循环
+  没有API契约——学生可以用测试外硬编码绕过。
+- 【已应用】required_api追加build_optimizer / step_lr / train_one_epoch三条契约；
+  tests/day13_test.py新增TestTrainingAPI类5个测试：
+  - build_optimizer分发(sgd/adam)与非法拒绝(未知名、lr<=0)
+  - step_lr两周期衰减精确到gamma倍
+  - train_one_epoch用lr=0冻结参数的手工均值等价验证（确定性，不依赖随机收敛）
+  - 尾批(n=7,batch=3)边界正常返回有限loss
+  skills追加pytorch.lr_scheduler；tests[] AST同步8→13；mastery/learn/core_task同步。
+
+### Day14（P0-3：Validation闭环）
+
+- 问题：验证集概念此前缺席直到Day18才出现；正则化效果恰恰需要在"独立验证集"
+  上观察才有说服力——本日是引入validation的天然位置。
+- 【已应用】required_api追加train_validation_split(互斥+全覆盖+max(1,int(n*ratio))契约)
+  与evaluate_accuracy(top-1)；tests/day14_test.py新增TestValidationSplit类5个测试
+  （尺寸/最小1条/互斥覆盖/已知值0.75/区间约束）；skills追加evaluation.accuracy与
+  pytorch.training_loop；mastery加入"validation为何必须独立于训练集"。
+- 【保留观察】不引入复杂指标（F1/AUC等），accuracy足够。
+
+### Day15（P1-1：checkpoint概念预习）
+
+- 问题：checkpoint正式课在Day17，但torch.save/load作为通用技能可以提前接触。
+- 【已应用】optional_challenge追加"挑战预习"条目（save state_dict→load恢复一致），
+  明确标注正式深入在Day17。核心任务不变（device抽象仍是本日主体）。
+
+### Day16-Day20（P1-2：负担审计结论）
+
+逐日核对"核心完成pipeline、挑战负责优化"原则：
+
+| 日 | 核心分钟 | 审计结论 |
+|----|---------|---------|
+| D16 TensorBoard | 60 | 合规 |
+| D17 checkpoint | 90 | 合规 |
+| D18 完整框架 | 120 | 合规——三子系统内聚于单一主题，Top-K/LR组合已在挑战位 |
+| D19 ResNet | 120 | 合规——bottleneck性能对比已在挑战位 |
+| D20 CIFAR | 120 | 合规——过拟合容量实验已在挑战位 |
+
+无需拆分。【保留观察】
+
+### environment_notes（P1-3）
+
+- 【已应用】Day11-Day20全部新增environment_notes字段（纯JSON内容层，
+  Task dataclass/CLI未动，schema冻结保持）：CPU可完成性声明、GPU可选说明、
+  tensorboard依赖提示、合成数据声明。
+
+## 回归影响
+
+- pytest 762 passed, 318 skipped（新增11个测试全部通过，含确定性avg-loss等价验证）
+- 技能注册表零孤儿：dataset/dataloader归day12、optimizer/lr_scheduler归day13，
+  union不变；marker⊆task.skills双向校验通过
+- 估时分层快照不受影响（所有minutes保持原tier值）
+
+---
+以下为Round1逐日审核存档。
+
 # Day11
 
 ## 当前目标

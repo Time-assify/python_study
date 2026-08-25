@@ -12,7 +12,10 @@
     "卷积核、padding与尺寸守恒",
     "MaxPool2d让高宽减半",
     "展平后的全连接输入维度",
-    "小型训练冒烟流程"
+    "小型训练冒烟流程",
+    "优化器工厂与防御式校验",
+    "StepLR调度器",
+    "mini-batch epoch与加权平均loss"
   ],
   "review_points": [
     "training loop",
@@ -28,31 +31,56 @@
       "name": "count_conv_layers",
       "signature": "count_conv_layers(model) -> int",
       "description": "统计模型中卷积层数量，至少为1"
+    },
+    {
+      "name": "build_optimizer",
+      "signature": "build_optimizer(params, name, lr) -> torch.optim.Optimizer",
+      "description": "按name分发到SGD或Adam；未知名或lr不合法抛ValueError"
+    },
+    {
+      "name": "step_lr",
+      "signature": "step_lr(optimizer, step_size, gamma=0.1)",
+      "description": "返回StepLR调度器，按周期乘gamma衰减"
+    },
+    {
+      "name": "train_one_epoch",
+      "signature": "train_one_epoch(model, x, y, optimizer, loss_fn, batch_size=32) -> float",
+      "description": "按batch_size切片跑完一个epoch，返回按样本数加权的平均loss；尾批正常处理"
     }
   ],
-  "core_task": "实现SimpleCNN与count_conv_layers（结构契约见Required API），并在固定小批次上跑通训练冒烟：SGD+交叉熵迭代数十步，loss明显下降",
+  "core_task": "实现SimpleCNN与count_conv_layers，并完成完整训练闭环API：build_optimizer / step_lr / train_one_epoch（mini-batch切分、返回加权平均loss）",
   "mastery": [
     "能解释padding=1的3x3卷积不改变特征图尺寸",
     "能说出池化后尺寸减半的关系",
     "能让梯度穿过卷积+全连接完整回传",
     "能在固定小批次上完成loss下降的训练冒烟",
-    "会调用train()/eval()切换模式"
+    "会调用train()/eval()切换模式",
+    "会用build_optimizer分发SGD与Adam并拒绝非法lr",
+    "会用StepLR按周期衰减学习率",
+    "能实现按batch切分的epoch训练并返回平均loss"
   ],
   "optional_challenge": "挑战：手动推导自己CNN每层输出尺寸与参数量，并用代码逐层验证",
+  "environment_notes": "环境要求：CPU可完成（28x28小图、30步以内冒烟训练）；GPU可选加速。",
   "skills": [
     "pytorch.cnn",
     "pytorch.tensor_shape",
     "pytorch.optimizer",
-    "pytorch.training_loop"
+    "pytorch.training_loop",
+    "pytorch.lr_scheduler"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_backward_flows",
     "test_batch_size_one",
+    "test_build_optimizer_dispatch",
+    "test_build_optimizer_invalid",
     "test_has_conv_layer",
     "test_optimizer_step_updates_params",
     "test_output_shape",
     "test_pooling_exists",
+    "test_step_lr_decays",
+    "test_train_one_epoch_matches_manual_avg",
+    "test_train_one_epoch_tail_batch",
     "test_train_reduces_loss"
   ],
   "test_module": "day13_test",
@@ -77,8 +105,16 @@
       "content": "训练冒烟用SGD小学习率配交叉熵，固定小批次迭代数十步观察下降"
     },
     {
+      "level": 2,
+      "content": "train_one_epoch按batch_size切片循环：清零梯度、反向、更新并累计按样本数加权损失"
+    },
+    {
       "level": 3,
       "content": "伪代码：特征链为卷积-激活-池化；判据：数十步后loss低于初始值的九成"
+    },
+    {
+      "level": 3,
+      "content": "判据：lr为0时epoch平均loss应等于逐batch前向损失的均值"
     }
   ]
 }

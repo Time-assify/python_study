@@ -43,6 +43,7 @@
     "能在小样本上快速验证模型可学习(loss明显下降)"
   ],
   "optional_challenge": "挑战：在CIFARNet上做单batch过拟合实验（train准确率打到100%），验证模型容量足够",
+  "environment_notes": "环境要求：使用合成张量数据，无需下载CIFAR10；CPU可完成，GPU可选。",
   "skills": [
     "cv.classification",
     "metrics.confusion_matrix"

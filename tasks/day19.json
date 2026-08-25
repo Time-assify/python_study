@@ -37,6 +37,7 @@
     "知道梯度可以经shortcut直接回传"
   ],
   "optional_challenge": "挑战：把残差块改成1x1卷积降维的瓶颈结构(bottleneck)，对比参数量变化",
+  "environment_notes": "环境要求：CPU可完成（28x28小图与受限step数）；GPU可选加速。",
   "skills": [
     "pytorch.resnet",
     "pytorch.tensor_shape"

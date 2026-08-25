@@ -12,7 +12,11 @@
     "BatchNorm归一化统计量",
     "Dropout的train与eval双态",
     "超参p的合法范围",
-    "正则化层的摆放位置"
+    "正则化层的摆放位置",
+    "validation的意义与独立性",
+    "索引划分的互斥与覆盖",
+    "top-1 accuracy实现",
+    "loss curve下降形态观察"
   ],
   "review_points": [
     "CNN",
@@ -23,26 +27,47 @@
       "name": "NetWithReg",
       "signature": "NetWithReg(in_features, num_classes, p_drop=0.5) -> nn.Module",
       "description": "至少包含一个BatchNorm1d与一个Dropout；forward输出(B,num_classes)"
+    },
+    {
+      "name": "train_validation_split",
+      "signature": "train_validation_split(n, val_ratio=0.2) -> tuple",
+      "description": "返回(train_idx, val_idx)；验证数量为max(1, int(n*val_ratio))；两集互斥且并集覆盖0..n-1"
+    },
+    {
+      "name": "evaluate_accuracy",
+      "signature": "evaluate_accuracy(model, x, y) -> float",
+      "description": "在(x, y)上计算top-1准确率，返回0到1的float"
     }
   ],
-  "core_task": "实现正则化层",
+  "core_task": "实现NetWithReg正则化网络，以及train_validation_split / evaluate_accuracy验证闭环（train/val划分互斥且全覆盖，验证集独立评估）",
   "mastery": [
     "知道BatchNorm把batch均值拉到0附近",
     "能解释Dropout只在train生效、eval是确定性的",
-    "知道p不在[0,1]时构造会抛错"
+    "知道p不在[0,1]时构造会抛错",
+    "能实现互斥且全覆盖的train/val索引划分",
+    "会计算验证集top-1准确率",
+    "能说明validation集必须独立于训练集的原因"
   ],
   "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异",
+  "environment_notes": "环境要求：CPU即可完成全部核心任务；GPU可选加速，无GPU不影响评分。",
   "skills": [
     "pytorch.batchnorm",
-    "pytorch.dropout"
+    "pytorch.dropout",
+    "evaluation.accuracy",
+    "pytorch.training_loop"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_batchnorm_normalizes",
     "test_contains_batchnorm_and_dropout",
     "test_dropout_train_vs_eval",
+    "test_evaluate_accuracy_known_values",
+    "test_evaluate_accuracy_range",
     "test_forward_shape",
-    "test_invalid_p_raises"
+    "test_invalid_p_raises",
+    "test_split_disjoint_and_covering",
+    "test_split_min_one_val",
+    "test_split_sizes_default_ratio"
   ],
   "test_module": "day14_test",
   "task": "实现正则化层",
@@ -66,8 +91,20 @@
       "content": "验证Dropout差异需在训练与评估两种模式下分别统计输出"
     },
     {
+      "level": 2,
+      "content": "划分可用randperm生成全排列再切片；验证数量取max(1, int(n*ratio))"
+    },
+    {
+      "level": 2,
+      "content": "accuracy先argmax再与标签比对取均值"
+    },
+    {
       "level": 3,
       "content": "判据：评估模式下同一输入两次前向结果完全一致；p越界时构造应抛错"
+    },
+    {
+      "level": 3,
+      "content": "判据：划分两集合互斥且并集覆盖全部索引；完美预测时accuracy为1"
     }
   ]
 }

@@ -1,9 +1,13 @@
-# Day 14 Tests: BatchNorm/Dropout正则化 (PyTorch)
+# Day 14 Tests: BatchNorm/Dropout正则化 + Validation (PyTorch)
 #
 # answer.py 必须实现（接口约定）:
 # - NetWithReg(in_features, num_classes, p_drop=0.5) -> nn.Module
 #   至少包含一个 nn.BatchNorm1d 和一个 nn.Dropout
 # - forward输出 (B, num_classes)
+# - train_validation_split(n, val_ratio=0.2) -> (train_idx, val_idx)
+#     验证集数量为max(1, int(n*val_ratio))；两个索引集互斥且并集覆盖0..n-1
+# - evaluate_accuracy(model, x, y) -> float
+#     在(x, y)上计算top-1准确率（0到1的float）
 import pytest
 
 try:
@@ -90,6 +94,52 @@ class TestBehavior:
         cls = _require("NetWithReg")
         with pytest.raises(ValueError):
             cls(8, 2, p_drop=1.5)
+
+
+@requires_torch
+@pytest.mark.skill("evaluation.accuracy", "pytorch.training_loop")
+class TestValidationSplit:
+    """P0-3: train/validation split 与验证准确率"""
+
+    def test_split_sizes_default_ratio(self):
+        split = _require("train_validation_split")
+        train_idx, val_idx = split(10, val_ratio=0.2)
+        assert len(val_idx) == 2, f"10条按0.2应划出2条验证, 得到{len(val_idx)}"
+        assert len(train_idx) == 8
+
+    def test_split_min_one_val(self):
+        """边界: n很小导致int(n*ratio)=0时至少保留1条验证"""
+        split = _require("train_validation_split")
+        _, val_idx = split(3, val_ratio=0.1)
+        assert len(val_idx) >= 1, "验证集至少要有1条样本"
+
+    def test_split_disjoint_and_covering(self):
+        split = _require("train_validation_split")
+        train_idx, val_idx = split(12, val_ratio=0.25)
+        train_set, val_set = set(map(int, train_idx)), set(map(int, val_idx))
+        assert not (train_set & val_set), "train与val索引必须互斥"
+        assert train_set | val_set == set(range(12)), "两集合并集必须覆盖全部样本"
+
+    def test_evaluate_accuracy_known_values(self):
+        evaluate_accuracy = _require("evaluate_accuracy")
+        model = torch.nn.Linear(4, 2)
+        with torch.no_grad():
+            model.weight.copy_(torch.tensor([[1.0, 0, 0, 0], [-1.0, 0, 0, 0]]))
+            model.bias.zero_()
+        x = torch.tensor([[1.0, 0, 0, 0],
+                          [1.0, 0, 0, 0],
+                          [-1.0, 0, 0, 0],
+                          [1.0, 0, 0, 0]])
+        y = torch.tensor([0, 1, 0, 0])
+        acc = float(evaluate_accuracy(model, x, y))
+        assert acc == pytest.approx(0.75), f"3/4正确应为0.75, 得到{acc}"
+
+    def test_evaluate_accuracy_range(self):
+        evaluate_accuracy = _require("evaluate_accuracy")
+        model = torch.nn.Linear(4, 2)
+        acc = float(evaluate_accuracy(model, torch.randn(16, 4),
+                                      torch.randint(0, 2, (16,))))
+        assert 0.0 <= acc <= 1.0, "准确率必须在[0,1]区间"
 
 
 if __name__ == "__main__":
