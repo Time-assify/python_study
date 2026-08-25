@@ -62,7 +62,7 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "from concurrent.futures import ThreadPoolExecutor"
+      "content": "线程池工具在标准库concurrent.futures模块中"
     },
     {
       "level": 2,

@@ -19,15 +19,20 @@ from src.evaluator.models import EvaluationResult
 from src.utils.helpers import Helpers
 
 
-def cmd_task(platform: TrainingPlatform, day: int):
-    """View task"""
+def cmd_task(platform: TrainingPlatform, day: int, detail: bool = False):
+    """View task
+
+    P1-2分层:
+    - 默认: Goal/Time/Difficulty/Prerequisites/Required API/Core Task/Mastery
+    - --detail: 追加 Description/knowledge_points/learn/Hints/resources/challenge
+    """
     task = platform.get_task(day)
     if not task:
         Helpers.print_error(f"Day {day} task not found")
         return
-    
+
     phase_info = Helpers.get_phase_info(day)
-    
+
     # 1. 今日主题
     print(f"Day {day}: {task.title}")
     print(f"Phase: {phase_info['name']}")
@@ -37,20 +42,21 @@ def cmd_task(platform: TrainingPlatform, day: int):
         print(f"Estimated: ~{task.estimated_minutes} minutes")
     if getattr(task, "difficulty", 0):
         print(f"Difficulty: {task.difficulty}/5")
-    print(f"\nDescription:\n{task.description}")
+    if detail:
+        print(f"\nDescription:\n{task.description}")
     # 3. 前置知识
     prerequisites = getattr(task, "prerequisites", None) or []
     if prerequisites:
         print(f"\nPrerequisites:")
         for p in prerequisites:
             print(f"  - {p}")
-    # 4. 今天需要学习
-    learn = getattr(task, "learn", None) or []
-    if learn:
-        print(f"\n今天需要学习 (learn):")
-        for item in learn:
-            print(f"  - {item}")
-    # 5. Required API（签名+行为约定，不含实现）
+    if detail:
+        learn = getattr(task, "learn", None) or []
+        if learn:
+            print(f"\n今天需要学习 (learn):")
+            for item in learn:
+                print(f"  - {item}")
+    # 4. Required API（签名+行为约定，不含实现）
     required_api = getattr(task, "required_api", None) or []
     if required_api:
         print(f"\nRequired API:")
@@ -62,16 +68,27 @@ def cmd_task(platform: TrainingPlatform, day: int):
                     print(f"    - {desc}")
             else:
                 print(f"  {api}")
-    # 6. 核心任务
+    # 5. 核心任务
     core_task = getattr(task, "core_task", "") or task.task
     print(f"\n核心任务:\n{core_task}")
-    # 7. Mastery
+    # 6. Mastery
     mastery = getattr(task, "mastery", None) or []
     if mastery:
         print(f"\n掌握标准 (mastery):")
         for item in mastery:
             print(f"  - {item}")
-    # 8. Hints（支持分级）
+    if not detail:
+        print(f"\n提示: python main.py hint {day} --level 1|2|3 查看分级提示")
+        print(f"提示: python main.py task {day} --detail 查看完整信息")
+        return
+    # ---- detail only ----
+    skills = getattr(task, "skills", None) or []
+    if skills:
+        from src.analyzer.skill_mapper import SKILL_LABELS
+        print(f"\nKnowledge Points:")
+        for s in skills:
+            label = SKILL_LABELS.get(s, s)
+            print(f"  - {s} ({label})")
     hint_levels = getattr(task, "hint_levels", None) or []
     if hint_levels:
         print(f"\nHints (卡住时按级查看):")
@@ -81,11 +98,14 @@ def cmd_task(platform: TrainingPlatform, day: int):
         print(f"\nHints:")
         for h in task.hints:
             print(f"  - {h}")
-    # 9. Optional Challenge
+    resources = getattr(task, "resources", None) or []
+    if resources:
+        print(f"\nResources:")
+        for r in resources:
+            print(f"  - {r}")
     challenge = getattr(task, "optional_challenge", "")
     if challenge:
         print(f"\n可选挑战 (challenge失败不影响当天通过):\n{challenge}")
-    # 测试函数名属于系统内部细节，不再向学习者展示
 
 
 def cmd_submit(platform: TrainingPlatform, day: int, file_path: str):
@@ -197,6 +217,8 @@ def main():
     # task
     task_parser = subparsers.add_parser("task", help="View task")
     task_parser.add_argument("day", type=int, help="Day number (1-40)")
+    task_parser.add_argument("--detail", action="store_true",
+                             help="Show full details (hints/resources/knowledge points)")
 
     # hint
     hint_parser = subparsers.add_parser("hint", help="View graded hint for a task")
@@ -223,7 +245,7 @@ def main():
     platform = TrainingPlatform()
     
     if args.command == "task":
-        cmd_task(platform, args.day)
+        cmd_task(platform, args.day, detail=args.detail)
     elif args.command == "hint":
         cmd_hint(platform, args.day, args.level)
     elif args.command == "submit":

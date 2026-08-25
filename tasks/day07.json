@@ -62,11 +62,15 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "先把前向计算向量化: y_pred = X @ w + b"
+      "content": "先理解损失函数MSE与参数梯度dw/db的关系，再开始编码"
     },
     {
       "level": 2,
       "content": "每轮迭代：算y_pred → 算dw/db → 更新参数 → 记录loss"
+    },
+    {
+      "level": 2,
+      "content": "前向计算向量化：用矩阵乘法一次算出全部预测（X与w点积再加b）"
     },
     {
       "level": 3,

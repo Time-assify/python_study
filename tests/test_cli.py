@@ -104,6 +104,15 @@ def _capture_task(day: int) -> str:
     return buf.getvalue()
 
 
+def _capture_task_detail(day: int) -> str:
+    from src.core.platform import TrainingPlatform
+    plat = TrainingPlatform()
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        cmd_task(plat, day, detail=True)
+    return buf.getvalue()
+
+
 def test_task_contains_required_api():
     """cmd_task day1必须展示 Required API"""
     out = _capture_task(1)
@@ -118,22 +127,42 @@ def test_task_contains_prerequisites():
 
 
 def test_task_contains_learn():
-    """cmd_task day1必须展示 今天需要学习"""
-    out = _capture_task(1)
+    """--detail视图展示 今天需要学习（P1-2: learn归入详细层）"""
+    out = _capture_task_detail(1)
     assert "今天需要学习" in out
 
 
 def test_task_no_test_names_leaked():
-    """cmd_task不得泄露test函数名（系统内部细节）"""
-    out = _capture_task(1)
-    assert "test_" not in out, f"不应出现test_函数名，实际输出:\n{out}"
+    """cmd_task不得泄露test函数名（系统内部细节），默认与detail均不得泄露"""
+    for out in (_capture_task(1), _capture_task_detail(1)):
+        assert "test_" not in out, f"不应出现test_函数名，实际输出:\n{out}"
 
 
 def test_task_contains_hint_levels():
-    """cmd_task day1展示分级提示（hint_levels）"""
-    out = _capture_task(1)
+    """--detail视图展示分级提示（P1-2: hints归入详细层）"""
+    out = _capture_task_detail(1)
     assert "Hints (卡住时按级查看)" in out or "[L1]" in out
     assert "[L2]" in out or "[L3]" in out
+
+
+def test_task_default_hides_hints_and_resources():
+    """默认视图不显示hints/resources/knowledge points（P1-2分层）"""
+    out = _capture_task(2)
+    assert "[L" not in out, "默认视图不应显示分级hint"
+    assert "Resources:" not in out, "默认视图不应显示resources"
+    assert "Knowledge Points:" not in out, "默认视图不应显示knowledge points"
+    # 但必须包含核心五要素
+    for section in ("Goal:", "Estimated:", "Prerequisites:", "Required API:", "mastery"):
+        assert section in out, f"默认视图缺少{section}"
+    assert "--detail" in out, "默认视图应引导使用--detail"
+
+
+def test_task_detail_shows_knowledge_points_resources():
+    """--detail视图显示knowledge_points与resources（P1-2）"""
+    out = _capture_task_detail(2)
+    assert "Knowledge Points:" in out
+    assert "python.decorator" in out and "装饰器" in out
+    assert "Resources:" in out
 
 
 # -----------------------------------------------------------------------

@@ -70,7 +70,7 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "from abc import ABC, abstractmethod"
+      "content": "Python的abc模块提供抽象基类与抽象方法支持"
     },
     {
       "level": 2,
@@ -78,7 +78,7 @@
     },
     {
       "level": 3,
-      "content": "class BaseModel(ABC): @abstractmethod def fit(self, X, y): ..."
+      "content": "伪代码：BaseModel继承ABC；fit/predict加@abstractmethod装饰器，方法体只写docstring"
     }
   ]
 }

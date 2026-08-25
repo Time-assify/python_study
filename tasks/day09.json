@@ -64,7 +64,11 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "x = torch.tensor(v, requires_grad=True); y = fn(x); y.backward()"
+      "content": "求导三步：创建可求导张量、算函数值、调用backward"
+    },
+    {
+      "level": 2,
+      "content": "x = torch.tensor(v, requires_grad=True); y = fn(x); y.backward(); 取x.grad"
     },
     {
       "level": 2,

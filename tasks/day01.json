@@ -64,7 +64,7 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "回顾os.makedirs(..., exist_ok=True)与os.path.join的用法"
+      "content": "回顾os.makedirs的exist_ok参数与os.path.join路径拼接"
     },
     {
       "level": 1,

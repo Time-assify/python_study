@@ -89,6 +89,20 @@ class Database:
                 created_at TEXT NOT NULL
             )
         """)
+
+        # 创建knowledge_gap_records表（P0-1: 测试失败→skill绑定，additive）
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS knowledge_gap_records (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day INTEGER NOT NULL,
+                skill TEXT NOT NULL,
+                kp_id TEXT DEFAULT '',
+                kp_name TEXT DEFAULT '',
+                review_point TEXT DEFAULT '',
+                count INTEGER DEFAULT 1,
+                created_at TEXT NOT NULL
+            )
+        """)
         
         # 创建submission_history表
         self.conn.execute("""
@@ -384,6 +398,59 @@ class Database:
         except sqlite3.Error as e:
             print(f"获取提交历史失败: {e}")
             return []
+
+    def save_knowledge_gap_records(self, day: int, records) -> int:
+        """保存KnowledgeGapRecord列表（P0-1，additive）
+
+        records: src.models.KnowledgeGapRecord 或 dict
+        """
+        from datetime import datetime
+        try:
+            saved = 0
+            for r in records:
+                d = r.to_dict() if hasattr(r, "to_dict") else dict(r)
+                kp = d.get("knowledge_point") or {}
+                self.conn.execute(
+                    """INSERT INTO knowledge_gap_records
+                       (day, skill, kp_id, kp_name, review_point, count, created_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (day, d.get("skill", ""), kp.get("id", ""),
+                     kp.get("name", ""), d.get("review_point", ""),
+                     int(d.get("count", 1)), datetime.now().isoformat())
+                )
+                saved += 1
+            self.conn.commit()
+            return saved
+        except sqlite3.Error as e:
+            print(f"保存知识缺口记录失败: {e}")
+            return -1
+
+    def get_knowledge_gap_records(self, limit: int = 200) -> List[Dict[str, Any]]:
+        """按skill聚合的知识缺口（count求和），供Advisor/复习使用"""
+        try:
+            cursor = self.conn.execute(
+                """SELECT skill,
+                          MAX(kp_id) as kp_id,
+                          MAX(kp_name) as kp_name,
+                          SUM(count) as total_count
+                   FROM knowledge_gap_records
+                   GROUP BY skill
+                   ORDER BY total_count DESC
+                   LIMIT ?""",
+                (limit,)
+            )
+            return [
+                {
+                    "skill": row["skill"],
+                    "knowledge_point": {"id": row["kp_id"], "name": row["kp_name"]},
+                    "count": int(row["total_count"]),
+                }
+                for row in cursor.fetchall()
+            ]
+        except sqlite3.Error as e:
+            print(f"获取知识缺口记录失败: {e}")
+            return []
+
     
     def get_submission_count(self, day: Optional[int] = None) -> int:
         """获取提交次数 - 兼容旧调用"""

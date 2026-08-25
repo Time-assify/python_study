@@ -76,6 +76,7 @@ class LearningAdvice:
     suggestions: List[str]
     priority_topics: List[str]
     trend_note: str = ""
+    difficulty_recommendation: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -90,11 +91,16 @@ class LearningAdvisor:
     def __init__(self):
         pass
 
-    def generate_advice(self, profile: StudentProfile) -> LearningAdvice:
+    def generate_advice(self, profile: StudentProfile,
+                        recent_results: Optional[List[Dict[str, Any]]] = None,
+                        current_difficulty: Optional[int] = None) -> LearningAdvice:
         """综合学生画像生成学习建议
-        
+
         Args:
-            profile: 学生画像（含error_statistics/knowledge_gap_statistics/trend/strengths）
+                profile: 学生画像（含error_statistics/knowledge_gap_statistics/trend/strengths）
+            recent_results: 最近提交（newest-first）[{passed: bool, difficulty: int}, ...]
+                            提供时启用P0-2难度推荐规则
+            current_difficulty: 当前任务难度(1-5)
 
         Returns:
             LearningAdvice对象
@@ -143,14 +149,24 @@ class LearningAdvisor:
         if profile.strengths:
             top_strength = profile.strengths[0]
             suggestions.append(f"继续保持优点：{top_strength}")
-        
+
+        # 5. P0-2: 基于最近通过/失败连击的难度推荐（简单规则）
+        difficulty_recommendation = None
+        if recent_results:
+            difficulty_recommendation = self.recommend_difficulty(
+                recent_results, current_difficulty
+            )
+            if difficulty_recommendation.get("reason"):
+                suggestions.insert(0, difficulty_recommendation["reason"])
+
         # 无任何数据时的默认建议
-        if not error_stats and not gap_stats:
+        if not error_stats and not gap_stats and not recent_results:
             return LearningAdvice(
                 weaknesses=[],
                 suggestions=["暂无历史数据，请先完成几次练习"],
                 priority_topics=[],
-                trend_note=trend_note
+                trend_note=trend_note,
+                difficulty_recommendation=None
             )
         
         # 去重保序
@@ -169,8 +185,66 @@ class LearningAdvisor:
             weaknesses=list(dict.fromkeys(weaknesses)),
             suggestions=unique_suggestions,
             priority_topics=unique_topics,
-            trend_note=trend_note
+            trend_note=trend_note,
+            difficulty_recommendation=difficulty_recommendation
         )
+
+    @staticmethod
+    def recommend_difficulty(recent_results: List[Dict[str, Any]],
+                             current_difficulty: Optional[int] = None) -> Dict[str, Any]:
+        """P0-2: 基于最近连击的难度推荐（简单规则，不做复杂算法）
+
+        规则:
+        - 最近连续失败>=2 → 下一任务难度 <= 当前失败任务的difficulty
+        - 最近连续通过>=3 → 允许difficulty+1
+        - 其他 → 维持当前难度
+
+        Args:
+            recent_results: newest-first列表 [{passed: bool, difficulty: int}, ...]
+            current_difficulty: 当前任务难度
+
+        Returns:
+            {mode, max_difficulty, reason}
+        """
+        cur = current_difficulty if isinstance(current_difficulty, int) else 3
+
+        fail_streak = 0
+        for r in recent_results:
+            if r.get("passed"):
+                break
+            fail_streak += 1
+
+        pass_streak = 0
+        for r in recent_results:
+            if not r.get("passed"):
+                break
+            pass_streak += 1
+
+        if fail_streak >= 2:
+            failing_difficulty = next(
+                (r["difficulty"] for r in recent_results[:fail_streak]
+                 if isinstance(r.get("difficulty"), int)),
+                cur
+            )
+            cap = min(cur if isinstance(current_difficulty, int) else failing_difficulty,
+                      failing_difficulty)
+            return {
+                "mode": "reduce",
+                "max_difficulty": max(1, cap),
+                "reason": f"连续失败{fail_streak}次，建议选择难度不超过{max(1, cap)}的任务巩固基础"
+            }
+        if pass_streak >= 3:
+            target = min(5, (cur if isinstance(current_difficulty, int) else 3) + 1)
+            return {
+                "mode": "advance",
+                "max_difficulty": target,
+                "reason": f"连续通过{pass_streak}次，可以挑战难度{target}的任务"
+            }
+        return {
+            "mode": "maintain",
+            "max_difficulty": cur,
+            "reason": f"保持当前难度{cur}继续练习"
+        }
 
     def get_priority_score(self, error_type: str, count: int) -> int:
         """计算错误类型的优先级分数

@@ -87,7 +87,7 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "装饰器=接收函数并返回新函数"
+      "content": "装饰器：接收一个函数并返回一个新函数"
     },
     {
       "level": 1,

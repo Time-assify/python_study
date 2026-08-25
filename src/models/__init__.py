@@ -89,25 +89,32 @@ class ReviewResult:
 
 @dataclass
 class KnowledgeGapRecord:
-    """知识点缺口记录（P1-1: 供未来LearningAdvisor生成复习）
+    """知识点缺口记录（P0-1: 测试失败→skill→knowledge_point绑定）
 
-    与StudentProfile.knowledge_gap_statistics(Dict[str,int])互补：
-    - statistics: 只计数，不知道对应哪个review_point
-    - record:     skill + review_point + count 三元组
-      review_point来自task.review_points，指向具体要复习的前置主题
+    - skill:            skill标签（如 python.decorator）
+    - knowledge_point:  {"id": skill, "name": 中文知识点名}
+    - review_point:     兼容字段（上一轮review_points设计保留）
+    - count:            累计失败次数
     """
     skill: str = ""
+    knowledge_point: Optional[Dict[str, str]] = None
     review_point: str = ""
     count: int = 0
+
+    def __post_init__(self):
+        if self.knowledge_point is None and self.skill:
+            self.knowledge_point = {"id": self.skill, "name": self.skill}
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
     def merge(self, other: "KnowledgeGapRecord") -> "KnowledgeGapRecord":
-        """同(skill, review_point)合并计数"""
+        """同(skill, review_point)合并计数，knowledge_point取自身优先"""
         if self.skill != other.skill or self.review_point != other.review_point:
             raise ValueError("cannot merge KnowledgeGapRecord with different keys")
-        return KnowledgeGapRecord(self.skill, self.review_point, self.count + other.count)
+        kp = self.knowledge_point or other.knowledge_point
+        return KnowledgeGapRecord(self.skill, kp, self.review_point,
+                                  self.count + other.count)
 
 
 @dataclass

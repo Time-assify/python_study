@@ -11,6 +11,7 @@ from src.evaluator.models import EvaluationResult
 from src.models import LearningRecord, StudentProfile
 from src.agents.learning_advisor import LearningAdvisor
 from src.analyzer import ErrorClassifier
+from src.analyzer.skill_mapper import SkillMapper
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ class TrainingPlatform:
         self.helpers = Helpers
         self.learning_advisor = LearningAdvisor()
         self.error_classifier = ErrorClassifier()
+        self.skill_mapper = SkillMapper()
         
         self.current_day = 1
         self.user_name = "Student"
@@ -150,7 +152,24 @@ class TrainingPlatform:
             suggestions=suggestions
         )
         self.database.save_submission_history(record)
-        
+
+        # 10. P0-1: 失败测试 -> skill -> KnowledgeGapRecord（不阻断主流程）
+        try:
+            failed_names = [
+                t.test_name for t in test_result.test_results
+                if t.status in ("failed", "error")
+            ]
+            if failed_names:
+                gap_records = self.skill_mapper.build_records(day, failed_names)
+                if gap_records:
+                    self.database.save_knowledge_gap_records(day, gap_records)
+                    logger.info(
+                        "[evaluate_submission] day %d: %d knowledge gap record(s) saved",
+                        day, len(gap_records)
+                    )
+        except Exception as e:
+            logger.warning("[evaluate_submission] skill mapping failed for day %d: %s", day, e)
+
         return EvaluationResult(
             day=day,
             submission_path=str(submission_path),
@@ -250,9 +269,28 @@ class TrainingPlatform:
         )
     
     def get_learning_advice(self) -> Optional[Dict[str, Any]]:
-        """获取学习建议"""
+        """获取学习建议（P0-2: 附带基于连击的难度推荐）"""
         profile = self._build_student_profile()
-        advice = self.learning_advisor.generate_advice(profile)
+        try:
+            history = self.database.get_submission_history(limit=10)
+            recent_results = []
+            for row in history:
+                task = self.task_manager.get_task(row["day"]) if 1 <= row["day"] <= 40 else None
+                recent_results.append({
+                    "passed": row["final_score"] >= 60,
+                    "difficulty": getattr(task, "difficulty", None),
+                })
+        except Exception as e:
+            logger.warning("[get_learning_advice] history lookup failed: %s", e)
+            recent_results = []
+        current_day = min(max(self.current_day, 1), 40)
+        current_task = self.task_manager.get_task(current_day)
+        current_difficulty = getattr(current_task, "difficulty", None) if current_task else None
+        advice = self.learning_advisor.generate_advice(
+            profile,
+            recent_results=recent_results,
+            current_difficulty=current_difficulty
+        )
         return advice.to_dict()
     
     def _create_error_result(self, day: int, submission_path: Path, timeout: bool = False) -> EvaluationResult:

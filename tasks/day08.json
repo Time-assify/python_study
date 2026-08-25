@@ -70,11 +70,15 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "torch.tensor(data, dtype=torch.float32)"
+      "content": "创建Tensor时注意把dtype显式指定为浮点类型"
     },
     {
       "level": 2,
       "content": "t.reshape(*shape)；统计用t.mean()/t.std()"
+    },
+    {
+      "level": 2,
+      "content": "torch.tensor(data, dtype=torch.float32)"
     },
     {
       "level": 3,
