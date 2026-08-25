@@ -1,9 +1,16 @@
-# Day 15 Tests: GPU训练 (PyTorch)
+# Day 15 Tests: 训练Debug能力 (PyTorch)
+#
+# 目标: 不是训练更大模型, 而是会找问题。
 #
 # answer.py 必须实现（接口约定）:
-# - get_device() -> torch.device        cuda可用返回cuda，否则cpu
-# - move_to_device(obj, device)         将模型或tensor移到指定device并返回
-# - train_step(model, x, y, device) -> float  单步训练，返回CPU上的float loss
+# - assert_matmul_compatible(a, b)                形状兼容静默通过；
+#                                                 不兼容抛ValueError且消息包含两个shape
+# - check_gradient_flow(model, x, y, loss_fn=None) -> dict
+#     至少含 has_gradients(bool) / num_params(int) / max_abs_grad(float>=0)
+# - is_eval_deterministic(model, x, mode="eval") -> bool
+#     指定模式下连续两次前向是否完全一致（Dropout/BN行为差异检测）
+# - diagnose_loss_history(losses) -> dict
+#     至少含 trend("decreasing"/"flat"/"increasing") 与 suggestions(list)
 import pytest
 
 try:
@@ -42,54 +49,97 @@ def _require(name):
 
 
 @requires_torch
-@pytest.mark.skill("pytorch.device", "pytorch.training_step")
-class TestDeviceSelection:
-    def test_get_device_type(self):
-        get_device = _require("get_device")
-        dev = get_device()
-        assert isinstance(dev, torch.device), f"应返回torch.device，得到{type(dev)}"
-        assert dev.type in ("cuda", "cpu")
+@pytest.mark.skill("pytorch.tensor_shape", "pytorch.training_step")
+class TestShapeCheck:
+    def test_compatible_shapes_pass(self):
+        fn = _require("assert_matmul_compatible")
+        assert fn(torch.randn(8, 3), torch.randn(3, 2)) is None
 
-    def test_move_tensor(self):
-        """数据传输: tensor移到device"""
-        move = _require("move_to_device")
-        dev = torch.device("cpu")
-        t = move(torch.randn(3, 3), dev)
-        assert t.device.type == "cpu"
-
-    def test_move_model(self):
-        """模型上device"""
-        move = _require("move_to_device")
-        model = nn.Linear(4, 2)
-        model = move(model, torch.device("cpu"))
-        assert all(p.device.type == "cpu" for p in model.parameters())
+    def test_mismatch_raises_with_shapes_in_message(self):
+        """核心排错能力: 报错必须能定位冲突的两个shape"""
+        fn = _require("assert_matmul_compatible")
+        a, b = torch.randn(6, 5), torch.randn(2, 7)
+        with pytest.raises(ValueError) as exc:
+            fn(a, b)
+        msg = str(exc.value)
+        assert "(6, 5)" in msg and "(2, 7)" in msg, \
+            f"错误信息应包含两个shape: {msg}"
 
 
 @requires_torch
-@pytest.mark.skill("pytorch.device", "pytorch.training_step")
-class TestTrainStep:
-    def test_train_step_returns_float(self):
-        """CPU回退路径必须可运行（无GPU也能通过）"""
-        train_step = _require("train_step")
-        model = nn.Linear(4, 1)
-        dev = torch.device("cpu")
-        x = torch.randn(8, 4)
-        y = torch.randn(8, 1)
-        loss = train_step(model, x, y, dev)
-        assert isinstance(loss, float), f"应返回float，得到{type(loss)}"
-        assert loss == loss and loss >= 0, "loss必须是非NaN非负数"
+@pytest.mark.skill("pytorch.autograd", "pytorch.training_step")
+class TestGradientInspection:
+    def test_fresh_model_has_gradients(self):
+        check = _require("check_gradient_flow")
+        model = nn.Linear(4, 2)
+        report = check(model, torch.randn(8, 4), torch.randint(0, 2, (8,)))
+        assert isinstance(report, dict)
+        for key in ("has_gradients", "num_params", "max_abs_grad"):
+            assert key in report, f"缺少键: {key}"
+        assert report["has_gradients"] is True, "正常反向传播后参数应有梯度"
+        assert report["num_params"] >= 2
+        assert isinstance(report["max_abs_grad"], float) and report["max_abs_grad"] >= 0
 
-    def test_loss_decreases_over_steps(self):
-        """小数据快速训练验证"""
-        train_step = _require("train_step")
-        model = nn.Linear(4, 1)
-        opt = torch.optim.SGD(model.parameters(), lr=0.05)
-        # 若train_step内部自建optimizer则忽略外部opt——这里只验证多次调用收敛趋势
-        x = torch.randn(16, 4)
-        w_true = torch.tensor([[1.0], [-2.0], [0.5], [3.0]])
-        y = x @ w_true
-        losses = [train_step(model, x, y, torch.device("cpu")) for _ in range(25)]
-        assert losses[-1] <= losses[0] + 1e-9, f"loss应下降或持平: {losses[0]:.4f}->{losses[-1]:.4f}"
+    def test_zero_input_still_reports(self):
+        """边界: 全零输入也应产出结构完整的报告(梯度可为0但不能崩)"""
+        check = _require("check_gradient_flow")
+        model = nn.Linear(4, 2)
+        with torch.no_grad():
+            model.weight.zero_()
+            model.bias.fill_(1.0)
+        report = check(model, torch.zeros(4, 4), torch.randint(0, 2, (4,)))
+        assert "has_gradients" in report and "max_abs_grad" in report
+
+
+@requires_torch
+@pytest.mark.skill("pytorch.training_step")
+class TestTrainEvalDetection:
+    def test_dropout_model_deterministic_in_eval(self):
+        fn = _require("is_eval_deterministic")
+        model = nn.Sequential(nn.Dropout(p=0.5), nn.Linear(8, 2))
+        assert fn(model, torch.randn(64, 8), mode="eval") is True, \
+            "eval模式下Dropout模型应输出确定"
+
+    def test_dropout_model_stochastic_in_train(self):
+        """train模式的随机性必须能被检出——这是train/eval区别的实证"""
+        fn = _require("is_eval_deterministic")
+        model = nn.Sequential(nn.Dropout(p=0.9), nn.Linear(64, 2))
+        assert fn(model, torch.randn(128, 64), mode="train") is False, \
+            "train模式下高比例Dropout应输出不确定"
+
+    def test_plain_linear_always_deterministic(self):
+        fn = _require("is_eval_deterministic")
+        model = nn.Linear(4, 2)
+        assert fn(model, torch.randn(16, 4), mode="train") is True
+
+
+@requires_torch
+@pytest.mark.skill("pytorch.training_loop", "pytorch.training_step")
+class TestLossDiagnosis:
+    def test_decreasing_detected(self):
+        fn = _require("diagnose_loss_history")
+        report = fn([1.0, 0.7, 0.5, 0.35])
+        assert report["trend"] == "decreasing"
+
+    def test_flat_flagged_with_suggestions(self):
+        """loss不下降原因排查——本日核心"""
+        fn = _require("diagnose_loss_history")
+        report = fn([0.69, 0.69, 0.69, 0.69])
+        assert report["trend"] == "flat"
+        assert len(report["suggestions"]) >= 1, "flat必须给出排查建议"
+        assert all(isinstance(s, str) and s for s in report["suggestions"])
+
+    def test_increasing_flagged_with_suggestions(self):
+        fn = _require("diagnose_loss_history")
+        report = fn([0.5, 0.8, 1.4, 2.0])
+        assert report["trend"] == "increasing"
+        assert len(report["suggestions"]) >= 1
+
+    def test_short_history_handled(self):
+        """边界: 少于两个点无法判趋势, 不应崩溃"""
+        fn = _require("diagnose_loss_history")
+        report = fn([0.5])
+        assert isinstance(report, dict) and "trend" in report
 
 
 if __name__ == "__main__":

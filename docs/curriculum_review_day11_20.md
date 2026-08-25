@@ -8,6 +8,85 @@
 
 ---
 
+# Round3（完整PyTorch学习工作流）
+
+## 修改原因总述
+
+Round2解决了"顺序"问题，本轮解决"能力闭环"问题：Phase2结束时学生应具备
+**环境判断→数据管线→全链训练→评估判读→故障排查** 的完整深度学习训练能力，
+而不是零散API操作。逐日定位：
+
+| 日 | Round2状态 | 本轮补齐 |
+|----|-----------|---------|
+| D11 | 张量四接口（无环境意识/无排错） | +环境体检check_environment、+shape冲突定位checked_matmul |
+| D12 | 数据管线核心 ✓ | transforms三件套边界显式化（仅ToTensor/Normalize/RHF，防复杂增强蔓延） |
+| D13 | 训练闭环但loader外置 | +fit_classifier串起Dataset→…→Validation全链 |
+| D14 | split+accuracy ✓ | +record_loss_curve曲线记录与首尾判读；+checkpoint挑战预习 |
+| D15 | 设备/GPU日（与D11新环境能力重复） | **主题重写：训练Debug能力**——shape检查/梯度体检/train-eval实证/loss不下降诊断 |
+
+关键决策说明：
+1. **D15主题替换的理由**：device迁移与单步训练已被D11(to_device/check_environment)
+   与D13(train_one_epoch/fit_classifier)覆盖，原D15内容沦为重复练习；
+   而Debug是清单明确要求且此前完全缺失的一等能力。
+   原get_device/move_to_device契约退役，pytorch.device技能归属移至Day11。
+2. **确定性验证策略延续**：fit_classifier用lr=0冻结参数的手工均值等价验证；
+   record_loss_curve用可分合成数据断言首尾比，避免随机收敛带来的flaky。
+
+## 逐日变更
+
+### Day11【已应用】
+
+- 新增required_api：`check_environment()`（cuda_available/device_count/torch_version/
+  default_device四键；无CUDA时默认设备必须cpu——最常见环境误判）、
+  `checked_matmul`（不兼容抛ValueError且消息含两个完整shape）。
+- 新增TestEnvironmentCheck(2)/TestShapeDebug(2)测试；tests[]同步8→12。
+- mastery按规范追加："能够定位基础Tensor维度和device问题"。
+
+### Day12【已应用】
+
+- optional_challenge与learn显式圈定transforms可选范围：
+  **ToTensor / Normalize / RandomHorizontalFlip三件套**，
+  并注明深入增强不在本阶段（防scope creep）。
+- collate_fn padding挑战保留（与transforms边界互不冲突）。
+
+### Day13【已应用】
+
+- required_api追加`fit_classifier(model, train_loader, val_loader, epochs, lr)`
+  返回{train_loss, val_loss, val_acc}——把Dataset→DataLoader→CNN→Loss→
+  Optimizer→Backward→loop→Validation八环节收束成一个可调用入口。
+- TestFullPipeline(3)：结构/取值范围、lr=0手工均值等价（确定性）、
+  可分二类任务10 epoch val_acc≥0.75（真实学习发生）。
+- mastery按规范追加："能够完成最小图像分类训练pipeline"；description写入
+  八环节管线图。skills追加pytorch.dataloader/evaluation.accuracy；tests[] 13→16。
+
+### Day14【已应用】
+
+- required_api追加`record_loss_curve(model, x, y, epochs, lr)`→list[float]；
+  TestLossCurve(2)：长度+有限非负、可分数据首尾比<0.7的下降判读。
+- mastery追加loss curve首尾判读；optional_challenge追加checkpoint预习
+  （保存最优epoch并恢复一致），正式课仍在Day17。
+
+### Day15【已应用·主题重写】
+
+原"GPU训练"整日替换为**训练Debug能力**：
+
+| 接口 | 排查目标 | 测试要点 |
+|------|---------|---------|
+| assert_matmul_compatible(a,b) | shape冲突 | 兼容静默；冲突报错消息必含双方shape |
+| check_gradient_flow(model,x,y) | 梯度健康 | has_gradients/num_params/max_abs_grad；全零输入不崩 |
+| is_eval_deterministic(model,x,mode) | train/eval区别 | Dropout模型eval确定/train随机(p=0.9实证)/纯线性恒确定 |
+| diagnose_loss_history(losses) | loss不下降 | decreasing/flat/increasing三分；flat与increasing必须附排查建议 |
+
+共12测试全部CPU确定性。skills=[tensor_shape/autograd/training_step/training_loop]
+（device归属已移交Day11）。mastery四条对应四类故障。
+
+### Day16-Day20（P1-2复核）
+
+沿用Round2结论：五天均已满足"核心pipeline/挑战优化"拆分原则
+（D18 LR组合、D19 bottleneck、D20过拟合实验均在挑战位），本轮零改动。【保留观察】
+
+---
+
 # Round2（PyTorch学习路线重排）
 
 ## 修改原因总述

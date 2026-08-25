@@ -102,5 +102,47 @@ class TestAutogradBasics:
             f"两次backward后梯度应累加为6, 得到{total}"
 
 
+@requires_torch
+@pytest.mark.skill("pytorch.device")
+class TestEnvironmentCheck:
+    """环境体检：能判断CPU/GPU环境是一等能力"""
+
+    def test_report_structure(self):
+        check = _require("check_environment")
+        report = check()
+        assert isinstance(report, dict)
+        for key in ("cuda_available", "device_count", "torch_version", "default_device"):
+            assert key in report, f"环境报告缺少键: {key}"
+
+    def test_report_consistency(self):
+        """无CUDA时默认设备必须是cpu——这是最常见的环境误判"""
+        check = _require("check_environment")
+        report = check()
+        assert isinstance(report["cuda_available"], bool)
+        assert isinstance(report["device_count"], int) and report["device_count"] >= 0
+        if not report["cuda_available"]:
+            assert report["default_device"] == "cpu", \
+                "无CUDA时默认设备必须是cpu"
+
+
+@requires_torch
+@pytest.mark.skill("pytorch.tensor_shape")
+class TestShapeDebug:
+    def test_compatible_passes(self):
+        fn = _require("checked_matmul")
+        a, b = torch.randn(2, 3), torch.randn(3, 4)
+        assert fn(a, b) is None, "兼容形状应静默通过"
+
+    def test_mismatch_raises_with_both_shapes(self):
+        """核心排错能力: 报错信息必须包含两个冲突shape"""
+        fn = _require("checked_matmul")
+        a, b = torch.randn(2, 3), torch.randn(4, 5)
+        with pytest.raises(ValueError) as exc:
+            fn(a, b)
+        msg = str(exc.value)
+        assert "(2, 3)" in msg and "(4, 5)" in msg, \
+            f"报错应包含两个shape便于定位: {msg}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

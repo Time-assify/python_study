@@ -12,7 +12,8 @@
     "Dataset协议：__len__与__getitem__",
     "batch_size与shuffle语义",
     "尾批现象",
-    "transform的作用位置"
+    "transform的作用位置",
+    "可选预习：transforms三大件（ToTensor/Normalize/RandomHorizontalFlip）"
   ],
   "review_points": [
     "Tensor",
@@ -37,7 +38,7 @@
     "知道transform应在__getitem__内生效",
     "理解shuffle打乱的是样本顺序而不是标签对应关系"
   ],
-  "optional_challenge": "挑战：SGD+Momentum与Adam在同一二次函数上的收敛对比，整理成3条结论",
+  "optional_challenge": "挑战：实现返回变长序列的Dataset并编写collate_fn完成padding批处理。可选预习：torchvision.transforms三大件——ToTensor、Normalize、RandomHorizontalFlip（深入数据增强不在本阶段）",
   "environment_notes": "环境要求：CPU即可完成全部核心任务；GPU可选加速，无GPU不影响评分。",
   "skills": [
     "pytorch.dataset",

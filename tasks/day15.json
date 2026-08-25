@@ -1,18 +1,18 @@
 {
   "day": 15,
-  "title": "GPU训练",
-  "goal": "掌握GPU加速",
+  "title": "训练Debug能力",
+  "goal": "会找训练问题，而不是训练更大模型",
   "difficulty": 3,
   "estimated_minutes": 90,
   "prerequisites": [
-    "训练循环概念",
-    "loss与optimizer关系"
+    "CNN训练闭环",
+    "正则化层与验证"
   ],
   "learn": [
-    "cuda可用性检测",
-    "设备转移to(device)",
-    "单步训练封装",
-    "结果导出item转CPU浮点"
+    "shape冲突的报错规范",
+    "梯度流体检指标",
+    "train/eval确定性的实证方法",
+    "loss不下降的常见原因清单"
   ],
   "review_points": [
     "BatchNorm",
@@ -20,44 +20,58 @@
   ],
   "required_api": [
     {
-      "name": "get_device",
-      "signature": "get_device() -> torch.device",
-      "description": "cuda可用返回cuda设备，否则返回cpu"
+      "name": "assert_matmul_compatible",
+      "signature": "assert_matmul_compatible(a, b)",
+      "description": "形状兼容返回None；不兼容抛ValueError且消息包含两个完整shape便于定位"
     },
     {
-      "name": "move_to_device",
-      "signature": "move_to_device(obj, device)",
-      "description": "将模型或tensor移到指定device并返回"
+      "name": "check_gradient_flow",
+      "signature": "check_gradient_flow(model, x, y, loss_fn=None) -> dict",
+      "description": "执行一次前向反向，返回至少含has_gradients(bool)/num_params(int)/max_abs_grad(float>=0)的报告；loss_fn缺省用交叉熵"
     },
     {
-      "name": "train_step",
-      "signature": "train_step(model, x, y, device) -> float",
-      "description": "封装单步训练（清零梯度、反向、更新），返回CPU上的float loss"
+      "name": "is_eval_deterministic",
+      "signature": "is_eval_deterministic(model, x, mode='eval') -> bool",
+      "description": "指定模式下连续两次前向是否完全一致；用于实证Dropout等层的train/eval行为差异"
+    },
+    {
+      "name": "diagnose_loss_history",
+      "signature": "diagnose_loss_history(losses) -> dict",
+      "description": "输入loss序列返回至少含trend(decreasing/flat/increasing)与suggestions(list)的诊断；flat或increasing必须给出排查建议"
     }
   ],
-  "core_task": "实现GPU训练",
+  "core_task": "实现四个诊断接口：assert_matmul_compatible / check_gradient_flow / is_eval_deterministic / diagnose_loss_history",
   "mastery": [
-    "能写出cuda优先否则cpu的设备选择逻辑",
-    "能把模型和tensor搬到同一device",
-    "能封装单步训练并返回CPU上的float loss"
+    "能写出包含双方shape的规范化shape错误信息",
+    "能用一次反向传播后的报告判断梯度流是否健康",
+    "能实证Dropout模型的train/eval确定性差异",
+    "能对flat/increasing的loss曲线给出至少一条合理排查方向"
   ],
-  "optional_challenge": "挑战：编写device无关的训练函数（无GPU自动回退CPU），并对小矩阵运算计时对比。挑战预习checkpoint：用torch.save保存本日模型state_dict再用torch.load恢复一致（正式深入在Day17）",
+  "optional_challenge": "挑战：给check_gradient_flow增加梯度消失检测（max_abs_grad低于阈值时在报告中给出warning字段）",
   "environment_notes": "环境要求：无GPU时get_device自动回退CPU；计时对比挑战在纯CPU机器上可跳过。",
   "skills": [
-    "pytorch.device",
-    "pytorch.training_step"
+    "pytorch.tensor_shape",
+    "pytorch.autograd",
+    "pytorch.training_step",
+    "pytorch.training_loop"
   ],
   "tests": [
     "test_answer_module_imports",
-    "test_get_device_type",
-    "test_loss_decreases_over_steps",
-    "test_move_model",
-    "test_move_tensor",
-    "test_train_step_returns_float"
+    "test_compatible_shapes_pass",
+    "test_decreasing_detected",
+    "test_dropout_model_deterministic_in_eval",
+    "test_dropout_model_stochastic_in_train",
+    "test_flat_flagged_with_suggestions",
+    "test_fresh_model_has_gradients",
+    "test_increasing_flagged_with_suggestions",
+    "test_mismatch_raises_with_shapes_in_message",
+    "test_plain_linear_always_deterministic",
+    "test_short_history_handled",
+    "test_zero_input_still_reports"
   ],
   "test_module": "day15_test",
-  "task": "实现GPU训练",
-  "description": "学习如何使用GPU加速模型训练，理解CUDA编程和设备管理。",
+  "task": "构建训练诊断工具箱",
+  "description": "深度学习第一生产力是排错能力。本日把常见故障做成可复用的诊断工具：shape冲突定位、梯度流体检、train/eval模式实证、loss不下降的原因清单。",
   "hints": [
     "使用torch.cuda.is_available()检查GPU",
     "使用.to(device)转移模型和数据",
@@ -66,19 +80,24 @@
   "hint_levels": [
     {
       "level": 1,
-      "content": "设备选择的原则是让模型与数据始终处于同一设备"
+      "content": "四件套对应四类故障：形状、梯度、模式、曲线"
     },
     {
       "level": 2,
-      "content": "get_device用可用性检测分支；move_to_device直接调用对象的to方法"
+      "content": "check_gradient_flow里backward之后遍历model.parameters()，统计非空grad与最大绝对值"
     },
     {
       "level": 2,
-      "content": "train_step内部自建SGD与交叉熵，返回前用item转成CPU浮点"
+      "content": "is_eval_deterministic记得包torch.no_grad并在两种模式下分别调用两次前向"
     },
     {
       "level": 3,
-      "content": "伪代码：取设备、搬模型与数据、前向算loss、常规三步后返回loss数值"
+      "content": "伪代码：trend判定用首尾比值——明显变小decreasing、接近1为flat、变大increasing；后两者附排查建议列表"
     }
+  ],
+  "review_points_replace": [
+    "Tensor",
+    "Autograd",
+    "training loop"
   ]
 }

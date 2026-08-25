@@ -189,5 +189,65 @@ class TestTrainingAPI:
         assert out >= 0.0 and out == out, "尾批场景应返回有限非负loss"
 
 
+@requires_torch
+@pytest.mark.skill("pytorch.dataloader", "evaluation.accuracy", "pytorch.training_loop")
+class TestFullPipeline:
+    """P0-2完整闭环: Dataset→DataLoader→CNN→Loss→Optimizer→Backward→loop→Validation"""
+
+    def _loaders(self):
+        from torch.utils.data import DataLoader, TensorDataset
+        torch.manual_seed(7)
+        x = torch.randn(32, 1, 28, 28)
+        y = torch.randint(0, 3, (32,))
+        train = DataLoader(TensorDataset(x[:24], y[:24]), batch_size=8, shuffle=False)
+        val = DataLoader(TensorDataset(x[24:], y[24:]), batch_size=8, shuffle=False)
+        return train, val
+
+    def test_report_structure_and_ranges(self):
+        fit = _require("fit_classifier")
+        model_cls = _require("SimpleCNN")
+        model = model_cls(num_classes=3)
+        train, val = self._loaders()
+        report = fit(model, train, val, epochs=2, lr=0.05)
+        assert isinstance(report, dict)
+        for key in ("train_loss", "val_loss", "val_acc"):
+            assert key in report, f"训练报告缺少键: {key}"
+        assert report["train_loss"] >= 0 and report["train_loss"] == report["train_loss"]
+        assert report["val_loss"] >= 0 and report["val_loss"] == report["val_loss"]
+        assert 0.0 <= report["val_acc"] <= 1.0
+
+    def test_train_loss_matches_manual_when_lr_zero(self):
+        """lr=0冻结参数时, 返回的train_loss应等于手工逐batch前向均值(确定性验证)"""
+        fit = _require("fit_classifier")
+        from torch.utils.data import DataLoader, TensorDataset
+        torch.manual_seed(1)
+        x, y = torch.randn(8, 1, 28, 28), torch.randint(0, 3, (8,))
+        loader = DataLoader(TensorDataset(x, y), batch_size=4, shuffle=False)
+        model = _require("SimpleCNN")(num_classes=3)
+        loss_fn = nn.CrossEntropyLoss()
+        report = fit(model, loader, loader, epochs=1, lr=0.0)
+        with torch.no_grad():
+            expected = sum(
+                float(loss_fn(model(bx), by)) for bx, by in loader
+            ) / len(loader)
+        assert report["train_loss"] == pytest.approx(expected, rel=1e-4), \
+            f"平均loss口径错误: 返回{report['train_loss']}, 期望{expected}"
+
+    def test_learning_actually_happens(self):
+        """可分数据上数个epoch后val_acc应显著高于随机猜测"""
+        from torch.utils.data import DataLoader, TensorDataset
+        fit = _require("fit_classifier")
+        torch.manual_seed(3)
+        n = 24
+        x = torch.randn(n, 1, 28, 28)
+        y = (x[:, 0, :, :].mean(dim=(1, 2)) > 0).long()
+        train = DataLoader(TensorDataset(x[:16], y[:16]), batch_size=8)
+        val = DataLoader(TensorDataset(x[16:], y[16:]), batch_size=4)
+        model = _require("SimpleCNN")(num_classes=2)
+        report = fit(model, train, val, epochs=10, lr=0.08)
+        assert report["val_acc"] >= 0.75, \
+            f"简单可分任务10个epoch后val_acc应>=0.75, 得到{report['val_acc']}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

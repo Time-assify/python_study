@@ -16,7 +16,8 @@
     "validation的意义与独立性",
     "索引划分的互斥与覆盖",
     "top-1 accuracy实现",
-    "loss curve下降形态观察"
+    "loss curve下降形态观察",
+    "loss curve的记录与首尾判读"
   ],
   "review_points": [
     "CNN",
@@ -37,6 +38,11 @@
       "name": "evaluate_accuracy",
       "signature": "evaluate_accuracy(model, x, y) -> float",
       "description": "在(x, y)上计算top-1准确率，返回0到1的float"
+    },
+    {
+      "name": "record_loss_curve",
+      "signature": "record_loss_curve(model, x, y, epochs=10, lr=0.1) -> list",
+      "description": "逐epoch训练并记录平均loss，返回长度为epochs的float列表；用于绘制与判读loss curve"
     }
   ],
   "core_task": "实现NetWithReg正则化网络，以及train_validation_split / evaluate_accuracy验证闭环（train/val划分互斥且全覆盖，验证集独立评估）",
@@ -46,9 +52,10 @@
     "知道p不在[0,1]时构造会抛错",
     "能实现互斥且全覆盖的train/val索引划分",
     "会计算验证集top-1准确率",
-    "能说明validation集必须独立于训练集的原因"
+    "能说明validation集必须独立于训练集的原因",
+    "能记录整条loss curve并用首尾对比判断是否在学"
   ],
-  "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异",
+  "optional_challenge": "挑战：扫描p_drop∈{0.1,0.3,0.5}，比较train/eval模式下输出的方差差异。挑战预习checkpoint：训练中用torch.save保存最优epoch权重、torch.load恢复后预测一致（正式深入在Day17）",
   "environment_notes": "环境要求：CPU即可完成全部核心任务；GPU可选加速，无GPU不影响评分。",
   "skills": [
     "pytorch.batchnorm",
@@ -60,6 +67,8 @@
     "test_answer_module_imports",
     "test_batchnorm_normalizes",
     "test_contains_batchnorm_and_dropout",
+    "test_curve_decreases_overall",
+    "test_curve_length_and_finite",
     "test_dropout_train_vs_eval",
     "test_evaluate_accuracy_known_values",
     "test_evaluate_accuracy_range",

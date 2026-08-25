@@ -13,7 +13,9 @@
     "shape与device属性",
     "requires_grad开关",
     "backward与梯度读取",
-    "多次backward的梯度累积"
+    "多次backward的梯度累积",
+    "环境体检与设备回退",
+    "shape冲突的报错定位"
   ],
   "review_points": [
     "NumPy array",
@@ -39,6 +41,16 @@
       "name": "grad_after_two_backwards",
       "signature": "grad_after_two_backwards(x_value) -> float",
       "description": "同一叶子张量做两次独立前向+反向，返回累积梯度值"
+    },
+    {
+      "name": "check_environment",
+      "signature": "check_environment() -> dict",
+      "description": "返回至少含cuda_available(bool)/device_count(int)/torch_version(str)/default_device(str)的环境报告；无CUDA时default_device必须为cpu"
+    },
+    {
+      "name": "checked_matmul",
+      "signature": "checked_matmul(a, b)",
+      "description": "形状兼容静默通过；不兼容抛ValueError且消息包含两个冲突shape"
     }
   ],
   "core_task": "实现tensor_info / to_device / grad_of_quadratic / grad_after_two_backwards四个接口（不涉及CNN）",
@@ -46,7 +58,9 @@
     "能读出任意Tensor的shape/dtype/device",
     "会把张量在设备间移动且数值不变",
     "能独立完成requires_grad到backward再到读梯度的全流程",
-    "知道多次backward梯度会累加而非覆盖"
+    "知道多次backward梯度会累加而非覆盖",
+    "能够定位基础Tensor维度和device问题",
+    "会输出结构化环境报告并解释cuda不可用时的默认设备行为"
   ],
   "optional_challenge": "挑战：实现返回变长序列的Dataset，并编写collate_fn完成padding批处理",
   "environment_notes": "环境要求：CPU即可完成全部核心任务；GPU可选加速，无GPU不影响评分。",
@@ -58,11 +72,15 @@
   ],
   "tests": [
     "test_answer_module_imports",
+    "test_compatible_passes",
     "test_grad_of_quadratic_known_value",
     "test_grad_returns_scalar_tensor",
     "test_grads_accumulate_over_backwards",
     "test_info_has_three_keys",
     "test_info_values",
+    "test_mismatch_raises_with_both_shapes",
+    "test_report_consistency",
+    "test_report_structure",
     "test_to_device_accepts_str",
     "test_to_device_cpu"
   ],
@@ -86,6 +104,14 @@
     {
       "level": 2,
       "content": "求导标准流程：叶子张量开启requires_grad、前向、backward、读x.grad"
+    },
+    {
+      "level": 2,
+      "content": "环境报告用torch.cuda.is_available与device_count组装；默认设备在无CUDA时必须是cpu"
+    },
+    {
+      "level": 2,
+      "content": "checked_matmul先比较a最后一位维度与b倒数第二位，不匹配就把两个完整shape写进错误消息"
     },
     {
       "level": 3,

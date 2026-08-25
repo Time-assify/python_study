@@ -15,7 +15,10 @@
     "小型训练冒烟流程",
     "优化器工厂与防御式校验",
     "StepLR调度器",
-    "mini-batch epoch与加权平均loss"
+    "mini-batch epoch与加权平均loss",
+    "DataLoader驱动的epoch循环",
+    "验证集accuracy评估",
+    "训练报告的三个关键指标"
   ],
   "review_points": [
     "training loop",
@@ -46,9 +49,14 @@
       "name": "train_one_epoch",
       "signature": "train_one_epoch(model, x, y, optimizer, loss_fn, batch_size=32) -> float",
       "description": "按batch_size切片跑完一个epoch，返回按样本数加权的平均loss；尾批正常处理"
+    },
+    {
+      "name": "fit_classifier",
+      "signature": "fit_classifier(model, train_loader, val_loader, epochs=3, lr=0.05) -> dict",
+      "description": "跑完epochs个epoch后返回{'train_loss','val_loss','val_acc'}；train_loss为末轮按样本数加权平均；val部分每轮结束在验证loader上评估"
     }
   ],
-  "core_task": "实现SimpleCNN与count_conv_layers，并完成完整训练闭环API：build_optimizer / step_lr / train_one_epoch（mini-batch切分、返回加权平均loss）",
+  "core_task": "实现SimpleCNN/count_conv_layers，训练闭环API build_optimizer / step_lr / train_one_epoch，以及串起DataLoader到Validation的fit_classifier（报告train_loss/val_loss/val_acc）",
   "mastery": [
     "能解释padding=1的3x3卷积不改变特征图尺寸",
     "能说出池化后尺寸减半的关系",
@@ -57,7 +65,9 @@
     "会调用train()/eval()切换模式",
     "会用build_optimizer分发SGD与Adam并拒绝非法lr",
     "会用StepLR按周期衰减学习率",
-    "能实现按batch切分的epoch训练并返回平均loss"
+    "能实现按batch切分的epoch训练并返回平均loss",
+    "能够完成最小图像分类训练pipeline",
+    "能解读训练报告中train_loss与val_acc的口径差异"
   ],
   "optional_challenge": "挑战：手动推导自己CNN每层输出尺寸与参数量，并用代码逐层验证",
   "environment_notes": "环境要求：CPU可完成（28x28小图、30步以内冒烟训练）；GPU可选加速。",
@@ -66,7 +76,9 @@
     "pytorch.tensor_shape",
     "pytorch.optimizer",
     "pytorch.training_loop",
-    "pytorch.lr_scheduler"
+    "pytorch.lr_scheduler",
+    "pytorch.dataloader",
+    "evaluation.accuracy"
   ],
   "tests": [
     "test_answer_module_imports",
@@ -75,17 +87,20 @@
     "test_build_optimizer_dispatch",
     "test_build_optimizer_invalid",
     "test_has_conv_layer",
+    "test_learning_actually_happens",
     "test_optimizer_step_updates_params",
     "test_output_shape",
     "test_pooling_exists",
+    "test_report_structure_and_ranges",
     "test_step_lr_decays",
+    "test_train_loss_matches_manual_when_lr_zero",
     "test_train_one_epoch_matches_manual_avg",
     "test_train_one_epoch_tail_batch",
     "test_train_reduces_loss"
   ],
   "test_module": "day13_test",
   "task": "实现简单CNN",
-  "description": "学习卷积神经网络的原理，实现图像分类模型。理解卷积、池化、全连接层。",
+  "description": "形成最小图像分类训练pipeline：Dataset→DataLoader→CNN→Loss→Optimizer→Backward→Training loop→Validation。本日在Day11张量与Day12数据管线之上完成第一次真正意义的训练。",
   "hints": [
     "使用nn.Conv2d定义卷积层",
     "使用nn.MaxPool2d定义池化层",
@@ -109,12 +124,20 @@
       "content": "train_one_epoch按batch_size切片循环：清零梯度、反向、更新并累计按样本数加权损失"
     },
     {
+      "level": 2,
+      "content": "fit_classifier内层就是train_one_epoch的逻辑，只是batch来自loader而不是切片；每个epoch结束后用当前模型在val_loader上算loss与acc"
+    },
+    {
       "level": 3,
       "content": "伪代码：特征链为卷积-激活-池化；判据：数十步后loss低于初始值的九成"
     },
     {
       "level": 3,
       "content": "判据：lr为0时epoch平均loss应等于逐batch前向损失的均值"
+    },
+    {
+      "level": 3,
+      "content": "判据：可分二类小任务10个epoch后val_acc应不低于0.75"
     }
   ]
 }

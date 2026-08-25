@@ -142,5 +142,33 @@ class TestValidationSplit:
         assert 0.0 <= acc <= 1.0, "准确率必须在[0,1]区间"
 
 
+@requires_torch
+@pytest.mark.skill("evaluation.accuracy", "pytorch.training_loop")
+class TestLossCurve:
+    """loss curve: 会记录并解读训练曲线是评估能力的一部分"""
+
+    def test_curve_length_and_finite(self):
+        record = _require("record_loss_curve")
+        torch.manual_seed(0)
+        model = torch.nn.Linear(4, 2)
+        x = torch.randn(64, 4)
+        y = (x[:, 0] > 0).long()
+        curve = record(model, x, y, epochs=8, lr=0.1)
+        assert isinstance(curve, list) and len(curve) == 8
+        assert all(isinstance(v, float) and v >= 0 and v == v for v in curve), \
+            "曲线每项应为有限非负float"
+
+    def test_curve_decreases_overall(self):
+        """可分数据上整条曲线应下降（首>尾），这是loss curve的核心判读"""
+        record = _require("record_loss_curve")
+        torch.manual_seed(42)
+        model = torch.nn.Linear(4, 2)
+        x = torch.randn(128, 4)
+        y = ((x[:, 0] + x[:, 1]) > 0).long()
+        curve = record(model, x, y, epochs=15, lr=0.2)
+        assert curve[-1] < curve[0] * 0.7, \
+            f"15个epoch后应明显下降: 首{curve[0]:.3f} 尾{curve[-1]:.3f}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
