@@ -19,7 +19,7 @@
       "description": "HWC整数数组(0~255)转CHW float32张量并归一化到[0,1]；通道顺序不得置换"
     }
   ],
-  "core_task": "实现数据增强",
+  "core_task": "实现数据增强（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能组合翻转/裁剪/色彩抖动的增强管线",
     "知道增强只改变内容不改变shape",

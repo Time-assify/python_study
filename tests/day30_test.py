@@ -32,6 +32,16 @@ except ImportError:
     torch = None
     nn = None
 
+try:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
+
+requires_torch = pytest.mark.skipif(torch is None, reason="PyTorch未安装（环境问题）")
+requires_plt = pytest.mark.skipif(plt is None, reason="matplotlib未安装（环境问题）")
+
 
 def test_answer_module_imports():
     """answer exists -> import errors are FAIL; only skip when repo has no submission"""
@@ -150,6 +160,45 @@ class TestRunPipeline:
         report = run(cfg)
         assert float(report["val_acc"]) >= 0.7, \
             f"可分任务6个epoch后val_acc应>=0.7, 得到{report['val_acc']}"
+
+
+@requires_torch
+@pytest.mark.skill("cv.visualization", "evaluation.accuracy")
+class TestVisualization:
+    """P0-2第八环: 结果展示——训练曲线与预测可视化"""
+
+    def test_training_curve_structure(self):
+        curve = _require("training_curve")
+        model = _build_model()
+        train, val = _make_loaders()
+        history = curve(model, train, val, epochs=3, lr=0.08)
+        assert isinstance(history, dict)
+        losses, accs = history.get("losses"), history.get("val_accs")
+        assert isinstance(losses, list) and len(losses) == 3
+        assert isinstance(accs, list) and len(accs) == 3
+        assert all(isinstance(v, float) and v >= 0 for v in losses)
+        assert all(0.0 <= a <= 1.0 for a in accs)
+
+    def test_loss_curve_decreases(self):
+        """可分数据上曲线应整体下降——这是curve的价值"""
+        curve = _require("training_curve")
+        model = _build_model()
+        train, val = _make_loaders()
+        history = curve(model, train, val, epochs=6, lr=0.1)
+        assert history["losses"][-1] < history["losses"][0], \
+            f"6个epoch后loss应下降: {history['losses']}"
+
+    @requires_plt
+    def test_prediction_grid_saved(self, tmp_path):
+        save_grid = _require("save_prediction_grid")
+        model = _build_model()
+        _, val = _make_loaders()
+        out = str(tmp_path / "preds.png")
+        returned = save_grid(model, val, out, n=4)
+        import os
+        path = returned or out
+        assert os.path.exists(path), "必须产出可视化文件"
+        assert os.path.getsize(path) > 0, "可视化文件不应为空"
 
 
 if __name__ == "__main__":

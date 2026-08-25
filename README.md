@@ -2,25 +2,29 @@
 
 A 40-day AI engineer training learning system.
 
-## Current Version: v1.0（已冻结）
+## Current Version: v1.0（课程与平台双冻结）
 
 v1.0 已完成的核心能力：
 
 - **Code Evaluation** — pytest自动化评测：语法/执行/超时判定、跳过感知计分、子进程隔离
 - **AI Review** — DeepSeek代码审查：六维度质量分析、schema校验、降级回退
 - **Learning Profile** — 学习画像：错误分类统计、知识缺口记录（knowledge_gap_records）、趋势分析
-- **Curriculum Metadata** — 课程元数据闭环：知识点注册表（config/knowledge_points.yaml）、
-  测试失败→skill→KnowledgeGapRecord自动绑定、连击难度推荐、三级hint分级
+- **40-Day Curriculum** — 课程内容全量收口：
+  - D01-10 Python工程基础（含required_api契约与三级hint阶梯）
+  - D11-20 PyTorch完整训练工作流（环境体检→数据管线→训练闭环→Debug四工具→毕业项目）
+  - D21-30 CV项目路径（图像张量/增强/迁移学习/分类闭环/检测两连/导出服务/CV综合项目）
+  - D31-40 LLM与Agent（客户端/prompt/mini-RAG/Planner四环节/sandbox判题/Final Project manifest）
 
 ### v2.0 规划方向（未实现，仅规划）
 
-多模态评测扩展、更精细的个性化推荐算法、复习调度（spaced repetition）等。
+多模态评测扩展、更精细的个性化推荐算法、复习调度（spaced repetition）、
+tokenizer体系重引入等。
 
 ### 平台功能冻结声明
 
 自 v1.0 起平台功能冻结：**不再新增** RAG / Web界面 / Multi-Agent / 自动课程生成 等
-平台级功能。后续工作重心转入**课程内容优化**（逐段审核Day11-Day40，
-参见 `docs/curriculum_review_day11_20.md`）。
+平台级功能，也**不再调整**课程结构（天数/契约签名/估时分层）。
+后续仅允许bug级修复；教学路线详见 `docs/final_curriculum_review.md`。
 
 ## Quick Start
 

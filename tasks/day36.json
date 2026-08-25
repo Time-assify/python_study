@@ -4,19 +4,23 @@
   "goal": "构建代码Agent",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "AST基础",
+    "代码风格常见问题"
+  ],
   "review_points": [
     "function schema",
     "type validation"
   ],
   "required_api": [],
-  "core_task": "实现代码生成Agent",
+  "core_task": "实现代码生成Agent（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能生成可通过ast编译的函数源码",
     "能静态检出eval(与裸except风险",
     "能做词边界安全的变量重命名"
   ],
   "optional_challenge": "挑战：扩展review_code检出未使用变量（AST遍历练习）",
+  "environment_notes": "环境要求：AST与文本处理，离线可完成。",
   "skills": [
     "codegen.generation",
     "codegen.review"

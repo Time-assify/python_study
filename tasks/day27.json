@@ -14,7 +14,7 @@
     "anchor"
   ],
   "required_api": [],
-  "core_task": "核心必做：\n- 实现DetectionDataset\n- 理解box格式(xyxy)\n- 实现/理解average_precision计算\n- 使用合成小数据完成 训练前→评估 全流程",
+  "core_task": "核心必做：\n- 实现DetectionDataset\n- 理解box格式(xyxy)\n- 实现/理解average_precision计算\n- 使用合成小数据完成 训练前→评估 全流程（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能实现返回(image,target{boxes,labels})的检测Dataset",
     "知道xyxy坐标满足x1<x2,y1<y2",

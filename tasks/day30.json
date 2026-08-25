@@ -44,19 +44,32 @@
       "name": "run_pipeline",
       "signature": "run_pipeline(config) -> dict",
       "description": "按配置执行建数据→建模型→训练→验证→保存最优权重到out_path，返回{'train_loss','val_loss','val_acc','model_path'}"
+    },
+    {
+      "name": "training_curve",
+      "signature": "training_curve(model, train_loader, val_loader, epochs=3, lr=0.05) -> dict",
+      "description": "逐epoch训练并记录，返回{'losses':[每epoch训练loss], 'val_accs':[每epoch验证acc]}"
+    },
+    {
+      "name": "save_prediction_grid",
+      "signature": "save_prediction_grid(model, loader, out_path, n=4) -> str",
+      "description": "用matplotlib(Agg)把前n张图的预测/真实标签渲染成网格图保存到out_path并返回路径"
     }
   ],
   "core_task": "实现TrainConfig(yaml持久化)/make_loaders/build_model/run_pipeline。run_pipeline按配置执行全链并保存最优权重；核心约90分钟内可完成，进阶优化放挑战",
   "mastery": [
     "能用配置对象驱动一次完整实验",
     "能保证最优权重落盘且加载后复现val_acc",
-    "能把数据、训练、评估拆成职责清晰的阶段函数"
+    "能把数据、训练、评估拆成职责清晰的阶段函数",
+    "能产出训练曲线与预测可视化两类结果展示物"
   ],
   "optional_challenge": "挑战：单batch过拟合实验验证容量。挑战进阶：run_pipeline支持可选的轻量增强开关并对比val_acc差异",
   "required_output": [
     "yaml训练配置文件",
-    "训练loss与validation accuracy报告",
-    "最优权重文件(model_path)"
+    "training curve(逐epoch loss曲线数据)",
+    "validation metric(val_acc)",
+    "最优权重文件(model_path)",
+    "prediction visualization(预测可视化图)"
   ],
   "environment_notes": "环境要求：全程CPU；仅本地文件读写（yaml配置与最优权重）。",
   "skills": [
@@ -65,16 +78,20 @@
     "cv.classification",
     "evaluation.accuracy",
     "pytorch.training_loop",
-    "pytorch.checkpoint"
+    "pytorch.checkpoint",
+    "cv.visualization"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_loaders_structure",
+    "test_loss_curve_decreases",
     "test_missing_key_raises",
     "test_pipeline_report_and_artifact",
+    "test_prediction_grid_saved",
     "test_roundtrip",
     "test_saved_model_reproduces_val_acc",
     "test_separable_data_learns",
+    "test_training_curve_structure",
     "test_yaml_persistence"
   ],
   "test_module": "day30_test",
@@ -97,6 +114,14 @@
     {
       "level": 2,
       "content": "最优权重跟踪：val_loss创新低时torch.save(state_dict)到out_path"
+    },
+    {
+      "level": 2,
+      "content": "training_curve复用训练循环，每个epoch结束后记录当前loss与val_acc"
+    },
+    {
+      "level": 2,
+      "content": "save_prediction_grid用matplotlib.use(Agg)后端，subplot网格标题写预测与真实标签"
     },
     {
       "level": 3,

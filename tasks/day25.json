@@ -13,7 +13,7 @@
     "positional encoding"
   ],
   "required_api": [],
-  "core_task": "使用HuggingFace库",
+  "core_task": "使用HuggingFace库（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能把input_ids送进HF模型拿到last_hidden_state",
     "会统计HF模型参数量",

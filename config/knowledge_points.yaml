@@ -340,3 +340,7 @@ knowledge_points:
     name: 图像变换管线
     category: cv
     level: 3
+  - id: cv.visualization
+    name: 结果可视化
+    category: cv
+    level: 3

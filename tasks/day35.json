@@ -4,19 +4,23 @@
   "goal": "掌握工具调用",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "JSON Schema思想",
+    "严格类型校验"
+  ],
   "review_points": [
     "tool calling",
     "agent loop"
   ],
   "required_api": [],
-  "core_task": "实现工具调用",
+  "core_task": "实现工具调用（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能生成含required的JSON-schema风格工具描述",
     "能严格校验参数类型(bool≠int)",
     "知道历史追加不应破坏原列表"
   ],
   "optional_challenge": "挑战：为tool_schema增加enum枚举与数值范围校验，测试非法输入被拒绝",
+  "environment_notes": "环境要求：纯校验逻辑，离线可完成。",
   "skills": [
     "agent.schema_validation",
     "agent.tool_calling"

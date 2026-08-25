@@ -30,7 +30,7 @@
       "description": "包含至少两个残差块；forward从(B,1,28,28)映射到(B,num_classes)"
     }
   ],
-  "core_task": "实现ResNet块",
+  "core_task": "实现ResNet块（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能解释残差连接为什么保持shape不变",
     "能证明F(x)分支确实有贡献(非恒等映射)",

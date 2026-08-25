@@ -2,21 +2,25 @@
   "day": 32,
   "title": "Prompt Engineering",
   "goal": "掌握提示工程",
-  "difficulty": 4,
+  "difficulty": 3,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "LLM消息结构与角色",
+    "指令清晰化技巧"
+  ],
   "review_points": [
     "LLM client",
     "streaming"
   ],
   "required_api": [],
-  "core_task": "设计有效提示",
+  "core_task": "设计有效提示（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能组织few-shot示例且保证query位于其后",
     "会在prompt中注入一步步思考引导",
     "知道system prompt应以角色开头"
   ],
   "optional_challenge": "挑战：设计少样本分类prompt矩阵实验（示例数量×格式两种维度），总结对回答质量的影响",
+  "environment_notes": "环境要求：纯字符串构造，离线可完成。",
   "skills": [
     "prompt.few_shot",
     "prompt.chain_of_thought"

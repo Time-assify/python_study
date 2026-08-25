@@ -4,19 +4,23 @@
   "goal": "构建评测系统",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "沙箱与超时机制",
+    "评分口径设计"
+  ],
   "review_points": [
     "code generation",
     "AST review"
   ],
   "required_api": [],
-  "core_task": "实现自动评测平台",
+  "core_task": "实现自动评测平台（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能实现passed/total→百分制与字母等级",
     "知道total=0不得除零",
     "能拦截__import__并检测死循环超时"
   ],
   "optional_challenge": "挑战：为沙箱增加函数白名单(math/len等)与危险属性访问拦截",
+  "environment_notes": "环境要求：受限本地执行，超时受控。",
   "skills": [
     "engineering.sandbox",
     "grading.scoring"

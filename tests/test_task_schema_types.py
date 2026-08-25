@@ -91,7 +91,10 @@ class TestDifficultyTiers:
         *[(d, 2, 3) for d in range(6, 11)],
         *[(d, 3, 3) for d in range(11, 21)],
         *[(d, 4, 4) for d in range(21, 31)],
-        *[(d, 4, 5) for d in range(31, 41)],
+        *[(d, 3, 3) for d in range(31, 34)],   # P1-1: LLM基础段降为3
+        *[(d, 4, 4) for d in range(34, 37)],   # RAG段
+        *[(d, 4, 5) for d in range(37, 40)],   # Agent段
+        (40, 5, 5),
     ])
     def test_difficulty_in_tier(self, day, lo, hi):
         data = json.loads((TASKS / f"day{day:02d}.json").read_text(encoding="utf-8"))

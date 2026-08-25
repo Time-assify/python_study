@@ -4,21 +4,38 @@
   "goal": "完成最终项目",
   "difficulty": 5,
   "estimated_minutes": 180,
-  "prerequisites": [],
+  "prerequisites": [
+    "D11-D39综合能力"
+  ],
   "review_points": [
     "pipeline",
     "event bus",
     "health check"
   ],
-  "required_api": [],
-  "core_task": "核心必做：\n- register_student注册学生\n- submit_result保存提交与错误\n- get_profile历史统计(error_statistics累计)\n- add_review保存AI建议\n- recommend_next_task按画像变化推荐\n- generate_report/export_report报告导出",
+  "required_api": [
+    {
+      "name": "project_manifest",
+      "signature": "project_manifest() -> dict",
+      "description": "声明最终项目工程结构：{'name':项目名, 'modules':['src下模块',至少2个], 'tests':['自测用例',至少1个], 'readme_sections':['README章节',至少3个], 'requirements':['依赖',至少1个]}"
+    }
+  ],
+  "core_task": "核心必做：\n- register_student注册学生\n- submit_result保存提交与错误\n- get_profile历史统计(error_statistics累计)\n- add_review保存AI建议\n- recommend_next_task按画像变化推荐\n- generate_report/export_report报告导出（分阶段推进，每阶段约90分钟）",
   "mastery": [
     "能设计注册→提交→累计错误→review→画像→推荐→报告的闭环",
     "能保证画像随每次提交可观测变化",
     "能让不同薄弱项产生不同推荐",
-    "能把报告导出为合法JSON"
+    "能把报告导出为合法JSON",
+    "能用manifest声明src/tests/README/requirements四类工程交付"
   ],
   "optional_challenge": "挑战：将LearningPlatform持久化到SQLite，或接入TestEngine形成真实判题闭环",
+  "required_output": [
+    "src/模块化功能实现",
+    "tests/自动测试用例",
+    "AI review记录(提交平台自动获得)",
+    "README.md项目说明",
+    "requirements.txt依赖清单"
+  ],
+  "environment_notes": "环境要求：本地文件与内存闭环；AI review无API key时自动降级不影响评分。",
   "skills": [
     "capstone.platform",
     "documentation"
@@ -30,6 +47,7 @@
     "test_errors_accumulated_across_submissions",
     "test_export_report_json",
     "test_generate_report_contains_all_sections",
+    "test_manifest_structure",
     "test_profile_changes_with_new_submission",
     "test_recommendation_varies_by_profile",
     "test_register_student",
@@ -38,7 +56,7 @@
   ],
   "test_module": "day40_test",
   "task": "实现LearningPlatform最小闭环：注册→提交→统计→review→画像→推荐→报告导出",
-  "description": "综合前39天能力，构建学习平台的最小可用闭环。判题不再以字符串规则判定代码合格，而是验证平台状态机：两次不同提交必须产生可观测的历史统计、错误累计、画像变化与差异化推荐。",
+  "description": "Final Project：整合注册→提交→统计→review→画像→推荐→报告的最小闭环平台。交付不止于函数——必须包含src模块化结构、tests自测、README说明与依赖清单，并通过project_manifest声明工程结构。禁止「写几个函数即可通过」。",
   "hints": [
     "整合所有模块",
     "编写完整文档",

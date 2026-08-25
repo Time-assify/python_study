@@ -1,5 +1,7 @@
 # Day 40 Tests: Final Project - AI学习平台闭环（Capstone）
 #
+# 工程交付: src模块化实现 / tests自测用例 / README / requirements —— 见project_manifest
+#
 # answer.py 必须实现（接口约定）:
 # - LearningPlatform 类（整合注册→提交→统计→review→画像→推荐→报告的最小闭环）:
 #     register_student(student_id) -> None
@@ -41,6 +43,8 @@ def test_answer_module_imports():
 
 
 def _require(name):
+    if answer is None:
+        pytest.skip("no answer.py under review")
     obj = getattr(answer, name, None)
     if obj is None:
         pytest.fail(f"必须实现 {name}")
@@ -201,6 +205,27 @@ class TestReportExport:
         if not template or not isinstance(template, str):
             pytest.fail("必须定义 README_TEMPLATE 字符串常量")
         assert "## Features" in template and "## Quick Start" in template
+
+
+@pytest.mark.skill("documentation", "capstone.platform")
+class TestProjectManifest:
+    """Final Project工程结构声明——禁止「写几个函数即可通过」"""
+
+    def test_manifest_structure(self):
+        fn = _require("project_manifest")
+        m = fn()
+        assert isinstance(m, dict)
+        assert isinstance(m.get("name"), str) and m["name"].strip()
+        modules = m.get("modules") or []
+        assert isinstance(modules, list) and len(modules) >= 2, \
+            "src下至少声明两个功能模块"
+        tests = m.get("tests") or []
+        assert isinstance(tests, list) and len(tests) >= 1, "必须包含自动测试"
+        sections = m.get("readme_sections") or []
+        assert isinstance(sections, list) and len(sections) >= 3, \
+            "README至少包含三个章节(如简介/安装/使用)"
+        reqs = m.get("requirements") or []
+        assert isinstance(reqs, list) and len(reqs) >= 1, "必须声明依赖清单"
 
 
 if __name__ == "__main__":

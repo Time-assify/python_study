@@ -2,15 +2,18 @@
   "day": 31,
   "title": "LLM客户端",
   "goal": "掌握LLM API",
-  "difficulty": 4,
+  "difficulty": 3,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "requests/httpx使用",
+    "重试与超时概念"
+  ],
   "review_points": [
     "AppConfig",
     "pipeline"
   ],
   "required_api": [],
-  "core_task": "核心必做：\n- LLMClient(api_key/transport)与is_available\n- chat_stream流式yield(mock transport)\n- retry_call瞬时错误重试\n- parse_response提取JSON",
+  "core_task": "核心必做：\n- LLMClient(api_key/transport)与is_available\n- chat_stream流式yield(mock transport)\n- retry_call瞬时错误重试\n- parse_response提取JSON（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能区分api_key缺失时的不可用状态并抛LLMError",
     "能用生成器实现流式chunk输出(mock transport)",
@@ -19,6 +22,7 @@
     "能实现保序且不超过max_chars的分块"
   ],
   "optional_challenge": "挑战：接入真实DeepSeek/OpenAI API（自费额度），为chat_stream接上HTTP SSE实现",
+  "environment_notes": "环境要求：网络调用通过transport注入模拟，离线可完成全部核心任务。",
   "skills": [
     "llm.client",
     "llm.streaming",

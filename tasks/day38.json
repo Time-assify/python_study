@@ -4,19 +4,23 @@
   "goal": "构建学习导师",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "均值与趋势判断",
+    "阈值过滤"
+  ],
   "review_points": [
     "sandbox",
     "timeout"
   ],
   "required_api": [],
-  "core_task": "实现AI学习导师",
+  "core_task": "实现AI学习导师（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能按最近3次均值±5判定trend",
     "能按阈值过滤并降序输出薄弱点",
     "能根据最薄弱错误推荐主题"
   ],
   "optional_challenge": "挑战：让recommend_next_task考虑trend——declining时先安排复习再推进新任务",
+  "environment_notes": "环境要求：纯统计计算，离线可完成。",
   "skills": [
     "learning.profile",
     "recommendation"

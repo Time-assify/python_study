@@ -13,7 +13,7 @@
     "detection dataset"
   ],
   "required_api": [],
-  "core_task": "导出ONNX模型",
+  "core_task": "导出ONNX模型（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能把torch模型导出为ONNX文件",
     "会用onnxruntime加载并推理",

@@ -36,7 +36,7 @@
       "description": "step(val_loss)返回是否应停止；改善不足min_delta计数递增，patience小于1时构造抛ValueError"
     }
   ],
-  "core_task": "实现完整训练流程",
+  "core_task": "实现完整训练流程（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能写出单个epoch的平均loss统计",
     "能输出验证集(loss, accuracy)",

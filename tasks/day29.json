@@ -12,7 +12,7 @@
     "ONNX export"
   ],
   "required_api": [],
-  "core_task": "部署模型API",
+  "core_task": "部署模型API（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能用FastAPI暴露GET /health与POST /predict",
     "能利用自动校验返回422",

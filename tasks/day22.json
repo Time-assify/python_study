@@ -13,7 +13,7 @@
     "augmentation"
   ],
   "required_api": [],
-  "core_task": "理解迁移学习流程并实现freeze_backbone/unfreeze_all/extract_features。核心是掌握冻结-特征提取-按需解冻的流程；大型预训练模型的完整微调实操放挑战",
+  "core_task": "理解迁移学习流程并实现freeze_backbone/unfreeze_all/extract_features。核心是掌握冻结-特征提取-按需解冻的流程；大型预训练模型的完整微调实操放挑战（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能冻结backbone并保证分类头可训练",
     "能证明冻结参数训练后不更新",

@@ -5,6 +5,7 @@
 #   相邻块共享overlap个字符；overlap>=chunk_size抛ValueError
 # - cosine_similarity(a, b) -> float    向量点积/模长
 # - retrieve(query, docs, k=2) -> list  按词重叠相关性排序取前k
+# - build_rag_prompt(question, chunks) -> str  组装"仅依据资料回答"的prompt; 空资料含兜底说明
 import pytest
 
 try:
@@ -103,6 +104,28 @@ class TestRetrieve:
         retrieve = _require("retrieve")
         out = list(retrieve("x", ["only one"], k=5))
         assert len(out) == 1
+
+
+@pytest.mark.skill("rag.retrieval", "llm.client")
+class TestRAGGeneration:
+    """mini-RAG最后一环: 检索结果 → 可交给LLM的生成prompt"""
+
+    def test_prompt_contains_question_and_context(self):
+        fn = _require("build_rag_prompt")
+        chunks = ["PyTorch张量是多元数组。", "DataLoader负责批处理。"]
+        prompt = fn("什么是Tensor?", chunks)
+        assert isinstance(prompt, str) and prompt.strip()
+        assert "什么是Tensor?" in prompt, "用户问题必须进入prompt"
+        assert "张量是多元数组" in prompt, "检索到的资料必须进入prompt"
+        assert ("资料" in prompt) or ("context" in prompt.lower()), \
+            "应指示模型仅依据资料作答"
+
+    def test_empty_retrieval_fallback(self):
+        """边界: 无检索结果时prompt仍应良构(含兜底说明)"""
+        fn = _require("build_rag_prompt")
+        prompt = fn("什么是Tensor?", [])
+        assert isinstance(prompt, str) and prompt.strip()
+        assert "什么是Tensor?" in prompt
 
 
 if __name__ == "__main__":

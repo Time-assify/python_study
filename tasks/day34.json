@@ -4,32 +4,46 @@
   "goal": "构建Agent框架",
   "difficulty": 4,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "函数式工具封装",
+    "字典驱动的配置"
+  ],
   "review_points": [
     "RAG",
     "cosine similarity"
   ],
-  "required_api": [],
-  "core_task": "实现Agent架构",
+  "required_api": [
+    {
+      "name": "plan_step",
+      "signature": "plan_step(goal, tools) -> dict",
+      "description": "规则规划器：按goal与工具名/description关键词匹配选择工具，返回{'tool': 工具名或'clarify', 'reason': 选择理由}"
+    }
+  ],
+  "core_task": "实现Tool/Agent/Memory与plan_step规划器，形成Tool→Planner→Execution→Memory四环节闭环（不是简单的while循环调LLM）（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能用Tool(name,func,description)注册工具",
     "能按描述关键词路由goal到正确工具或澄清",
-    "能实现保留时间序的记忆recall(n)"
+    "能实现保留时间序的记忆recall(n)",
+    "能实现Planner环节：匹配则选工具并给出理由，无匹配时请求clarify"
   ],
   "optional_challenge": "挑战：给Agent增加最大步数限制与工具黑白名单机制",
+  "environment_notes": "环境要求：规则匹配离线可完成，不调用真实LLM。",
   "skills": [
     "agent.tool",
-    "agent.memory"
+    "agent.memory",
+    "agent.tool_calling"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_picks_correct_tool",
+    "test_picks_matching_tool",
     "test_recall_empty",
     "test_recall_last_n_in_order",
     "test_run_terminates",
     "test_tool_executes",
     "test_tool_fields",
-    "test_unknown_goal_clarify"
+    "test_unknown_goal_clarify",
+    "test_unrelated_goal_clarify"
   ],
   "test_module": "day34_test",
   "task": "实现Agent架构",

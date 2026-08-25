@@ -13,7 +13,7 @@
     "vocab"
   ],
   "required_api": [],
-  "core_task": "实现Transformer块",
+  "core_task": "实现Transformer块（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能手写softmax(QK^T/sqrt(d))V并验证权重行和为1",
     "知道多头注意力输出shape与输入一致",

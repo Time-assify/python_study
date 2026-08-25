@@ -2,28 +2,44 @@
   "day": 33,
   "title": "RAG检索增强生成",
   "goal": "理解RAG架构",
-  "difficulty": 4,
+  "difficulty": 3,
   "estimated_minutes": 120,
-  "prerequisites": [],
+  "prerequisites": [
+    "向量与余弦相似度",
+    "文本切分概念"
+  ],
+  "learn": [
+    "RAG五环节：Document→Chunk→Embedding→Retrieval→Generation(prompt组装)"
+  ],
   "review_points": [
     "few-shot",
     "system prompt"
   ],
-  "required_api": [],
-  "core_task": "实现RAG系统",
+  "required_api": [
+    {
+      "name": "build_rag_prompt",
+      "signature": "build_rag_prompt(question, chunks) -> str",
+      "description": "把用户问题与检索到的chunks组装成'仅依据以下资料回答'的生成prompt；资料为空时包含明确的兜底说明；问题原文必须完整出现"
+    }
+  ],
+  "core_task": "实现RAG系统（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能实现带overlap的文本切块并拒绝非法参数",
     "会计算余弦相似度",
-    "能按关键词相关性检索Top-K文档"
+    "能按关键词相关性检索Top-K文档",
+    "能把检索结果拼装为可交给LLM的生成prompt（mini-RAG最后一环）"
   ],
   "optional_challenge": "挑战：用TF-IDF加权替代词重叠打分，对比两组查询的检索排序质量",
+  "environment_notes": "环境要求：关键词版mini-RAG，无需向量库与网络。",
   "skills": [
     "rag.chunking",
-    "rag.retrieval"
+    "rag.retrieval",
+    "llm.client"
   ],
   "tests": [
     "test_answer_module_imports",
     "test_chunks_with_overlap",
+    "test_empty_retrieval_fallback",
     "test_identical_vectors",
     "test_k_exceeds_docs",
     "test_k_limits_results",
@@ -31,6 +47,7 @@
     "test_opposite_negative",
     "test_orthogonal_zero",
     "test_overlap_ge_chunk_raises",
+    "test_prompt_contains_question_and_context",
     "test_short_text_single_chunk"
   ],
   "test_module": "day33_test",
@@ -49,6 +66,10 @@
     {
       "level": 2,
       "content": "使用向量数据库存储"
+    },
+    {
+      "level": 2,
+      "content": "模板三段：指令(仅依据资料)+资料列表+用户问题；空资料时写明未找到相关内容"
     },
     {
       "level": 3,

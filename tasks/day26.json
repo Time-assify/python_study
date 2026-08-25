@@ -13,7 +13,7 @@
     "tokenizer"
   ],
   "required_api": [],
-  "core_task": "实现YOLO检测",
+  "core_task": "实现YOLO检测（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能生成网格锚框且坐标归一化到[0,1]",
     "能手算两个框的IoU(含半重叠=50/150情形)",

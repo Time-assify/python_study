@@ -46,7 +46,7 @@
       "description": "完整训练+验证循环，返回{'train_loss','val_loss','val_acc'}；validation阶段不得有任何参数更新"
     }
   ],
-  "core_task": "实现build_dataset_loaders（合成可分两类(3,32,32)数据，train/val互斥划分）与train_and_validate（完整训练+验证循环，validation不更新参数），配合CIFARNet/accuracy/confusion_matrix完成端到端小项目并产出三指标报告",
+  "core_task": "实现build_dataset_loaders（合成可分两类(3,32,32)数据，train/val互斥划分）与train_and_validate（完整训练+验证循环，validation不更新参数），配合CIFARNet/accuracy/confusion_matrix完成端到端小项目并产出三指标报告（核心约90分钟内完成，进阶内容见optional_challenge）",
   "mastery": [
     "能搭建接受(B,3,32,32)输入的分类网络",
     "能实现top-1准确率与混淆矩阵",
